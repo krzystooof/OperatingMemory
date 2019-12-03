@@ -1,53 +1,93 @@
+import java.util.ArrayList;
+
 public class Process implements Shell {
-    private String[] ShellCommands;
+    private ArrayList<String> shellCommands;
 
     public Process() {
-        ShellCommands = new String[] {
-                "cp",
-                "kp",
-                "debugp",
-                "helpp",
-                "process",
-                "p"
-        };
+        shellCommands = new ArrayList<String>();
+        shellCommands.add("cp");
+        shellCommands.add("kp");
+        shellCommands.add("debugp");
+        shellCommands.add("helpp");
+        shellCommands.add("process");
+        shellCommands.add("p");
     }
+
+    @Override
     public void getHelp() {
         help();
     }
-    public String[] getShellCommands() {
-        return ShellCommands;
+
+    @Override
+    public ArrayList<String> getShellCommands() {
+        return shellCommands;
     }
 
-    public void pass(String[] params) {
-        String[] pass = new String[1];
-        switch (params[0]) {
+    @Override
+    public void pass(ArrayList<String> params) {
+        switch (params.get(0)) {
             case "cp": {
-
+                params.remove(0);
+                create(params);
+                break;
             }
             case "kp": {
-
+                params.remove(0);
+                kill(params);
+                break;
             }
             case "debugp": {
-
+                params.remove(0);
+                debug(params);
+                break;
             }
             case "helpp": {
-
+                help();
+                break;
             }
-            case "p": {
-
+            case "p":
+            case "process": {
+                params.remove(0);
+                processPass(params);
+                break;
             }
         }
     }
 
-    private void create(String[] param) {
+    private void processPass(ArrayList<String> params) {
+        switch (params.get(0)) {
+            case "create": {
+                params.remove(0);
+                create(params);
+                break;
+            }
+            case "kill": {
+                params.remove(0);
+                kill(params);
+                break;
+            }
+            case "debug": {
+                params.remove(0);
+                debug(params);
+                break;
+            }
+        }
+    }
+
+    private void create(ArrayList<String> param) {
 
     }
-    private void kill(String[] param) {
+
+    private void kill(ArrayList<String> param) {
 
     }
-    private void debug(String[] param) {
+
+    private void debug(ArrayList<String> param) {
 
     }
+
+    /*
+    * Displays help */
     private void help() {
         System.out.println("Help in regard to process operation:\n" +
                 "cp <Name> <Assembly Source> <Process ID> <Process ID>\n" +

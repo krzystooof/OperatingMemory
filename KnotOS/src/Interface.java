@@ -4,11 +4,6 @@ import java.util.Scanner;
 
 public class Interface {
     private static final int MAX_MODULES = 50; //defines maximum amount of modules system can handle
-    private static boolean quitCondition;
-
-    public Interface(boolean quitCondition) {
-        this.quitCondition = false;
-    }
 
     /* This is main method of this class.
      * It is used to run all other methods.
@@ -21,8 +16,15 @@ public class Interface {
             displayLocation();
             ArrayList<String> userInput = readInput();
 
-            if (quitCondition) break;
+            if (quitCondition()) break;
         }
+    }
+
+    /*
+    * Is used to check if system
+    * should start closing*/
+    private static boolean quitCondition() {
+        return false;
     }
 
 
@@ -34,8 +36,19 @@ public class Interface {
      */
     private static Shell[] welcomeScreen() {
         Shell[] modules = new Shell[MAX_MODULES];
+
         displayLogo(0);
-        //Here you can insert your initial methods
+        modules[0] = new Process();
+        displayLogo(10);
+        displayLogo(20);
+        displayLogo(30);
+        displayLogo(40);
+        displayLogo(50);
+        displayLogo(60);
+        displayLogo(70);
+        displayLogo(80);
+        displayLogo(90);
+
         displayLogo(100);
         return modules;
     }
