@@ -4,19 +4,29 @@ import java.util.Scanner;
 
 public class Interface {
     private static final int MAX_MODULES = 50; //defines maximum amount of modules system can handle
+    private static int loadedModules = 0;
+    private Shell[] modules = new Shell[MAX_MODULES];
+    private ArrayList<String> post;
 
-    /* This is main method of this class.
+    /*
+     * This is main method of this class.
      * It is used to run all other methods.
      * Contains while (true) loop.
      */
     public static void start() {
 
-        welcomeScreen();
         while (true) {
-            displayLocation();
-            ArrayList<String> userInput = readInput();
-
             if (quitCondition()) break;
+            displayLocation();
+            int foundModuleID = MAX_MODULES;
+            ArrayList<String> userInput = readInput();
+            for (int i = 0; i != loadedModules; i++ ) {
+              for (int y= 0 ; y!= modules[0].getShellCommands().size(); i++)
+                if (userInput.get(0) == modules[i].getShellCommands().get(y)) foundModuleID = i;
+            }
+            if (foundModuleID == MAX_MODULES) getHelp();
+            if (userInput.get(1) == "help" || userInput.get(1) == "h") modules[foundModuleID].getHelp();
+            else modules[foundModuleID].pass(userInput);
         }
     }
 
@@ -35,10 +45,12 @@ public class Interface {
      * loading screen
      */
     private static Shell[] welcomeScreen() {
-        Shell[] modules = new Shell[MAX_MODULES];
-
+        String notLoaded1 = "Module";
+        String notLoaded2 = "was not loaded."
         displayLogo(0);
-        modules[0] = new Process();
+        if (!loadModule(new Process)) post(notLoaded1 + Process.getName() + notLoaded2);
+        if (!loadModule(new User)) post(notLoaded1 + User.getName() + notLoaded2);
+        if (!loadModule(new Filesystem)) post(notLoaded1 + Filesystem.getName() + notLoaded2);
         displayLogo(10);
         displayLogo(20);
         displayLogo(30);
@@ -86,5 +98,30 @@ public class Interface {
 
     private static void displayLocation() {
 
+    }
+
+    private void getHelp() {
+      for (int i = 0; i != loadedModules; i++) modules[i].getHelp();
+    }
+
+    private boolean loadModule(Shell module) {
+      for (int i = 0; i != module.getShellCommands().size(); i++) {
+        for (int y = 0 ; y != loadedModules; y++)
+          for (int a = 0; a != modules[y].getShellCommands().size(); a++)
+            if (modules[y].getShellCommands().get(a) == module.getShellCommands().get(i)) return false;
+      }
+      modules[loadedModules] = module;
+      loadedModules++;
+      return true;
+    }
+
+    public void post(String toPost) {
+      post.add(toPost);
+    }
+
+    private void makePost() {
+      for (int i = 0; i != post.size(); i++)
+
+        System.out.println(post.get(i));
     }
 }

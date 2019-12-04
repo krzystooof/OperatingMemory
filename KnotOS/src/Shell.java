@@ -18,5 +18,8 @@ public interface Shell {
     /* Public function displaying help
      */
     public void getHelp();
-
+    /* Used to get name of module
+     * @return String value containing name
+     */
+     public void getName();
 }
