@@ -5,15 +5,15 @@ import java.util.Scanner;
 public class Interface {
     private static final int MAX_MODULES = 50; //defines maximum amount of modules system can handle
     private static int loadedModules = 0;
-    private Shell[] modules = new Shell[MAX_MODULES];
-    private ArrayList<String> post;
+    private static Shell[] modules = new Shell[MAX_MODULES];
+    private static ArrayList<String> post;
 
     /*
      * This is main method of this class.
      * It is used to run all other methods.
      * Contains while (true) loop.
      */
-    public static void start() {
+    public void start() {
 
         while (true) {
             if (quitCondition()) break;
@@ -33,7 +33,7 @@ public class Interface {
     /*
     * Is used to check if system
     * should start closing*/
-    private static boolean quitCondition() {
+    private boolean quitCondition() {
         return false;
     }
 
@@ -44,13 +44,13 @@ public class Interface {
      * and displays user-friendly
      * loading screen
      */
-    private static Shell[] welcomeScreen() {
+    private Shell[] welcomeScreen() {
         String notLoaded1 = "Module";
-        String notLoaded2 = "was not loaded."
+        String notLoaded2 = "was not loaded.";
         displayLogo(0);
-        if (!loadModule(new Process)) post(notLoaded1 + Process.getName() + notLoaded2);
-        if (!loadModule(new User)) post(notLoaded1 + User.getName() + notLoaded2);
-        if (!loadModule(new Filesystem)) post(notLoaded1 + Filesystem.getName() + notLoaded2);
+        if (!loadModule(new Process())) post(notLoaded1 + Process.getName() + notLoaded2);
+        if (!loadModule(new User())) post(notLoaded1 + User.getName() + notLoaded2);
+        if (!loadModule(new Filesystem())) post(notLoaded1 + Filesystem.getName() + notLoaded2);
         displayLogo(10);
         displayLogo(20);
         displayLogo(30);

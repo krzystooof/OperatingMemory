@@ -19,6 +19,11 @@ public class Process implements Shell {
     }
 
     @Override
+    public String getName() {
+        return "Process";
+    }
+
+    @Override
     public ArrayList<String> getShellCommands() {
         return shellCommands;
     }

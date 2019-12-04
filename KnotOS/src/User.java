@@ -54,6 +54,11 @@ public class User implements Shell {
                 "logout");
     }
 
+    @Override
+    public String getName() {
+        return "User Account Control";
+    }
+
 
     private void user(ArrayList<String> params) {
         switch (params.get(0)) {

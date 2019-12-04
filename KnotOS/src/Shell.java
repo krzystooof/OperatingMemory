@@ -21,5 +21,5 @@ public interface Shell {
     /* Used to get name of module
      * @return String value containing name
      */
-     public void getName();
+     public String getName();
 }
