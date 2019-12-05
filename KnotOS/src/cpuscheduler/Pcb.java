@@ -1,9 +1,13 @@
 public class Pcb {
 
-    int pid;
-    int priority;
-    ProcessState state;
-    String name;
+    //TODO:
+    // Registers
+    // counter
+    // etc.
+    private int pid;
+    private int priority;
+    private ProcessState state;
+    private String name;
 
     public Pcb(int pid, int priority, ProcessState state, String name) {
         this.pid = pid;
