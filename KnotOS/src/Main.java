@@ -1,14 +1,15 @@
-public class Main {
-    public static void main(String[] args) {
-        welcomeScreen();
-    }
-    /* WelcomeScreen method enables
-    * other sub-programs to
-    * run initialization methods
-    * and displays user-friendly
-    * loading screen
-     */
-    private static void welcomeScreen() {
+import java.util.Scanner;
 
-    }
+
+public class main {
+
+	public static void main(String[] args) 
+	{
+    	Scanner input = new Scanner(System.in);
+    	
+    	System.out.print("Podaj liczbe ");
+    	int liczba = input.nextInt();
+    	System.out.print(liczba);
+	}
+
 }
