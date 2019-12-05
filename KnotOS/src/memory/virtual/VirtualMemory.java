@@ -1,4 +1,5 @@
 package memory.virtual;
+
 import memory.SegmentRecord;
 import java.io.File;
 
@@ -6,6 +7,7 @@ public class VirtualMemory {
     private SegmentRecord[] segmentTable;
     private byte[] swapFile = new byte[2048];
     private int[] segmentQueue;
+    // pointer for RAM needed
 
     /**
      * Swaps segment from swap file to RAM.
@@ -25,12 +27,12 @@ public class VirtualMemory {
     }
 
     /**
-     * Representation of segment for memory.PCB.
+     * Representation of segment for PCB.
      *
-     * @param assemblyProgram Block of assembly instructions, not necessarily File.
+     * @param assemblyProgram Block of assembly instructions.
      * @return Array of numbers and offsets.
      */
-    public SegmentRecord[] loadProcess(int textLength, int dataLength, File assemblyProgram) {
+    public SegmentRecord[] loadProcess(int textLength, int dataLength, byte[] assemblyProgram) {
         return new SegmentRecord[1];
     }
 
