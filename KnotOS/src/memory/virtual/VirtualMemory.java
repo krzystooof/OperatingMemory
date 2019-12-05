@@ -1,8 +1,10 @@
+package memory.virtual;
+import memory.SegmentRecord;
 import java.io.File;
 
 public class VirtualMemory {
     private SegmentRecord[] segmentTable;
-    private byte[] swapFile = new byte[512];
+    private byte[] swapFile = new byte[2048];
     private int[] segmentQueue;
 
     /**
@@ -23,7 +25,7 @@ public class VirtualMemory {
     }
 
     /**
-     * Representation of segment for PCB.
+     * Representation of segment for memory.PCB.
      *
      * @param assemblyProgram Block of assembly instructions, not necessarily File.
      * @return Array of numbers and offsets.
