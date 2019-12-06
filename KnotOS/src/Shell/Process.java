@@ -1,3 +1,5 @@
+package Shell;
+
 import java.util.ArrayList;
 
 public class Process implements Shell {
@@ -95,15 +97,15 @@ public class Process implements Shell {
     * Displays help */
     private void help() {
         System.out.println("Help in regard to process operation:\n" +
-                "cp <Name> <Assembly Source> <Process ID> <Process ID>\n" +
-                "process -create <Name> <Assembly Source> <Process ID> <Process ID>" +
-                "p -create <Name> <Assembly Source> <Process ID> <Process ID>\n" +
+                "cp <Name> <Assembly Source> <Shell.Shell.Process ID> <Shell.Shell.Process ID>\n" +
+                "process -create <Name> <Assembly Source> <Shell.Shell.Process ID> <Shell.Shell.Process ID>" +
+                "p -create <Name> <Assembly Source> <Shell.Shell.Process ID> <Shell.Shell.Process ID>\n" +
                 "kp <Name>\n" +
                 "process -kill <Name>\n" +
                 "p -kill <Name>\n" +
-                "debugp <Name> <Assembly Source> <Process ID> <Process ID>\n" +
-                "process -debug <Name> <Assembly Source> <Process ID> <Process ID>\n" +
-                "p -debug <Name> <Assembly Source> <Process ID> <Process ID>\n" +
+                "debugp <Name> <Assembly Source> <Shell.Shell.Process ID> <Shell.Shell.Process ID>\n" +
+                "process -debug <Name> <Assembly Source> <Shell.Shell.Process ID> <Shell.Shell.Process ID>\n" +
+                "p -debug <Name> <Assembly Source> <Shell.Shell.Process ID> <Shell.Shell.Process ID>\n" +
                 "helpp\n" +
                 "process help\n" +
                 "p help\n");

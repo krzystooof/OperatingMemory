@@ -1,3 +1,7 @@
+package Shell;
+
+
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -8,13 +12,13 @@ public class Interface {
     private static Shell[] modules = new Shell[MAX_MODULES];
     private static ArrayList<String> post;
 
-    /*
+    /**
      * This is main method of this class.
      * It is used to run all other methods.
      * Contains while (true) loop.
      */
     public void start() {
-
+        welcomeScreen();
         while (true) {
             if (quitCondition()) break;
             displayLocation();
@@ -24,13 +28,16 @@ public class Interface {
               for (int y= 0 ; y!= modules[0].getShellCommands().size(); i++)
                 if (userInput.get(0) == modules[i].getShellCommands().get(y)) foundModuleID = i;
             }
-            if (foundModuleID == MAX_MODULES) getHelp();
-            if (userInput.get(1) == "help" || userInput.get(1) == "h") modules[foundModuleID].getHelp();
+            if (foundModuleID == MAX_MODULES) {
+                System.out.println("Command was not found. Help:");
+                getHelp();
+            }
+            if ((userInput.get(1) == "help" && userInput.size() > 1) || (userInput.get(1) == "h"&& userInput.size() > 1)) modules[foundModuleID].getHelp();
             else modules[foundModuleID].pass(userInput);
         }
     }
 
-    /*
+    /**
     * Is used to check if system
     * should start closing*/
     private boolean quitCondition() {
@@ -38,7 +45,7 @@ public class Interface {
     }
 
 
-    /* WelcomeScreen method enables
+    /** WelcomeScreen method enables
      * other sub-programs to
      * run initialization methods
      * and displays user-friendly
@@ -48,10 +55,9 @@ public class Interface {
         String notLoaded1 = "Module";
         String notLoaded2 = "was not loaded.";
         displayLogo(0);
-        if (!loadModule(new Process())) post(notLoaded1 + Process.getName() + notLoaded2);
-        if (!loadModule(new User())) post(notLoaded1 + User.getName() + notLoaded2);
-        if (!loadModule(new Filesystem())) post(notLoaded1 + Filesystem.getName() + notLoaded2);
-        displayLogo(10);
+        loadModule(new Filesystem());
+        loadModule(new Process());
+        loadModule(new User());
         displayLogo(20);
         displayLogo(30);
         displayLogo(40);
@@ -65,11 +71,11 @@ public class Interface {
         return modules;
     }
 
-    /* This method is used to read input
+    /** This method is used to read input
      * from user and pass request to
      * specialized function
      */
-    private static ArrayList<String> readInput() {
+    private ArrayList<String> readInput() {
         Scanner scanner = new Scanner(System.in);
         String userInput = scanner.nextLine();
         String[] inputArray = userInput.split(" ");
@@ -83,20 +89,18 @@ public class Interface {
         return toReturn;
     }
 
-    /* displayLogo presents user with
+    /** displayLogo presents user with
      * nice loading screen containing
      * system name along with progress
      * bar
      * @param progress Percentage progress
      * to be displayed on screen
      */
-    private static void displayLogo(int progress) {
-        if (progress < 10) {
+    private void displayLogo(int progress) {
             System.out.println("KnotOS");
-        }
     }
 
-    private static void displayLocation() {
+    private void displayLocation() {
 
     }
 
@@ -108,7 +112,10 @@ public class Interface {
       for (int i = 0; i != module.getShellCommands().size(); i++) {
         for (int y = 0 ; y != loadedModules; y++)
           for (int a = 0; a != modules[y].getShellCommands().size(); a++)
-            if (modules[y].getShellCommands().get(a) == module.getShellCommands().get(i)) return false;
+            if (modules[y].getShellCommands().get(a) == module.getShellCommands().get(i)) {
+                post("Module" + module.getName() + "was not loaded due to commands conflict");
+                return false;
+            }
       }
       modules[loadedModules] = module;
       loadedModules++;
