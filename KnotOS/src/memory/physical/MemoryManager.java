@@ -3,8 +3,11 @@ package memory.physical;
 public class MemoryManager {
     private SegmentsTable segmentsTable;
     private RAM ram;
+    private int ramSize;
 
-    public MemoryManager() {
+    public MemoryManager(int ramSize) {
+        segmentsTable = new SegmentsTable(ramSize);
+        ram = new RAM(ramSize);
     }
 
     private void saveBytes(int segmentID, int startByte, int stopByte, byte[] data) {
@@ -13,14 +16,11 @@ public class MemoryManager {
             ram.saveByte(i, data[i]);
         }
     }
-
+/*
     public int write(byte[] data) {
-        if (segmentsTable.isEmpty()) {
-            saveBytes(0, 0, data.length, data);
-            return 0;
-        } else {
+
             //use bestfit method from segmentsTable and save data in returned bytes
-        }
+
     }
 
     public byte read(int segment, int offset) {
@@ -32,6 +32,6 @@ public class MemoryManager {
     public byte read(int segment, int startOffset, int stopOffset) {
         return new byte[];
     }
-
+    */
 
 }

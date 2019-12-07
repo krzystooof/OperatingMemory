@@ -2,9 +2,13 @@ package memory.physical;
 
 public class RAM {
     private byte[] memory;
+    private int ramSize;
 
     public RAM() {
         memory = new byte[128];
+    }
+    public RAM(int ramSize){
+        memory = new byte[ramSize];
     }
 
     public byte getByte(int adress) {

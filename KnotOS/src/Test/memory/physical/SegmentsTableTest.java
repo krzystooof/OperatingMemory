@@ -22,4 +22,37 @@ class SegmentsTableTest {
         segmentsTable.addSegment(1,20,30);
         assertEquals(false,segmentsTable.isEmpty());
     }
+    @Test
+    void bestfitEmptySegmentsTable(){
+        SegmentsTable segmentsTable = new SegmentsTable();
+        assertEquals(0,segmentsTable.bestfit(100));
+    }
+    @Test
+    void bestfitRequestedSizeTooBig(){
+        SegmentsTable segmentsTable = new SegmentsTable(128);
+        assertEquals(-1,segmentsTable.bestfit(150));
+    }
+    @Test
+    void bestfitOneSegmentTable(){
+        SegmentsTable segmentsTable = new SegmentsTable();
+        segmentsTable.addSegment(1,0,30);
+        assertEquals(31,segmentsTable.bestfit(10));
+    }
+    @Test
+    void bestfit(){
+        SegmentsTable segmentsTable = new SegmentsTable();
+        segmentsTable.addSegment(1,0,30);
+        segmentsTable.addSegment(2,40,50);
+        segmentsTable.addSegment(3,55,60);
+        segmentsTable.addSegment(4,80,81);
+        assertEquals(82,segmentsTable.bestfit(20));
+    }
+    @Test
+    void bestfit2(){
+        SegmentsTable segmentsTable = new SegmentsTable();
+        segmentsTable.addSegment(1,0,30);
+        segmentsTable.addSegment(2,40,50);
+        segmentsTable.addSegment(3,80,127);
+        assertEquals(51,segmentsTable.bestfit(9));
+    }
 }

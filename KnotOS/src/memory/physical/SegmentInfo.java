@@ -2,24 +2,24 @@ package memory.physical;
 
 public class SegmentInfo implements Comparable<SegmentInfo> {
     private int segmentID;
-    private int startByte;
-    private int stopByte;
+    private int startIndex;
+    private int stopIndex;
 
     public SegmentInfo() {
     }
 
-    public SegmentInfo(int segmentID, int startByte, int stopByte) {
+    public SegmentInfo(int segmentID, int startIndex, int stopIndex) {
         this.segmentID = segmentID;
-        this.startByte = startByte;
-        this.stopByte = stopByte;
+        this.startIndex = startIndex;
+        this.stopIndex = stopIndex;
     }
 
-    public int getStopByte() {
-        return stopByte;
+    public int getStopIndex() {
+        return stopIndex;
     }
 
-    public void setStopByte(int stopByte) {
-        this.stopByte = stopByte;
+    public void setStopIndex(int stopIndex) {
+        this.stopIndex = stopIndex;
     }
 
     public int getSegmentID() {
@@ -30,16 +30,16 @@ public class SegmentInfo implements Comparable<SegmentInfo> {
         this.segmentID = segmentID;
     }
 
-    public int getStartByte() {
-        return startByte;
+    public int getStartIndex() {
+        return startIndex;
     }
 
-    public void setStartByte(int startByte) {
-        this.startByte = startByte;
+    public void setStartIndex(int startIndex) {
+        this.startIndex = startIndex;
     }
 
     @Override
     public int compareTo(SegmentInfo segmentInfo) {
-        return Integer.compare(this.startByte, segmentInfo.startByte);
+        return Integer.compare(this.startIndex, segmentInfo.startIndex);
     }
 }
