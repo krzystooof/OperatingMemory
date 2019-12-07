@@ -19,14 +19,14 @@ public class SegmentsTable {
         segmentsInfos.add(new SegmentInfo(segmentID, startByte, stopByte));
     }
 
-    public int[] getSegment(int id) {
+    public int[] getSegment(int segmentID) {
         for (SegmentInfo segment : segmentsInfos) {
-            if (segment.getSegmentID() == id) {
+            if (segment.getSegmentID() == segmentID) {
                 int[] result = new int[]{segment.getStartIndex(), segment.getStopIndex()};
                 return result;
             }
         }
-        return null;
+        return new int[]{0,0};
     }
 
     public boolean isEmpty() {
@@ -66,5 +66,12 @@ public class SegmentsTable {
         }
         else if(segmentsInfos.size()==0) return 0;
         else return segmentsInfos.get(0).getStopIndex()+1;
+    }
+    public void deleteEntry(int segmentID){
+        for (int i=0;i<segmentsInfos.size();i++) {
+            if (segmentsInfos.get(i).getSegmentID() == segmentID) {
+                segmentsInfos.remove(i);
+            }
+        }
     }
 }

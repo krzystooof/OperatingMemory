@@ -57,4 +57,5 @@ class SegmentsTableTest {
         segmentsTable.addSegment(3,80,127);
         assertEquals(51,segmentsTable.bestfit(9));
     }
+
 }

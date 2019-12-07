@@ -2,10 +2,10 @@ package memory.physical;
 
 public class RAM {
     private byte[] memory;
-    private int ramSize;
+    private int ramSize=128;
 
     public RAM() {
-        memory = new byte[128];
+        memory = new byte[ramSize];
     }
     public RAM(int ramSize){
         memory = new byte[ramSize];
