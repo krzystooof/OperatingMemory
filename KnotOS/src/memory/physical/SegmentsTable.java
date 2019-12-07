@@ -7,6 +7,7 @@ public class SegmentsTable {
     ArrayList<SegmentInfo> segmentsInfos;
 
     public SegmentsTable() {
+        segmentsInfos = new ArrayList<>();
     }
 
     public void addSegment(int segmentID, int startByte, int stopByte) {
@@ -31,7 +32,8 @@ public class SegmentsTable {
         Collections.sort(segmentsInfos);
         for (int i = 0; i < segmentsInfos.size() - 1; i++) {
             //if i+1-element's startByte minus i-element's stopByte less or equal to requestedSize return these bytes
-            if ()
+
         }
+        return 0;
     }
 }

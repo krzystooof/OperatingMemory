@@ -24,14 +24,14 @@ public class MemoryManager {
     }
 
     public byte read(int segment, int offset) {
-        /*
-        get segment addresses from segmentstable, check if offset not too big, if too big throw RuntimeException, return byte
-         */
-        return byte
+        //get segment addresses from segmentstable, check if offset not too big, if too big throw RuntimeException, return byte
+
+
     }
 
     public byte read(int segment, int startOffset, int stopOffset) {
         return new byte[];
     }
+
 
 }

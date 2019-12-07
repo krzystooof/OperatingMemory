@@ -10,7 +10,7 @@ public class SegmentInfo implements Comparable<SegmentInfo> {
 
     public SegmentInfo(int segmentID, int startByte, int stopByte) {
         this.segmentID = segmentID;
-        this.startByte = stopByte;
+        this.startByte = startByte;
         this.stopByte = stopByte;
     }
 
