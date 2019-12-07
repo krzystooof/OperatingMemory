@@ -32,6 +32,13 @@ public class SegmentsTable {
     public boolean isEmpty() {
         return segmentsInfos.isEmpty();
     }
+    public int getLastID(){
+        int lastID=0;
+        for(SegmentInfo segment: segmentsInfos){
+            if(segment.getSegmentID()>lastID)lastID=segment.getSegmentID();
+        }
+        return lastID;
+    }
 
     public int bestfit(int requestedSize) {
         if(requestedSize>ramSize) return -1;

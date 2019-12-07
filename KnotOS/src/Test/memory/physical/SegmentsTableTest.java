@@ -10,6 +10,8 @@ class SegmentsTableTest {
     void addAndGetSegment() {
         SegmentsTable segmentsTable = new SegmentsTable();
         segmentsTable.addSegment(1,20,30);
+        segmentsTable.addSegment(2,3,2);
+        segmentsTable.addSegment(4,120,128);
         int[] result = new int[2];
         result[0] = 20;
         result[1] = 30;
@@ -28,7 +30,7 @@ class SegmentsTableTest {
         assertEquals(0,segmentsTable.bestfit(100));
     }
     @Test
-    void bestfitRequestedSizeTooBig(){
+    void hobestfitRequestedSizeTooBig(){
         SegmentsTable segmentsTable = new SegmentsTable(128);
         assertEquals(-1,segmentsTable.bestfit(150));
     }

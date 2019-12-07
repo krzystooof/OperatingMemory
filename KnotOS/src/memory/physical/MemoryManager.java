@@ -16,11 +16,19 @@ public class MemoryManager {
             ram.saveByte(i, data[i]);
         }
     }
-/*
+
     public int write(byte[] data) {
-
-            //use bestfit method from segmentsTable and save data in returned bytes
-
+        int startIndex = segmentsTable.bestfit(data.length);
+        int address = startIndex;
+        if (address==-1)return -1;
+        else {
+            for (byte b:data){
+                ram.saveByte(address,b);
+                address++;
+            }
+            segmentsTable.addSegment(segmentsTable.getLastID()+1,startIndex,address-1);
+            return segmentsTable.getLastID()+1;
+        }
     }
 
     public byte read(int segment, int offset) {
@@ -32,6 +40,6 @@ public class MemoryManager {
     public byte read(int segment, int startOffset, int stopOffset) {
         return new byte[];
     }
-    */
+
 
 }
