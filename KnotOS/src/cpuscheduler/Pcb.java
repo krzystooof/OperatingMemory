@@ -1,13 +1,11 @@
 public class Pcb {
 
-    //TODO:
-    // Registers
-    // counter
-    // etc.
     private int pid;
     private int priority;
     private ProcessState state;
     private String name;
+    private int programCounter;
+    public Registers registers;
 
     public Pcb(int pid, int priority, ProcessState state, String name) {
         this.pid = pid;
@@ -15,6 +13,7 @@ public class Pcb {
         this.state = state;
         this.name = name;
     }
+
 
     public int getPid() {
         return pid;
@@ -36,6 +35,14 @@ public class Pcb {
         return name;
     }
 
+    public int getProgramCounter() {
+        return programCounter;
+    }
+
+    public void setProgramCounter(int programCounter) {
+        this.programCounter = programCounter;
+    }
+
     @Override
     public String toString() {
         return "Pcb{" +
@@ -43,6 +50,8 @@ public class Pcb {
                 ", priority=" + priority +
                 ", state=" + state +
                 ", name='" + name + '\'' +
-                '}' + "\n";
+                ", programCounter=" + programCounter +
+                ", registers=" + registers +
+                '}';
     }
 }
