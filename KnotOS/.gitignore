@@ -1,3 +1,9 @@
+<<<<<<< HEAD
 *.xml
 *.iml
 idea/
+=======
+.idea/
+*.iml
+//.idea/
+>>>>>>> pmemory
