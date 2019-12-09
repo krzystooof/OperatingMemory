@@ -11,11 +11,19 @@ public class RAM {
         memory = new byte[ramSize];
     }
 
-    public byte getByte(int adress) {
+    protected byte getByte(int adress) {
         return memory[adress];
     }
 
-    public void saveByte(int adress, byte data) {
+    protected void saveByte(int adress, byte data) {
         memory[adress] = data;
+    }
+    protected byte[] getBytes(int startIndex, int stopIndex) {
+        byte[] result = new byte[stopIndex - startIndex + 1];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = getByte(startIndex);
+            startIndex++;
+        }
+        return result;
     }
 }

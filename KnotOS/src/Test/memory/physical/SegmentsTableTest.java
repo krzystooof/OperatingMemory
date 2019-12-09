@@ -47,7 +47,7 @@ class SegmentsTableTest {
         segmentsTable.addSegment(2,40,50);
         segmentsTable.addSegment(3,55,60);
         segmentsTable.addSegment(4,80,81);
-        assertEquals(82,segmentsTable.bestfit(20));
+        assertEquals(61,segmentsTable.bestfit(20));
     }
     @Test
     void bestfit2(){
@@ -55,7 +55,7 @@ class SegmentsTableTest {
         segmentsTable.addSegment(1,0,30);
         segmentsTable.addSegment(2,40,50);
         segmentsTable.addSegment(3,80,127);
-        assertEquals(51,segmentsTable.bestfit(9));
+        assertEquals(31,segmentsTable.bestfit(9));
     }
     @Test
     void bestfit3(){
@@ -66,6 +66,15 @@ class SegmentsTableTest {
         segmentsTable.addSegment(4,96,127);
         segmentsTable.deleteEntry(2);
         assertEquals(64,segmentsTable.bestfit(10));
+    }
+    @Test
+    void bestfitNoAvailableSpace(){
+        SegmentsTable segmentsTable = new SegmentsTable();
+        segmentsTable.addSegment(1,0,63);
+        segmentsTable.addSegment(2,64,73);
+        segmentsTable.addSegment(3,74,95);
+        segmentsTable.addSegment(4,96,127);
+        assertEquals(-1,segmentsTable.bestfit(10));
     }
 
 }

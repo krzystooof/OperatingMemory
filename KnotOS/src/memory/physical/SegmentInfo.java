@@ -14,27 +14,27 @@ public class SegmentInfo implements Comparable<SegmentInfo> {
         this.stopIndex = stopIndex;
     }
 
-    public int getStopIndex() {
+    protected int getStopIndex() {
         return stopIndex;
     }
 
-    public void setStopIndex(int stopIndex) {
+    protected void setStopIndex(int stopIndex) {
         this.stopIndex = stopIndex;
     }
 
-    public int getSegmentID() {
+    protected int getSegmentID() {
         return segmentID;
     }
 
-    public void setSegmentID(int segmentID) {
+    protected void setSegmentID(int segmentID) {
         this.segmentID = segmentID;
     }
 
-    public int getStartIndex() {
+    protected int getStartIndex() {
         return startIndex;
     }
 
-    public void setStartIndex(int startIndex) {
+    protected void setStartIndex(int startIndex) {
         this.startIndex = startIndex;
     }
 
