@@ -1,3 +1,4 @@
+package cpuscheduler;
 import java.util.*;
 
 //README! Taki ogólny szkielet, zawartość wielu metod jeszcze może (na pewno) się zmieni
@@ -32,7 +33,7 @@ public class CpuScheduler {
      * @param pcb process
      */
     private void runProcess(Pcb pcb){
-        pcb.setState(ProcessState.RUNNING);
+        pcb.state = State.RUNNING;
         this.runningPcb = pcb;
     }
 
@@ -53,7 +54,7 @@ public class CpuScheduler {
     public CpuScheduler(){
         waitingPcb = new PriorityQueue<>(new PcbComparator());
         readyPcb = new PriorityQueue<>(new PcbComparator());
-        runProcess(new Pcb(0,0, ProcessState.NEW, "idle thread"));
+        runProcess(new Pcb(0,0, State.NEW, "idle thread"));
     }
 
     /**
@@ -69,7 +70,7 @@ public class CpuScheduler {
         }
 
         if(pcb.priority > this.runningPcb.priority){
-            runningPcb.setState(ProcessState.WAITING);
+            runningPcb.state = State.WAITING;
             waitingPcb.add(runningPcb);
             runProcess(pcb);
 
@@ -89,7 +90,7 @@ public class CpuScheduler {
     public boolean removeProcess(int pid){
 
         for(Pcb pcb: readyPcb){
-            if(pcb.getPid() == pid){
+            if(pcb.pid == pid){
                 readyPcb.remove(pcb);
                 return true;
             }
@@ -128,7 +129,7 @@ public class CpuScheduler {
     public Pcb getRunningPcb() {
 
         if (waitingPcb.isEmpty()){
-            return new Pcb(0,0, ProcessState.RUNNING, "Idle process");
+            return new Pcb(0,0, State.RUNNING, "Idle process");
         }
 
         return runningPcb;
@@ -142,6 +143,6 @@ class PcbComparator implements Comparator<Pcb>{
 
     @Override
     public int compare(Pcb o1, Pcb o2) {
-        return Integer.compare(o1.getPriority(), o2.getPriority());
+        return Integer.compare(o1.priority, o2.priority);
     }
 }

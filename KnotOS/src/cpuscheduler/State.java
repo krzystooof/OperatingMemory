@@ -1,7 +1,8 @@
+package cpuscheduler;
 /**
  * Enum containing every state of process
  */
-public enum ProcessState {
+public enum State {
     NEW,
     READY,
     RUNNING,
