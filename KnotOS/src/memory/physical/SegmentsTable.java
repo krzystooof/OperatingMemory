@@ -1,3 +1,10 @@
+/**
+ * <h1>KnotOS PhysicalMemory</h1>
+ * @author Krzysztof Greczka
+ * @since 12.2019
+ * This code is a project for Operating Systems 2019 subject.
+ * <p>
+ */
 package memory.physical;
 
 import java.util.ArrayList;

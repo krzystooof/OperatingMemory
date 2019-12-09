@@ -4,56 +4,56 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class MemoryManagerTest {
+class PhysicalMemoryManagerTest {
 
     @Test
     void writeCheckID() {
-        MemoryManager memoryManager = new MemoryManager();
+        PhysicalMemoryManager physicalMemoryManager = new PhysicalMemoryManager();
         int i1 = 23;
         byte[] toWrite = new byte[5];
         for (int i = 0; i < 5; i++) {
             toWrite[i] = (byte) i1;
         }
-        memoryManager.write(toWrite);
-        assertEquals(2, memoryManager.write(toWrite));
+        physicalMemoryManager.write(toWrite);
+        assertEquals(2, physicalMemoryManager.write(toWrite));
     }
 
     @Test
     void readNonExistingSegment() {
-        MemoryManager memoryManager = new MemoryManager();
+        PhysicalMemoryManager physicalMemoryManager = new PhysicalMemoryManager();
         int i1 = 23;
         byte[] toWrite = new byte[5];
         for (int i = 0; i < 5; i++) {
             toWrite[i] = (byte) i1;
         }
-        memoryManager.write(toWrite);
-        assertThrows(IllegalArgumentException.class, () -> memoryManager.read(5));
+        physicalMemoryManager.write(toWrite);
+        assertThrows(IllegalArgumentException.class, () -> physicalMemoryManager.read(5));
     }
 
     @Test
     void readOffsetOutOfSegment() {
-        MemoryManager memoryManager = new MemoryManager();
+        PhysicalMemoryManager physicalMemoryManager = new PhysicalMemoryManager();
         int i1 = 23;
         byte[] toWrite = new byte[5];
         for (int i = 0; i < 5; i++) {
             toWrite[i] = (byte) i1;
         }
-        memoryManager.write(toWrite);
-        assertThrows(IllegalArgumentException.class, () -> memoryManager.read(1, 8));
+        physicalMemoryManager.write(toWrite);
+        assertThrows(IllegalArgumentException.class, () -> physicalMemoryManager.read(1, 8));
     }
 
     @Test
     void wipe() {
-        MemoryManager memoryManager = new MemoryManager();
+        PhysicalMemoryManager physicalMemoryManager = new PhysicalMemoryManager();
         int i1 = 23;
         byte[] toWrite = new byte[5];
         for (int i = 0; i < 5; i++) {
             toWrite[i] = (byte) i1;
         }
-        memoryManager.write(toWrite);
-        memoryManager.write(toWrite);
-        memoryManager.wipe(2);
-        assertThrows(IllegalArgumentException.class, () -> memoryManager.read(2));
+        physicalMemoryManager.write(toWrite);
+        physicalMemoryManager.write(toWrite);
+        physicalMemoryManager.wipe(2);
+        assertThrows(IllegalArgumentException.class, () -> physicalMemoryManager.read(2));
     }
 
     @Test
@@ -61,36 +61,36 @@ class MemoryManagerTest {
         int size = 16;
         int i1;
         byte[] toWrite = new byte[size];
-        MemoryManager memoryManager = new MemoryManager(128);
+        PhysicalMemoryManager physicalMemoryManager = new PhysicalMemoryManager(128);
         for (i1=0; i1 < (128-size)/size; i1++) {
             for (int i = 0; i < toWrite.length; i++) {
                 toWrite[i] = (byte) i1;
             }
-            memoryManager.write(toWrite);
+            physicalMemoryManager.write(toWrite);
         }
         for (int i = 0; i < toWrite.length; i++) {
             toWrite[i] = (byte) (i1+1);
         }
-        assertArrayEquals(toWrite, memoryManager.read(memoryManager.write(toWrite)));
+        assertArrayEquals(toWrite, physicalMemoryManager.read(physicalMemoryManager.write(toWrite)));
     }
     @Test
     void writeToFullMemory(){
         int size = 16;
         int i1;
         byte[] toWrite = new byte[size];
-        MemoryManager memoryManager = new MemoryManager(128);
+        PhysicalMemoryManager physicalMemoryManager = new PhysicalMemoryManager(128);
         for (i1=0; i1 < 128/size; i1++) {
             for (int i = 0; i < toWrite.length; i++) {
                 toWrite[i] = (byte) i1;
             }
-            memoryManager.write(toWrite);
+            physicalMemoryManager.write(toWrite);
         }
-        assertThrows(IllegalArgumentException.class, () -> memoryManager.write(toWrite));
+        assertThrows(IllegalArgumentException.class, () -> physicalMemoryManager.write(toWrite));
     }
 
     @Test
     void ManagerTest() {
-        MemoryManager memoryManager = new MemoryManager();
+        PhysicalMemoryManager physicalMemoryManager = new PhysicalMemoryManager();
         byte[] toWrite;
         for (int i1 = 1; i1 < 5; i1++) {
             int size = 0;
@@ -102,29 +102,29 @@ class MemoryManagerTest {
                     size = 32;
                     break;
                 case 3:
-                    memoryManager.wipe(1);
+                    physicalMemoryManager.wipe(1);
                     size = 10;
                     break;
                 case 4:
                     size = 5;
                     break;
                 case 5:
-                    memoryManager.wipe(2);
-                    memoryManager.wipe(4);
+                    physicalMemoryManager.wipe(2);
+                    physicalMemoryManager.wipe(4);
                     size = 8;
             }
             toWrite = new byte[size];
             for (int i = 0; i < toWrite.length; i++) {
                 toWrite[i] = (byte) i1;
             }
-            memoryManager.write(toWrite);
+            physicalMemoryManager.write(toWrite);
         }
         int i1 = 6;
         toWrite = new byte[5];
         for (int i = 0; i < toWrite.length; i++) {
             toWrite[i] = (byte) i1;
         }
-        assertArrayEquals(toWrite, memoryManager.read(memoryManager.write(toWrite)));
+        assertArrayEquals(toWrite, physicalMemoryManager.read(physicalMemoryManager.write(toWrite)));
     }
 
 }
