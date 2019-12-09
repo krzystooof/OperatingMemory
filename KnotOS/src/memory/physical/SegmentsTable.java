@@ -45,11 +45,21 @@ public class SegmentsTable {
         else if(segmentsInfos.size()>1) {
             Collections.sort(segmentsInfos);
             boolean first = true;
-            int startIndex = ramSize-1; //beggining of second segment
+            boolean found = false;
+            int startIndex = 0; //beggining of second segment
             int stopIndex = 0; //end of first segment
+            //check beginning of ram
+            int startOfFirstSegment = segmentsInfos.get(0).getStartIndex();
+            if(startOfFirstSegment>requestedSize) {
+                first=false;
+                startIndex = startOfFirstSegment;
+                stopIndex = -1;
+            }
+            //check space between every two segments
             for (int i = 0; i < segmentsInfos.size() - 1; i++) {
                 int difference = segmentsInfos.get(i + 1).getStartIndex() - segmentsInfos.get(i).getStopIndex();
                 if (difference >= requestedSize) {
+                    found = true;
                     if (first) {
                         first = false;
                         startIndex = segmentsInfos.get(i+1).getStartIndex();
@@ -60,12 +70,25 @@ public class SegmentsTable {
                         stopIndex = segmentsInfos.get(i).getStopIndex();
                     }
                 }
+                //if no available space found
+                else if(i==segmentsInfos.size()-2 && !found) stopIndex = -2;
             }
-            if(ramSize-1 - segmentsInfos.get(segmentsInfos.size()-1).getStopIndex()>startIndex - stopIndex)  stopIndex = segmentsInfos.get(segmentsInfos.size()-1).getStopIndex();
+            //checking space after last segment
+            int spaceAtEndofRam= ramSize-1 - segmentsInfos.get(segmentsInfos.size()-1).getStopIndex();
+            if(spaceAtEndofRam > requestedSize && spaceAtEndofRam > startIndex-stopIndex)  stopIndex = segmentsInfos.get(segmentsInfos.size()-1).getStopIndex();
             return stopIndex+1;
         }
+        //if no segments return 0
         else if(segmentsInfos.size()==0) return 0;
-        else return segmentsInfos.get(0).getStopIndex()+1;
+        //if one segment return space after it
+        else {
+            int nextAvailable = segmentsInfos.get(0).getStopIndex()+1;
+
+            //if required bigger than available
+            if(nextAvailable+requestedSize>ramSize) nextAvailable=-1;
+
+            return nextAvailable;
+        }
     }
     public void deleteEntry(int segmentID){
         for (int i=0;i<segmentsInfos.size();i++) {

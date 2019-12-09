@@ -57,5 +57,15 @@ class SegmentsTableTest {
         segmentsTable.addSegment(3,80,127);
         assertEquals(51,segmentsTable.bestfit(9));
     }
+    @Test
+    void bestfit3(){
+        SegmentsTable segmentsTable = new SegmentsTable();
+        segmentsTable.addSegment(1,0,63);
+        segmentsTable.addSegment(2,64,73);
+        segmentsTable.addSegment(3,74,95);
+        segmentsTable.addSegment(4,96,127);
+        segmentsTable.deleteEntry(2);
+        assertEquals(64,segmentsTable.bestfit(10));
+    }
 
 }

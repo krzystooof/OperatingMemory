@@ -28,6 +28,14 @@ public class MemoryManager {
             return segmentID;
         }
     }
+    private byte[] readyBytes(int startIndex, int stopIndex){
+        byte[] result = new byte[stopIndex-startIndex+1];
+        for (int i = 0; i<result.length;i++){
+            result[i] = ram.getByte(startIndex);
+            startIndex++;
+        }
+        return result;
+    }
 
     public byte read(int segment, int offset) {
         int[] address = segmentsTable.getSegment(segment);
@@ -38,12 +46,7 @@ public class MemoryManager {
     public byte[] read(int segment) {
         int[] address = segmentsTable.getSegment(segment);
         if(address[0]==0&&address[1]==0) throw new IllegalArgumentException("WRONG_SEGMENT");
-        byte[] result = new byte[address[1]-address[0]];
-        for (int i = 0; i<result.length;i++){
-            result[i] = ram.getByte(address[0]);
-            address[0]++;
-        }
-        return result;
+        return readyBytes(address[0],address[1]);
     }
     public byte[] read(int segment,int startOffset, int stopOffset) {
         int[] address = segmentsTable.getSegment(segment);
@@ -51,12 +54,7 @@ public class MemoryManager {
         if(address[1]-address[0]<stopOffset) throw new IllegalArgumentException("SEGMENT_OVERFLOW");
         address[1]=stopOffset+address[0];
         address[0]+=startOffset;
-        byte[] result = new byte[address[1]-address[0]];
-        for (int i = 0; i<result.length;i++){
-            result[i] = ram.getByte(address[0]);
-            address[0]++;
-        }
-        return result;
+        return readyBytes(address[0],address[1]);
     }
     public void wipe(int segmentID){
         segmentsTable.deleteEntry(segmentID);

@@ -56,7 +56,6 @@ class MemoryManagerTest {
     //TODO read one byte, whole segment, part of segment
     @Test
     void ManagerTest(){
-        //TODO bestfit not working here
         MemoryManager memoryManager = new MemoryManager();
         int i1 = 1;
         byte[] toWrite = new byte[64];
@@ -83,7 +82,7 @@ class MemoryManagerTest {
         }
         memoryManager.write(toWrite);
         i1=5;
-        toWrite = new byte[12];
+        toWrite = new byte[10];
         for(int i =0;i<toWrite.length;i++) {
             toWrite[i] = (byte) i1;
         }
