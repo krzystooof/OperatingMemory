@@ -4,6 +4,7 @@
  * @since 12.2019
  * This code is a project for Operating Systems 2019 subject.
  * <p>
+ *  Record of info needed to read and write data. Used in SegmentsTable class.
  */
 package memory.physical;
 
@@ -45,6 +46,11 @@ public class SegmentInfo implements Comparable<SegmentInfo> {
         this.startIndex = startIndex;
     }
 
+    /**
+     * Created to allow sorting. Ascending sorting by startIndex (0-n)
+     * @param segmentInfo other instance of same class
+     * @return
+     */
     @Override
     public int compareTo(SegmentInfo segmentInfo) {
         return Integer.compare(this.startIndex, segmentInfo.startIndex);
