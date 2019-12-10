@@ -4,6 +4,7 @@
  * @since 12.2019
  * This code is a project for Operating Systems 2019 subject.
  * <p>
+ *  Table of segments' info. Used to determine where to write and protect memory
  */
 package memory.physical;
 
@@ -18,15 +19,30 @@ public class SegmentsTable {
         segmentsInfos = new ArrayList<>();
     }
 
+    /**
+     * Initialize with given ramSize
+     * @param ramSize size of memory
+     */
     public SegmentsTable(int ramSize) {
         this.ramSize = ramSize;
         segmentsInfos = new ArrayList<>();
     }
 
+    /**
+     * Add segment to table
+     * @param segmentID ID of given segment
+     * @param startByte index of first segment byte in memory
+     * @param stopByte index of last segment byte in memory
+     */
     protected void addSegment(int segmentID, int startByte, int stopByte) {
         segmentsInfos.add(new SegmentInfo(segmentID, startByte, stopByte));
     }
 
+    /**
+     * Get segment first and last index in memory
+     * @param segmentID ID of wanted segment
+     * @return int table where first is startIndex, second - stopIndex of wanted segment
+     */
     protected int[] getSegment(int segmentID) {
         for (SegmentInfo segment : segmentsInfos) {
             if (segment.getSegmentID() == segmentID) {
@@ -41,6 +57,10 @@ public class SegmentsTable {
         return segmentsInfos.isEmpty();
     }
 
+    /**
+     * Get ID of segment with highest ID
+     * @return int ID of segment
+     */
     protected int getLastID() {
         int lastID = 0;
         for (SegmentInfo segment : segmentsInfos) {
@@ -49,6 +69,12 @@ public class SegmentsTable {
         return lastID;
     }
 
+    /**
+     * Determine where to allocate new segment.
+     * Bestfit chooses smallest available part of memory, that can store given data.
+     * @param requestedSize size of segment to write
+     * @return -1 if there is no enough space, int startIndex - first index of new segment in memory
+     */
     protected int bestfit(int requestedSize) {
         if (requestedSize > ramSize) return -1;
         else if (segmentsInfos.size() > 1) {
@@ -101,6 +127,10 @@ public class SegmentsTable {
         }
     }
 
+    /**
+     * Remove info about given segment
+     * @param segmentID ID of given segment
+     */
     protected void deleteEntry(int segmentID) {
         for (int i = 0; i < segmentsInfos.size(); i++) {
             if (segmentsInfos.get(i).getSegmentID() == segmentID) {
