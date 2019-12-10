@@ -6,16 +6,16 @@
  * <p>
  *  Table of segments' info. Used to determine where to write and protect memory
  */
-package memory.physical;
+package memory;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class SegmentsTable {
-    ArrayList<SegmentInfo> segmentsInfos;
+public class SegmentTable {
+    ArrayList<Segment> segmentsInfos;
     private int ramSize = 128;
 
-    public SegmentsTable() {
+    public SegmentTable() {
         segmentsInfos = new ArrayList<>();
     }
 
@@ -23,7 +23,7 @@ public class SegmentsTable {
      * Initialize with given ramSize
      * @param ramSize size of memory
      */
-    public SegmentsTable(int ramSize) {
+    public SegmentTable(int ramSize) {
         this.ramSize = ramSize;
         segmentsInfos = new ArrayList<>();
     }
@@ -34,19 +34,22 @@ public class SegmentsTable {
      * @param startByte index of first segment byte in memory
      * @param stopByte index of last segment byte in memory
      */
-    protected void addSegment(int segmentID, int startByte, int stopByte) {
-        segmentsInfos.add(new SegmentInfo(segmentID, startByte, stopByte));
+    public void addSegment(int segmentID, int startByte, int stopByte) {
+        segmentsInfos.add(new Segment(segmentID, startByte, stopByte));
     }
 
+    public int getLimit(int id){
+        return getSegment(id)[0];
+    }
     /**
      * Get segment first and last index in memory
      * @param segmentID ID of wanted segment
      * @return int table where first is startIndex, second - stopIndex of wanted segment
      */
-    protected int[] getSegment(int segmentID) {
-        for (SegmentInfo segment : segmentsInfos) {
-            if (segment.getSegmentID() == segmentID) {
-                int[] result = new int[]{segment.getStartIndex(), segment.getStopIndex()};
+    public int[] getSegment(int segmentID) {
+        for (Segment segment : segmentsInfos) {
+            if (segment.getId() == segmentID) {
+                int[] result = new int[]{segment.getBase(), segment.getLimit()};
                 return result;
             }
         }
@@ -61,10 +64,10 @@ public class SegmentsTable {
      * Get ID of segment with highest ID
      * @return int ID of segment
      */
-    protected int getLastID() {
+    public int getLastID() {
         int lastID = 0;
-        for (SegmentInfo segment : segmentsInfos) {
-            if (segment.getSegmentID() > lastID) lastID = segment.getSegmentID();
+        for (Segment segment : segmentsInfos) {
+            if (segment.getId() > lastID) lastID = segment.getId();
         }
         return lastID;
     }
@@ -75,7 +78,7 @@ public class SegmentsTable {
      * @param requestedSize size of segment to write
      * @return -1 if there is no enough space, int startIndex - first index of new segment in memory
      */
-    protected int bestfit(int requestedSize) {
+    public int bestfit(int requestedSize) {
         if (requestedSize > ramSize) return -1;
         else if (segmentsInfos.size() > 1) {
             Collections.sort(segmentsInfos);
@@ -84,7 +87,7 @@ public class SegmentsTable {
             int startIndex = ramSize; //beggining of second segment
             int stopIndex = 0; //end of first segment
             //check beginning of ram
-            int startOfFirstSegment = segmentsInfos.get(0).getStartIndex();
+            int startOfFirstSegment = segmentsInfos.get(0).getBase();
             if (startOfFirstSegment > requestedSize) {
                 first = false;
                 startIndex = startOfFirstSegment;
@@ -92,25 +95,25 @@ public class SegmentsTable {
             }
             //check space between every two segments
             for (int i = 0; i < segmentsInfos.size() - 1; i++) {
-                int difference = segmentsInfos.get(i + 1).getStartIndex() - segmentsInfos.get(i).getStopIndex();
+                int difference = segmentsInfos.get(i + 1).getBase() - segmentsInfos.get(i).getLimit();
                 if (difference >= requestedSize) {
                     found = true;
                     if (first) {
                         first = false;
-                        startIndex = segmentsInfos.get(i + 1).getStartIndex();
-                        stopIndex = segmentsInfos.get(i).getStopIndex();
+                        startIndex = segmentsInfos.get(i + 1).getBase();
+                        stopIndex = segmentsInfos.get(i).getLimit();
                     } else if (difference < startIndex - stopIndex) {
-                        startIndex = segmentsInfos.get(i + 1).getStartIndex();
-                        stopIndex = segmentsInfos.get(i).getStopIndex();
+                        startIndex = segmentsInfos.get(i + 1).getBase();
+                        stopIndex = segmentsInfos.get(i).getLimit();
                     }
                 }
                 //if no available space found
                 else if (i == segmentsInfos.size() - 2 && !found) stopIndex = -2;
             }
             //checking space after last segment
-            int spaceAtEndofRam = ramSize - 1 - segmentsInfos.get(segmentsInfos.size() - 1).getStopIndex();
+            int spaceAtEndofRam = ramSize - 1 - segmentsInfos.get(segmentsInfos.size() - 1).getLimit();
             if (spaceAtEndofRam >= requestedSize && spaceAtEndofRam < startIndex - stopIndex)
-                stopIndex = segmentsInfos.get(segmentsInfos.size() - 1).getStopIndex();
+                stopIndex = segmentsInfos.get(segmentsInfos.size() - 1).getLimit();
             //returns startIndex for the new segment
             return stopIndex + 1;
         }
@@ -118,7 +121,7 @@ public class SegmentsTable {
         else if (segmentsInfos.size() == 0) return 0;
             //if one segment return space after it
         else {
-            int nextAvailable = segmentsInfos.get(0).getStopIndex() + 1;
+            int nextAvailable = segmentsInfos.get(0).getLimit() + 1;
 
             //if required bigger than available
             if (nextAvailable + requestedSize > ramSize) nextAvailable = -1;
@@ -131,11 +134,13 @@ public class SegmentsTable {
      * Remove info about given segment
      * @param segmentID ID of given segment
      */
-    protected void deleteEntry(int segmentID) {
+    public void deleteEntry(int segmentID) {
         for (int i = 0; i < segmentsInfos.size(); i++) {
-            if (segmentsInfos.get(i).getSegmentID() == segmentID) {
+            if (segmentsInfos.get(i).getId() == segmentID) {
                 segmentsInfos.remove(i);
             }
         }
     }
+
+
 }

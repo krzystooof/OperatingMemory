@@ -10,6 +10,8 @@
  */
 package memory.physical;
 
+import memory.SegmentTable;
+
 public class PhysicalMemoryManager {
     /**
      * PMM uses:
@@ -17,7 +19,7 @@ public class PhysicalMemoryManager {
      * @param segmentsTable to store info about written segments
      * @param ramSize to determine physical memory size
      */
-    private SegmentsTable segmentsTable;
+    private SegmentTable segmentTable;
     private RAM ram;
     private int ramSize = 128;
 
@@ -25,7 +27,7 @@ public class PhysicalMemoryManager {
      * Initialize segmentsTable and ram with default (128) ram size
      */
     public PhysicalMemoryManager() {
-        segmentsTable = new SegmentsTable(ramSize);
+        segmentTable = new SegmentTable(ramSize);
         ram = new RAM(ramSize);
     }
 
@@ -33,7 +35,7 @@ public class PhysicalMemoryManager {
      * Initialize segmentsTable and ram with given  ram size
      */
     public PhysicalMemoryManager(int ramSize) {
-        segmentsTable = new SegmentsTable(ramSize);
+        segmentTable = new SegmentTable(ramSize);
         ram = new RAM(ramSize);
     }
 
@@ -44,7 +46,7 @@ public class PhysicalMemoryManager {
      * @return ID of segment storing data
      */
     public int write(byte[] data) {
-        int startIndex = segmentsTable.bestfit(data.length);
+        int startIndex = segmentTable.bestfit(data.length);
         int address = startIndex;
         if (address == -1) throw new IllegalArgumentException("RAM_OVERFLOW");
         else {
@@ -52,8 +54,8 @@ public class PhysicalMemoryManager {
                 ram.saveByte(address, b);
                 address++;
             }
-            int segmentID = segmentsTable.getLastID() + 1;
-            segmentsTable.addSegment(segmentID, startIndex, address - 1);
+            int segmentID = segmentTable.getLastID() + 1;
+            segmentTable.addSegment(segmentID, startIndex, address - 1);
             return segmentID;
         }
     }
@@ -65,7 +67,7 @@ public class PhysicalMemoryManager {
      * @param data byte to save
      */
     public void write(int segmentID, int offset, byte data) {
-        int[] address = segmentsTable.getSegment(segmentID);
+        int[] address = segmentTable.getSegment(segmentID);
         if (address[0] == 0 && address[1] == 0) throw new IllegalArgumentException("NOT_EXISTING_SEGMENT");
         if (address[1] - address[0] < offset) throw new IllegalArgumentException("SEGMENT_OVERFLOW");
         ram.saveByte(address[0] + offset, data);
@@ -78,7 +80,7 @@ public class PhysicalMemoryManager {
      * @return wanted byte
      */
     public byte read(int segmentID, int offset) {
-        int[] address = segmentsTable.getSegment(segmentID);
+        int[] address = segmentTable.getSegment(segmentID);
         if (address[0] == 0 && address[1] == 0) throw new IllegalArgumentException("NOT_EXISTING_SEGMENT");
         if (address[1] - address[0] < offset) throw new IllegalArgumentException("SEGMENT_OVERFLOW");
         return ram.getByte(address[0] + offset);
@@ -90,7 +92,7 @@ public class PhysicalMemoryManager {
      * @return whole wanted segment in table of bytes
      */
     public byte[] read(int segmentID) {
-        int[] address = segmentsTable.getSegment(segmentID);
+        int[] address = segmentTable.getSegment(segmentID);
         if (address[0] == 0 && address[1] == 0) throw new IllegalArgumentException("NOT_EXISTING_SEGMENT");
         return ram.getBytes(address[0], address[1]);
     }
@@ -103,7 +105,7 @@ public class PhysicalMemoryManager {
      * @return wanted part of segment in table of bytes
      */
     public byte[] read(int segmentID, int startOffset, int stopOffset) {
-        int[] address = segmentsTable.getSegment(segmentID);
+        int[] address = segmentTable.getSegment(segmentID);
         if (address[0] == 0 && address[1] == 0) throw new IllegalArgumentException("NOT_EXISTING_SEGMENT");
         if (address[1] - address[0] < stopOffset) throw new IllegalArgumentException("SEGMENT_OVERFLOW");
         address[1] = address[0] + stopOffset;
@@ -117,6 +119,6 @@ public class PhysicalMemoryManager {
      * @param segmentID ID of wanted segment
      */
     public void wipe(int segmentID) {
-        segmentsTable.deleteEntry(segmentID);
+        segmentTable.deleteEntry(segmentID);
     }
 }

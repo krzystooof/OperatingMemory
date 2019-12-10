@@ -1,11 +1,13 @@
 package memory.virtual;
 
-import memory.SegmentRecord;
-import java.io.File;
+import java.util.HashMap;
 
 public class VirtualMemory {
+    private HashMap processMap = new HashMap<Integer, Integer[]>();
+    private HashMap segmentMap = new HashMap<Integer, Boolean>();
     private SegmentRecord[] segmentTable;
-    private byte[] swapFile = new byte[2048];
+
+    private byte[] swapFile = new byte[1024];
     private int[] segmentQueue;
     // pointer for RAM needed
 
@@ -30,10 +32,9 @@ public class VirtualMemory {
      * Representation of segment for PCB.
      *
      * @param assemblyProgram Block of assembly instructions.
-     * @return Array of numbers and offsets.
      */
-    public SegmentRecord[] loadProcess(int textLength, int dataLength, byte[] assemblyProgram) {
-        return new SegmentRecord[1];
+    public void loadProcess(int textLength, int dataLength, byte[] assemblyProgram) {
+
     }
 
     /**
