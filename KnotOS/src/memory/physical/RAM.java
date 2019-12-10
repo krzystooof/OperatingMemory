@@ -4,6 +4,7 @@
  * @since 12.2019
  * This code is a project for Operating Systems 2019 subject.
  * <p>
+ * Imitation of RandomAccessMemory
  */
 package memory.physical;
 
@@ -14,19 +15,37 @@ public class RAM {
     public RAM() {
         memory = new byte[ramSize];
     }
-
+    /**
+     * Creates memory with given size
+     **/
     public RAM(int ramSize) {
         memory = new byte[ramSize];
     }
 
+    /**
+     * Read byte from memory
+     * @param adress index of wanted byte in memory (byte table)
+     * @return wanted byte
+     */
     protected byte getByte(int adress) {
         return memory[adress];
     }
 
+    /**
+     * Save given byte to memory
+     * @param adress index of given byte in memory (byte table)
+     * @param data given byte
+     */
     protected void saveByte(int adress, byte data) {
         memory[adress] = data;
     }
 
+    /**
+     * Read part of memory
+     * @param startIndex index of first byte in memory (byte table)
+     * @param stopIndex index of last byte in memory (byte table)
+     * @return byte[] wanted part of memory
+     */
     protected byte[] getBytes(int startIndex, int stopIndex) {
         byte[] result = new byte[stopIndex - startIndex + 1];
         for (int i = 0; i < result.length; i++) {
