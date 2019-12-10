@@ -1,5 +1,6 @@
 /**
  * <h1>KnotOS PhysicalMemory</h1>
+ *
  * @author Krzysztof Greczka
  * @since 12.2019
  * This code is a project for Operating Systems 2019 subject.
@@ -27,6 +28,7 @@ public class PhysicalMemoryManager {
         segmentsTable = new SegmentsTable(ramSize);
         ram = new RAM(ramSize);
     }
+
     /**
      * Allows to set ram size
      */
@@ -57,13 +59,26 @@ public class PhysicalMemoryManager {
     }
 
     /**
+     * Writes one byte to existing segment
+     * @param segmentID ID of wanted segment
+     * @param offset index in segment of wanted byte
+     * @param data byte to save
+     */
+    public void write(int segmentID, int offset, byte data) {
+        int[] address = segmentsTable.getSegment(segmentID);
+        if (address[0] == 0 && address[1] == 0) throw new IllegalArgumentException("NOT_EXISTING_SEGMENT");
+        if (address[1] - address[0] < offset) throw new IllegalArgumentException("SEGMENT_OVERFLOW");
+        ram.saveByte(address[0] + offset, data);
+    }
+
+    /**
      * Read a byte from ram
-     * @param segment ID of wanted segment
+     * @param segmentID ID of wanted segment
      * @param offset index in segment of wanted byte
      * @return wanted byte
      */
-    public byte read(int segment, int offset) {
-        int[] address = segmentsTable.getSegment(segment);
+    public byte read(int segmentID, int offset) {
+        int[] address = segmentsTable.getSegment(segmentID);
         if (address[0] == 0 && address[1] == 0) throw new IllegalArgumentException("NOT_EXISTING_SEGMENT");
         if (address[1] - address[0] < offset) throw new IllegalArgumentException("SEGMENT_OVERFLOW");
         return ram.getByte(address[0] + offset);
@@ -71,24 +86,24 @@ public class PhysicalMemoryManager {
 
     /**
      * Read whole segment from ram
-     * @param segment ID of wanted segment
+     * @param segmentID ID of wanted segment
      * @return whole wanted segment in table of bytes
      */
-    public byte[] read(int segment) {
-        int[] address = segmentsTable.getSegment(segment);
+    public byte[] read(int segmentID) {
+        int[] address = segmentsTable.getSegment(segmentID);
         if (address[0] == 0 && address[1] == 0) throw new IllegalArgumentException("NOT_EXISTING_SEGMENT");
         return ram.getBytes(address[0], address[1]);
     }
 
     /**
      * Read a part of segment from ram
-     * @param segment ID of wanted segment
+     * @param segmentID ID of wanted segment
      * @param startOffset index of first wanted byte in segment
      * @param stopOffset index of last wanted byte in segment
      * @return wanted part of segment in table of bytes
      */
-    public byte[] read(int segment, int startOffset, int stopOffset) {
-        int[] address = segmentsTable.getSegment(segment);
+    public byte[] read(int segmentID, int startOffset, int stopOffset) {
+        int[] address = segmentsTable.getSegment(segmentID);
         if (address[0] == 0 && address[1] == 0) throw new IllegalArgumentException("NOT_EXISTING_SEGMENT");
         if (address[1] - address[0] < stopOffset) throw new IllegalArgumentException("SEGMENT_OVERFLOW");
         address[1] = address[0] + stopOffset;
@@ -104,6 +119,4 @@ public class PhysicalMemoryManager {
     public void wipe(int segmentID) {
         segmentsTable.deleteEntry(segmentID);
     }
-
-
 }
