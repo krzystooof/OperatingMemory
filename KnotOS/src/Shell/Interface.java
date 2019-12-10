@@ -21,19 +21,28 @@ public class Interface {
         welcomeScreen();
         while (true) {
             if (quitCondition()) break;
+            makePost();
             displayLocation();
             int foundModuleID = MAX_MODULES;
             ArrayList<String> userInput = readInput();
             for (int i = 0; i != loadedModules; i++ ) {
-              for (int y= 0 ; y!= modules[0].getShellCommands().size(); i++)
-                if (userInput.get(0) == modules[i].getShellCommands().get(y)) foundModuleID = i;
+              for (int y= 0 ; y!= modules[i].getShellCommands().size(); y++) {
+                  String cmdToCheck = modules[i].getShellCommands().get(y);
+                  String inputToCheck = userInput.get(0);
+                  if (inputToCheck.equals(cmdToCheck)) {
+                      foundModuleID = i;
+                  }
+              }
             }
             if (foundModuleID == MAX_MODULES) {
                 System.out.println("Command was not found. Help:");
                 getHelp();
             }
-            if ((userInput.get(1) == "help" && userInput.size() > 1) || (userInput.get(1) == "h"&& userInput.size() > 1)) modules[foundModuleID].getHelp();
-            else modules[foundModuleID].pass(userInput);
+            else {
+                if ((userInput.get(1) == "help" && userInput.size() > 1) || (userInput.get(1) == "h" && userInput.size() > 1))
+                    modules[foundModuleID].getHelp();
+                else modules[foundModuleID].pass(userInput);
+            }
         }
     }
 
@@ -58,7 +67,10 @@ public class Interface {
         loadModule(new Filesystem());
         loadModule(new Process());
         loadModule(new User());
+        displayLogo(10);
+        post = new ArrayList<String>();
         displayLogo(20);
+
         displayLogo(30);
         displayLogo(40);
         displayLogo(50);
@@ -97,7 +109,9 @@ public class Interface {
      * to be displayed on screen
      */
     private void displayLogo(int progress) {
-            System.out.println("KnotOS");
+        
+        System.out.println("KnotOS");
+        System.out.println("Loading: " + progress + "%");
     }
 
     private void displayLocation() {
@@ -122,13 +136,14 @@ public class Interface {
       return true;
     }
 
-    public void post(String toPost) {
+    public static void post(String toPost) {
       post.add(toPost);
     }
 
     private void makePost() {
       for (int i = 0; i != post.size(); i++)
-
         System.out.println(post.get(i));
+      post = new ArrayList<String>();
     }
+
 }
