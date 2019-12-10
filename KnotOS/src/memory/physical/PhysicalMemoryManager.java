@@ -22,7 +22,7 @@ public class PhysicalMemoryManager {
     private int ramSize = 128;
 
     /**
-     * Initializes segmentsTable and ram with default (128) ram size
+     * Initialize segmentsTable and ram with default (128) ram size
      */
     public PhysicalMemoryManager() {
         segmentsTable = new SegmentsTable(ramSize);
@@ -30,7 +30,7 @@ public class PhysicalMemoryManager {
     }
 
     /**
-     * Allows to set ram size
+     * Initialize segmentsTable and ram with given  ram size
      */
     public PhysicalMemoryManager(int ramSize) {
         segmentsTable = new SegmentsTable(ramSize);
@@ -38,7 +38,7 @@ public class PhysicalMemoryManager {
     }
 
     /**
-     * Writes to ram
+     * Write to ram
      * @param data table of bytes to be saved in memory
      * @throws IllegalArgumentException RAM_OVERFLOW, when there is no enough space for data
      * @return ID of segment storing data
@@ -59,7 +59,7 @@ public class PhysicalMemoryManager {
     }
 
     /**
-     * Writes one byte to existing segment
+     * Write one byte to existing segment
      * @param segmentID ID of wanted segment
      * @param offset index in segment of wanted byte
      * @param data byte to save
@@ -112,7 +112,7 @@ public class PhysicalMemoryManager {
     }
 
     /**
-     * Deletes info about given segment in SegmentTable
+     * Delete info about given segment in SegmentTable
      * NOTE: ram cells of given segment are not changed
      * @param segmentID ID of wanted segment
      */
