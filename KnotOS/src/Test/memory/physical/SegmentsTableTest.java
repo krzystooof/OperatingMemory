@@ -30,7 +30,7 @@ class SegmentsTableTest {
         assertEquals(0,segmentsTable.bestfit(100));
     }
     @Test
-    void hobestfitRequestedSizeTooBig(){
+    void bestfitRequestedSizeTooBig(){
         SegmentsTable segmentsTable = new SegmentsTable(128);
         assertEquals(-1,segmentsTable.bestfit(150));
     }
