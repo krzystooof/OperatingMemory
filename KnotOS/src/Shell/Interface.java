@@ -5,6 +5,7 @@ package Shell;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public class Interface {
     private static final int MAX_MODULES = 50; //defines maximum amount of modules system can handle
@@ -18,29 +19,43 @@ public class Interface {
      * Contains while (true) loop.
      */
     public void start() {
+        //loads necessary components
         welcomeScreen();
+
         while (true) {
+            //checks if loop should break
             if (quitCondition()) break;
+            //post messages waiting to be displayed
             makePost();
+            //displays user location in filesystem
             displayLocation();
-            int foundModuleID = MAX_MODULES;
+            //reads user input
             ArrayList<String> userInput = readInput();
+            //looks for command in loaded modules
+            int foundModuleID = MAX_MODULES;
+            boolean foundModule = false;
             for (int i = 0; i != loadedModules; i++ ) {
               for (int y= 0 ; y!= modules[i].getShellCommands().size(); y++) {
                   String cmdToCheck = modules[i].getShellCommands().get(y);
                   String inputToCheck = userInput.get(0);
                   if (inputToCheck.equals(cmdToCheck)) {
                       foundModuleID = i;
+                      foundModule = true;
                   }
+                  if (foundModule) break;
               }
+              if (foundModule) break;
             }
+            //checks if any module was found
             if (foundModuleID == MAX_MODULES) {
                 System.out.println("Command was not found. Help:");
                 getHelp();
             }
             else {
+                //checks if user wants help
                 if ((userInput.get(1) == "help" && userInput.size() > 1) || (userInput.get(1) == "h" && userInput.size() > 1))
                     modules[foundModuleID].getHelp();
+                //passes command to module
                 else modules[foundModuleID].pass(userInput);
             }
         }
@@ -60,9 +75,8 @@ public class Interface {
      * and displays user-friendly
      * loading screen
      */
-    private Shell[] welcomeScreen() {
-        String notLoaded1 = "Module";
-        String notLoaded2 = "was not loaded.";
+    private void welcomeScreen() {
+        System.out.println("KnotOS");
         displayLogo(0);
         loadModule(new Filesystem());
         loadModule(new Process());
@@ -80,7 +94,7 @@ public class Interface {
         displayLogo(90);
 
         displayLogo(100);
-        return modules;
+        System.out.print("\n");
     }
 
     /** This method is used to read input
@@ -109,9 +123,11 @@ public class Interface {
      * to be displayed on screen
      */
     private void displayLogo(int progress) {
-        
-        System.out.println("KnotOS");
-        System.out.println("Loading: " + progress + "%");
+        try {
+            TimeUnit.MILLISECONDS.sleep(100);
+        } catch (InterruptedException e) { }
+
+        System.out.print("Loading: " + progress + "%\r");
     }
 
     private void displayLocation() {
@@ -127,7 +143,7 @@ public class Interface {
         for (int y = 0 ; y != loadedModules; y++)
           for (int a = 0; a != modules[y].getShellCommands().size(); a++)
             if (modules[y].getShellCommands().get(a) == module.getShellCommands().get(i)) {
-                post("Module" + module.getName() + "was not loaded due to commands conflict");
+                post("Module" + module.getName() + "was not loaded due to command conflicts");
                 return false;
             }
       }

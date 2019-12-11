@@ -19,30 +19,25 @@ public class User implements Shell {
 
     @Override
     public void pass(ArrayList<String> params) {
-        switch (params.get(0)) {
-            case "user": {
-                params.remove(0);
-                user(params);
-                break;
-            }
-            case "logout": {
-                params.remove(0);
-                logout(params);
-                break;
-            }
-            case "password": {
-                params.remove(0);
-                password(params);
-                break;
 
+            switch (params.get(0)) {
+                case "user": {
+                    params.remove(0);
+                    user(params);
+                    break;
+                }
+                case "logout": {
+                    params.remove(0);
+                    logout(params);
+                    break;
+                }
+                case "password": {
+                    params.remove(0);
+                    password(params);
+                    break;
+                }
             }
-            case "encrypt": {
-                break;
-            }
-            case "decrypt": {
-                break;
-            }
-        }
+
     }
 
     @Override
@@ -58,41 +53,73 @@ public class User implements Shell {
 
     @Override
     public String getName() {
-        return "User Account Control";
+        return "User Account Management";
     }
 
 
     private void user(ArrayList<String> params) {
-        switch (params.get(0)) {
-            case "delete": {
-                break;
-            }
-            case "add": {
-                break;
-            }
-            case "list": {
-
-            }
-            default: {
-                getHelp();
-                break;
+        if (params.size() > 0) {
+            switch (params.get(0)) {
+                case "delete": {
+                    params.remove(0);
+                    deleteUser(params);
+                    break;
+                }
+                case "add": {
+                    params.remove(0);
+                    addUser(params);
+                    break;
+                }
+                case "list": {
+                    params.remove(0);
+                    listUsers(params);
+                    break;
+                }
+                default: {
+                    getHelp();
+                    break;
+                }
             }
         }
+        else {
+            getHelp();
+        }
+    }
+
+    private void password(ArrayList<String> params) {
+        if (params.size() > 0) {
+            switch (params.get(0)) {
+                case "change": {
+                    params.remove(0);
+                    changePassword(params);
+                    break;
+                }
+                default: {
+                    getHelp();
+                    break;
+                }
+            }
+        } else {
+            getHelp();
+        }
+    }
+
+    private void changePassword(ArrayList<String> params) {
+    }
+
+    private void deleteUser(ArrayList<String> params) {
+    }
+
+    private void addUser(ArrayList<String> params) {
+    }
+
+    private void listUsers(ArrayList<String> params) {
     }
 
     private void logout(ArrayList<String> params) {
 
     }
-
-    private void password(ArrayList<String> params) {
-        switch (params.get(0)) {
-            case "change": {
-                break;
-            }
-            default: {
-                getHelp();
-                break;
-            }
-        }
+    public void login() {
     }
+
 }

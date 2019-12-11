@@ -18,6 +18,7 @@ public class Filesystem implements Shell {
         currentLocation = new ArrayList<String>();
         File dir = new File("drive");
         dir.mkdir();
+        File systemDir = new File("drive/system");
     }
 
     @Override
@@ -73,16 +74,19 @@ public class Filesystem implements Shell {
     }
 
     private void cd(ArrayList<String> params) {
-        if (params.get(0).equals("..")) {
-            if (currentLocation.size() != 0) currentLocation.remove(currentLocation.size()-1);
-            else Interface.post("There is no parent directory");
-        }
-        else {
-            if (checkIfExists(params.get(0))) {
-                currentLocation.add(params.get(0));
+        if (params.size() > 0 ) {
+            if (params.get(0).equals("..")) {
+                if (currentLocation.size() != 0) currentLocation.remove(currentLocation.size() - 1);
+                else Interface.post("There is no parent directory");
             } else {
-                Interface.post("No such file or directory");
+                if (checkIfExists(params.get(0))) {
+                    currentLocation.add(params.get(0));
+                } else {
+                    Interface.post("No such file or directory");
+                }
             }
+        } else {
+            Interface.post("Too few arguments");
         }
     }
 
@@ -94,23 +98,27 @@ public class Filesystem implements Shell {
     }
 
     private void mkdir(ArrayList<String> params) {
-        if (checkFileName(params.get(0))) {
-            if (checkIfExists(params.get(0))) {
-                Interface.post("Every directory has to have unique name");
-            } else {
-                String pathname = new String();
-                pathname = "drive";
-                for (int i = 0; i != currentLocation.size(); i++) {
-                    pathname += "\\";
-                    pathname += currentLocation.get(i);
+        if (params.size() > 0) {
+            if (checkFileName(params.get(0))) {
+                if (checkIfExists(params.get(0))) {
+                    Interface.post("Every directory has to have unique name");
+                } else {
+                    String pathname = new String();
+                    pathname = "drive";
+                    for (int i = 0; i != currentLocation.size(); i++) {
+                        pathname += "\\";
+                        pathname += currentLocation.get(i);
+                    }
+                    pathname += params.get(0);
+                    File mkdir = new File(pathname);
+                    mkdir.mkdir();
+                    Interface.post("Directory created");
                 }
-                pathname += params.get(0);
-                File mkdir = new File(pathname);
-                Interface.post("Directory created");
+            } else {
+                Interface.post("Illegal name\n Name should not contain following symbols: * . \" / \\ [ ] : ; | ,");
             }
-        }
-        else {
-            Interface.post("Illegal name\n Name should not contain following symbols: * . \" / \\ [ ] : ; | ,");
+        } else {
+            Interface.post("Too few arguments");
         }
     }
 
@@ -119,10 +127,18 @@ public class Filesystem implements Shell {
     }
 
     private void rm(ArrayList<String> params) {
-        if (checkIfExists(params.get(0))) {
-            currentLocation.add(params.get(0));
-            File toDelete = getCurrentFolderFile();
-            currentLocation.remove(currentLocation.size() - 1);
+        if (params.size() > 0) {
+            if (checkIfExists(params.get(0))) {
+                currentLocation.add(params.get(0));
+                File toDelete = getCurrentFolderFile();
+                currentLocation.remove(currentLocation.size() - 1);
+            }
+            else {
+                Interface.post("No such file or directory");
+            }
+        }
+        else {
+            Interface.post("Too few arguments");
         }
     }
 
