@@ -45,7 +45,7 @@ public class PhysicalMemoryManager {
      * @throws IllegalArgumentException RAM_OVERFLOW, when there is no enough space for data
      * @return ID of segment storing data
      */
-    public int write(byte[] data) {
+    public int[] write(byte[] data) {
         int startIndex = segmentTable.bestfit(data.length);
         int address = startIndex;
         if (address == -1) throw new IllegalArgumentException("RAM_OVERFLOW");
@@ -56,7 +56,7 @@ public class PhysicalMemoryManager {
             }
             int segmentID = segmentTable.getLastID() + 1;
             segmentTable.addSegment(segmentID, startIndex, address - 1);
-            return segmentID;
+            return new int[]{segmentID, startIndex, address-1};
         }
     }
 
