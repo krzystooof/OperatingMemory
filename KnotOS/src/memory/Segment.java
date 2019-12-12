@@ -19,7 +19,7 @@ public class Segment implements Comparable<Segment> {
         this.limit = limit;
     }
 
-    protected int getLimit() {
+    public int getLimit() {
         return limit;
     }
 
@@ -27,7 +27,7 @@ public class Segment implements Comparable<Segment> {
         this.limit = limit;
     }
 
-    protected int getId() {
+    public int getId() {
         return id;
     }
 
@@ -35,7 +35,7 @@ public class Segment implements Comparable<Segment> {
         this.id = id;
     }
 
-    protected int getBase() {
+    public int getBase() {
         return base;
     }
 

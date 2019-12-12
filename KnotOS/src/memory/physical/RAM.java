@@ -39,6 +39,17 @@ public class RAM {
     protected void saveByte(int adress, byte data) {
         memory[adress] = data;
     }
+    /**
+     * Save given table of bytes to memory
+     * @param address first index of given bytes in memory (byte table)
+     * @param data given byte
+     */
+    protected void saveByte(int address,byte[] data){
+        for(byte b : data){
+            saveByte(address,b);
+            address++;
+        }
+    }
 
     /**
      * Read part of memory

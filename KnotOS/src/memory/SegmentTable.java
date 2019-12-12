@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class SegmentTable {
-    ArrayList<Segment> segmentsInfos;
+    public ArrayList<Segment> segmentsInfos;
     private int ramSize = 128;
 
     public SegmentTable() {
@@ -21,6 +21,7 @@ public class SegmentTable {
 
     /**
      * Initialize with given ramSize
+     *
      * @param ramSize size of memory
      */
     public SegmentTable(int ramSize) {
@@ -30,19 +31,22 @@ public class SegmentTable {
 
     /**
      * Add segment to table
+     *
      * @param segmentID ID of given segment
      * @param startByte index of first segment byte in memory
-     * @param stopByte index of last segment byte in memory
+     * @param stopByte  index of last segment byte in memory
      */
     public void addSegment(int segmentID, int startByte, int stopByte) {
         segmentsInfos.add(new Segment(segmentID, startByte, stopByte));
     }
 
-    public int getLimit(int id){
+    public int getLimit(int id) {
         return getSegment(id)[0];
     }
+
     /**
      * Get segment first and last index in memory
+     *
      * @param segmentID ID of wanted segment
      * @return int table where first is startIndex, second - stopIndex of wanted segment
      */
@@ -62,6 +66,7 @@ public class SegmentTable {
 
     /**
      * Get ID of segment with highest ID
+     *
      * @return int ID of segment
      */
     public int getLastID() {
@@ -75,6 +80,7 @@ public class SegmentTable {
     /**
      * Determine where to allocate new segment.
      * Bestfit chooses smallest available part of memory, that can store given data.
+     *
      * @param requestedSize size of segment to write
      * @return -1 if there is no enough space, int startIndex - first index of new segment in memory
      */
@@ -132,6 +138,7 @@ public class SegmentTable {
 
     /**
      * Remove info about given segment
+     *
      * @param segmentID ID of given segment
      */
     public void deleteEntry(int segmentID) {
@@ -142,5 +149,33 @@ public class SegmentTable {
         }
     }
 
+    /**
+     * Checks available space. Determined by Segments Table
+     *
+     * @return available space
+     */
+    public int checkAvailableSpace() {
+        if (segmentsInfos.size() > 1) {
+            Collections.sort(segmentsInfos);
+            int free = 0;
+            //check beginning of ram
+            int startOfFirstSegment = segmentsInfos.get(0).getBase();
+            free += startOfFirstSegment;
+            //check space between every two segments
+            for (int i = 0; i < segmentsInfos.size() - 1; i++) {
+                int difference = segmentsInfos.get(i + 1).getBase() - 1 - segmentsInfos.get(i).getLimit();
+                free += difference;
+            }
+            //checking space after last segment
+            int spaceAtEndofRam = ramSize - 1 - segmentsInfos.get(segmentsInfos.size() - 1).getLimit();
+            free += spaceAtEndofRam;
+            return free;
+        } else if (segmentsInfos.size() == 0) return ramSize;
+            //if 1 segment
+        else return ramSize - 1 - segmentsInfos.get(0).getLimit();
+    }
 
 }
+
+
+

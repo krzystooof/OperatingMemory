@@ -10,7 +10,10 @@
  */
 package memory.physical;
 
+import memory.Segment;
 import memory.SegmentTable;
+
+import java.util.Collections;
 
 public class PhysicalMemoryManager {
     /**
@@ -48,7 +51,14 @@ public class PhysicalMemoryManager {
     public int write(byte[] data) {
         int startIndex = segmentTable.bestfit(data.length);
         int address = startIndex;
-        if (address == -1) throw new IllegalArgumentException("RAM_OVERFLOW");
+        write:
+        if (address == -1) {
+            if (segmentTable.checkAvailableSpace() < data.length) throw new IllegalArgumentException("RAM_OVERFLOW");
+            else {
+                compacificate();
+                return write(data);
+            }
+        }
         else {
             for (byte b : data) {
                 ram.saveByte(address, b);
@@ -121,4 +131,24 @@ public class PhysicalMemoryManager {
     public void wipe(int segmentID) {
         segmentTable.deleteEntry(segmentID);
     }
+
+    /**
+     * Delete unused space between segments
+     */
+    private void compacificate(){
+        for(int i=0;i<segmentTable.segmentsInfos.size();i++){
+            Collections.sort(segmentTable.segmentsInfos);
+            Segment segment = segmentTable.segmentsInfos.get(i);
+            int startByte=0;
+            if(i!=0) {
+                startByte=segmentTable.segmentsInfos.get(i-1).getBase()+1;
+            }
+            byte[] data = ram.getBytes(segment.getBase(),segment.getLimit());
+            segmentTable.deleteEntry(segment.getId());
+            segmentTable.addSegment(segment.getId(),startByte,startByte+data.length);
+            ram.saveByte(startByte,data);
+        }
+    }
+
+
 }
