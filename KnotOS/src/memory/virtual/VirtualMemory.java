@@ -12,10 +12,11 @@ public class VirtualMemory {
     private SegmentTable segments = new SegmentTable();
 
     private Integer segmentCounter = 0;
-    private byte[] swapFile = new byte[1024];
-    private int SWAP_SIZE = 1024;
-    private int swapLeft = SWAP_SIZE;
     private int writePointer = 0;
+    private int SWAP_SIZE = 1024;
+    private byte[] swapFile = new byte[SWAP_SIZE];
+    private int swapLeft = SWAP_SIZE;
+
 
     // TODO: FIFO queue
 
@@ -32,7 +33,7 @@ public class VirtualMemory {
 
         writePointer = SWAP_SIZE - swapLeft;
 
-        if (swapLeft < textSize) {
+        if (swapLeft < textSize) {›
             loadSegment(textSize, assemblyCode);
             processMap.put(PID, new Integer[]{segmentCounter, -1});
         } else {

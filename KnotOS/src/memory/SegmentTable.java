@@ -21,7 +21,6 @@ public class SegmentTable {
         return segments.get(ID).LIMIT;
     }
 
-
     public void swapToRam(int ID) {
         inSwapFile.put(ID, Boolean.FALSE);
     }
