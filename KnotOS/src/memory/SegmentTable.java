@@ -22,7 +22,7 @@ public class SegmentTable {
         segments.add(new Segment(ID, base, limit));
         inSwapFile.put(ID, Boolean.TRUE);
     }
-    public int[] getData(int ID){
+    public int[] getSegmentData(int ID){
         return new int[]{segments.get(ID).base , segments.get(ID).limit};
     }
     public Segment get(int ID){
@@ -32,11 +32,14 @@ public class SegmentTable {
     public void swapToRam(int ID){
         inSwapFile.put(ID, Boolean.FALSE);
     }
+    public void swapToFile(int ID){
+        inSwapFile.put(ID, Boolean.TRUE);
+    }
     public void flushSegment(int ID){
         inSwapFile.remove(ID);
         segments.remove(ID);
     }
-    public boolean inSwap(int ID){
+    public boolean inSwapFile(int ID){
         if (inSwapFile.get(ID)){
             return true;
         }else {
