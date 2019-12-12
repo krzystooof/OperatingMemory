@@ -3,7 +3,6 @@ package memory.virtual;
 import java.util.HashMap;
 
 import memory.SegmentTable;
-import memory.Segment;
 import memory.physical.PhysicalMemoryManager;
 
 
@@ -63,8 +62,8 @@ public class VirtualMemory {
         int dataSegment = processMap.get(PID)[1];
 
         if (segments.inSwapFile(textSegment)) {
-            int base = segments.getSegmentData(textSegment)[0];
-            int limit = segments.getSegmentData(textSegment)[1];
+            int base = segments.getBase(textSegment);
+            int limit = segments.getLimit(textSegment);
             wipeSegment(base, limit, textSegment);
         } else {
             RAM.wipe(textSegment);
@@ -72,8 +71,8 @@ public class VirtualMemory {
 
         if (dataSegment > 0) {
             if (segments.inSwapFile(dataSegment)) {
-                int base = segments.getSegmentData(dataSegment)[0];
-                int limit = segments.getSegmentData(dataSegment)[1];
+                int base = segments.getBase(dataSegment);
+                int limit = segments.getLimit(dataSegment);
                 wipeSegment(base, limit, dataSegment);
             } else {
                 RAM.wipe(dataSegment);
@@ -90,7 +89,7 @@ public class VirtualMemory {
         int textSegmentId = processMap.get(PID)[0];
         int dataSegmentId = processMap.get(PID)[1];
 
-        if (OFFSET <= segments.getLen(textSegmentId)) {
+        if (OFFSET <= segments.getLimit(textSegmentId)) {
             if (segments.inSwapFile(textSegmentId) == Boolean.FALSE) {
                 try {
                     return RAM.read(textSegmentId, OFFSET);
@@ -104,7 +103,7 @@ public class VirtualMemory {
         } else {
             if (segments.inSwapFile(dataSegmentId) == Boolean.FALSE) {
                 try {
-                    return RAM.read(textSegmentId, OFFSET - segments.getLen(textSegmentId));
+                    return RAM.read(textSegmentId, OFFSET - segments.getLimit(textSegmentId));
                 } catch (IllegalArgumentException error) {
                     // Handle not existing segment
                 }
@@ -124,7 +123,7 @@ public class VirtualMemory {
         int textSegmentId = processMap.get(PID)[0];
         int dataSegmentId = processMap.get(PID)[1];
 
-        if (OFFSET <= segments.getLen(textSegmentId)) {
+        if (OFFSET <= segments.getLimit(textSegmentId)) {
             if (segments.inSwapFile(textSegmentId) == Boolean.FALSE) {
                 try {
                     RAM.write(textSegmentId, OFFSET, data);
@@ -153,8 +152,8 @@ public class VirtualMemory {
      * Swaps segment from swap file to RAM.
      */
     private void swapToRam(int ID) {
-        int base = segments.getSegmentData(ID)[0];
-        int limit = segments.getSegmentData(ID)[1];
+        int base = segments.getBase(ID);
+        int limit = segments.getLimit(ID);
         byte[] data = new byte[limit];
         int dataCounter = 0;
         for (int counter = base; counter < limit; counter++) {
@@ -177,11 +176,11 @@ public class VirtualMemory {
         try {
             byte[] data = RAM.read(ID);
             int dataCounter = 0;
-            for (int counter = SWAP_SIZE - swapLeft; counter < segments.getLen(ID); counter++) {
+            for (int counter = SWAP_SIZE - swapLeft; counter < segments.getLimit(ID); counter++) {
                 swapFile[counter] = data[dataCounter];
                 dataCounter++;
             }
-            swapLeft -= segments.getLen(ID);
+            swapLeft -= segments.getLimit(ID);
             segments.swapToFile(ID);
         } catch (IllegalArgumentException error) {
             // Handle not existing segment
