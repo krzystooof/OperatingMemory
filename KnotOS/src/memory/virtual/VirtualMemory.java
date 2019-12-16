@@ -22,7 +22,7 @@ public class VirtualMemory {
     private byte[] swapFile = new byte[SWAP_SIZE];
     private int swapLeft = SWAP_SIZE;
 
-    VirtualMemory(int virtualSize, int physicalSize) {
+    public VirtualMemory(int virtualSize, int physicalSize) {
         this.SWAP_SIZE = virtualSize;
         this.RAM = new PhysicalMemoryManager(physicalSize);
     }
