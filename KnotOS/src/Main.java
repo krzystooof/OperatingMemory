@@ -1,3 +1,7 @@
+import cpuscheduler.CpuScheduler;
+import cpuscheduler.Pcb;
+import cpuscheduler.State;
+
 public class Main {
     public static void main(String[] args) {
         welcomeScreen();

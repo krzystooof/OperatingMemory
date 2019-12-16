@@ -1,11 +1,9 @@
 package cpuscheduler;
 import java.util.*;
 
-//README! Taki ogólny szkielet, zawartość wielu metod jeszcze może (na pewno) się zmieni
 // TODO: 04.12.2019
 // - aging
 // - terminate?
-// - współpraca z semaforami
 
 /**
  * Class CpuScheduler represents a simulator of cpu scheduler
