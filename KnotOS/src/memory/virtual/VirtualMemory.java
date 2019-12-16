@@ -34,6 +34,7 @@ public class VirtualMemory {
      * @param PID          process unique ID
      * @param textSize     text section size
      * @param dataSize     data section size
+     * @throws IllegalStateException when there is no memory left.
      */
     public void loadProcess(int PID, int textSize, int dataSize, byte[] assemblyCode) {
         writePointer = SWAP_SIZE - swapLeft;
@@ -114,7 +115,8 @@ public class VirtualMemory {
         } else {
             if (segments.inSwapFile(dataSegmentId) == Boolean.FALSE) {
                 try {
-                    return RAM.read(textSegmentId, OFFSET - segments.getLimit(textSegmentId));
+                    int index = OFFSET - segments.getLimit(textSegmentId);
+                    return RAM.read(textSegmentId, index);
                 } catch (IllegalArgumentException error) {
                     System.out.println(error.getMessage());
                 }
@@ -129,6 +131,7 @@ public class VirtualMemory {
 
     /**
      * Overwrites memory cell.
+     * @throws IllegalArgumentException when calling data outside assigned block.
      */
     public void write(int PID, int OFFSET, byte data) {
         int textSegmentId = processMap.get(PID)[0];
