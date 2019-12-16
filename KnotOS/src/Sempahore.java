@@ -1,48 +1,46 @@
 import java.io.*; 
 import java.util.*;
 
-public class Semaphore{
-    public int value;
-    Queue<*zmienna procesu*> queue = new ArrayDeque<*zmienna procesu*>();
-    Semaphore(int value){
+public class Semaphores {
+    public int value = 0; 
+    Queue<Process> queue = new ArrayDeque<Process>(); //Queue of waiting processes
+    Semaphores(int value){
         this.value=value;
     }
 }
-
-public void wait(Sempahore semaphore){
+//Checking if memory is empty
+public void wait(Semaphores semaphore){ 
     semaphore.value--;
-    if(sempahore.value<0){
-        queue.add(P);
-        block();
+	if(semaphore.value<0){
+		semaphore.queue.add(Process);
+		block();
     }
 
 }
-
+//Changes ProcessState to waiting
 public void block(){
-    if(wws[i]){  // wait for Wakeup flag associated with process i
-        Block process i
-    }
-    else{
-        wws[i]=false;
+    if(ProcessState=Ready)
+    {
+    	ProcessState=Waiting;
+    	changes=-1;
     }
 }
-
----------------------------------------------------
-
-public void signal(Sempahore semaphore){
+//Frees up memory space
+public void signal(Semaphores semaphore){ 
     semaphore.value++;
     if(semaphore.value<=0){
-        queue.remove(P);
-        wakeup(P);
+        semaphore.queue.remove(Process);
+        wakeup(Process);
     }
 }
-
-public void wakeup(Process P){
-    if ready(i)     //process is ready
-        wws[i]=true;
-    else
-        Activate proecess i;
-
+//Changes ProcessState to Ready
+public void wakeup(Process){
+	if(ProcessState=Waiting)
+	{
+		ProcessState=Ready;
+		changes=1;
+	}
+	
 }
+    
 
-P - process
