@@ -13,15 +13,15 @@ public class SegmentTable {
         inSwapFile.put(ID, Boolean.TRUE);
     }
     public Segment getSegment(int ID){
-        return segments.get(ID);
+        return findSegment(ID);
     }
 
     public int getBase(int ID) {
-        return segments.get(ID).BASE;
+        return findSegment(ID).BASE;
     }
 
     public int getLimit(int ID) {
-        return segments.get(ID).LIMIT;
+        return findSegment(ID).LIMIT;
     }
 
     public void swapToRam(int ID) {
@@ -34,11 +34,20 @@ public class SegmentTable {
 
     public void flushSegment(int ID) {
         inSwapFile.remove(ID);
-        segments.remove(ID);
+        segments.removeIf(segment -> (segment.ID == ID));
     }
 
     public boolean inSwapFile(int ID) {
         return inSwapFile.get(ID);
     }
 
+    private Segment findSegment(int ID){
+        for(Segment s : segments){
+            if (s.ID == ID){
+                return s;
+            }
+        }
+        System.out.println("SEGMENT_DOES_NOT_EXIST");
+        return new Segment(-1, -1, -1);
+    }
 }
