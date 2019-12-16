@@ -39,7 +39,7 @@ public class VirtualMemory {
 
         writePointer = SWAP_SIZE - swapLeft;
 
-        if (swapLeft < textSize) {
+        if (swapLeft > textSize) {
             loadSegment(textSize, assemblyCode);
             processMap.put(PID, new Integer[]{segmentCounter, -1});
             segmentQueue.add(segmentCounter);
@@ -48,7 +48,7 @@ public class VirtualMemory {
         }
 
         if (dataSize > 0) {
-            if (swapLeft < dataSize) {
+            if (swapLeft > dataSize) {
                 loadSegment(textSize, assemblyCode);
                 loadSegment(dataSize, assemblyCode);
                 processMap.put(PID, new Integer[]{segmentCounter, segmentCounter - 1});
