@@ -5,16 +5,15 @@ import java.util.LinkedList;;;
 import java.util.HashMap;
 import java.util.stream.IntStream;
 
-import memory.SegmentTable;
 import memory.Segment;
+import memory.SegmentTable;
 import memory.physical.PhysicalMemoryManager;
 
 
 public class VirtualMemory {
-
-    private HashMap<Integer, Integer[]> processMap = new HashMap<Integer, Integer[]>();
-    private PhysicalMemoryManager RAM;
+    private HashMap<Integer, Integer[]> processMap = new HashMap<>();
     private SegmentTable segments = new SegmentTable();
+    private PhysicalMemoryManager RAM;
 
     private Queue<Integer> segmentQueue = new LinkedList<Integer>();
     private Integer segmentCounter = 0;
@@ -31,13 +30,12 @@ public class VirtualMemory {
     /**
      * Allocates process in swap file.
      *
-     * @param assemblyCode Block of assembly instructions.
+     * @param assemblyCode block of assembly instructions
      * @param PID          process unique ID
      * @param textSize     text section size
      * @param dataSize     data section size
      */
     public void loadProcess(int PID, int textSize, int dataSize, byte[] assemblyCode) {
-
         writePointer = SWAP_SIZE - swapLeft;
 
         if (swapLeft >= textSize) {
@@ -45,7 +43,7 @@ public class VirtualMemory {
             processMap.put(PID, new Integer[]{segmentCounter, -1});
             segmentQueue.add(segmentCounter);
         } else {
-            throw new IllegalArgumentException("OUT_OF_MEMORY");
+            throw new IllegalStateException("System out of memory.");
         }
 
         if (dataSize > 0) {
@@ -55,10 +53,9 @@ public class VirtualMemory {
                 processMap.put(PID, new Integer[]{segmentCounter, segmentCounter - 1});
                 segmentQueue.add(segmentCounter);
             } else {
-                throw new IllegalArgumentException("OUT_OF_MEMORY");
+                throw new IllegalStateException("System out of memory.");
             }
         }
-
     }
 
     /**
@@ -149,7 +146,7 @@ public class VirtualMemory {
                 write(PID, OFFSET, data);
             }
         } else {
-            throw new IllegalArgumentException("SEGMENTATION_FAULT");
+            throw new IllegalArgumentException("Segmentation fault.");
         }
     }
 
@@ -163,7 +160,7 @@ public class VirtualMemory {
         System.arraycopy(swapFile, base, data, 0, limit);
         try {
             RAM.write(data, segments.getSegment(ID));
-        } catch (IllegalArgumentException SEGMENT_OVERFLOW) {
+        } catch (IllegalArgumentException error) {
             swapToFile(segmentQueue.peek());
             swapToRam(ID);
         }
