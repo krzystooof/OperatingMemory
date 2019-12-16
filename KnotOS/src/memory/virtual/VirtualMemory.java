@@ -3,6 +3,7 @@ package memory.virtual;
 import java.util.Queue;;
 import java.util.LinkedList;;;
 import java.util.HashMap;
+import java.util.stream.IntStream;
 
 import memory.SegmentTable;
 import memory.Segment;
@@ -39,7 +40,7 @@ public class VirtualMemory {
 
         writePointer = SWAP_SIZE - swapLeft;
 
-        if (swapLeft > textSize) {
+        if (swapLeft >= textSize) {
             loadSegment(textSize, assemblyCode);
             processMap.put(PID, new Integer[]{segmentCounter, -1});
             segmentQueue.add(segmentCounter);
@@ -48,7 +49,7 @@ public class VirtualMemory {
         }
 
         if (dataSize > 0) {
-            if (swapLeft > dataSize) {
+            if (swapLeft >= dataSize) {
                 loadSegment(textSize, assemblyCode);
                 loadSegment(dataSize, assemblyCode);
                 processMap.put(PID, new Integer[]{segmentCounter, segmentCounter - 1});
@@ -159,11 +160,7 @@ public class VirtualMemory {
         int base = segments.getBase(ID);
         int limit = segments.getLimit(ID);
         byte[] data = new byte[limit];
-        int dataCounter = 0;
-        for (int counter = base; counter < limit; counter++) {
-            data[dataCounter] = swapFile[counter];
-            dataCounter++;
-        }
+        System.arraycopy(swapFile, base, data, 0, limit);
         try {
             RAM.write(data, segments.getSegment(ID));
         } catch (IllegalArgumentException SEGMENT_OVERFLOW) {
@@ -171,6 +168,7 @@ public class VirtualMemory {
             swapToRam(ID);
         }
         swapLeft += limit;
+        writePointer -= limit;
         segments.swapToRam(ID);
     }
 
@@ -180,12 +178,9 @@ public class VirtualMemory {
     private void swapToFile(int ID) {
         try {
             byte[] data = RAM.read(ID);
-            int dataCounter = 0;
-            for (int counter = SWAP_SIZE - swapLeft; counter < segments.getLimit(ID); counter++) {
-                swapFile[counter] = data[dataCounter];
-                dataCounter++;
-            }
+            System.arraycopy(data, 0, swapFile, writePointer, data.length);
             swapLeft -= segments.getLimit(ID);
+            writePointer += data.length;
             segments.swapToFile(ID);
         } catch (IllegalArgumentException error) {
             System.out.println(error.getMessage());
@@ -197,9 +192,7 @@ public class VirtualMemory {
      */
     private void loadSegment(int size, byte[] code) {
         segments.addSegment(segmentCounter, writePointer, size);
-        if (size - writePointer >= 0) {
-            System.arraycopy(code, writePointer, swapFile, writePointer, size - writePointer);
-        }
+        System.arraycopy(code, 0, swapFile, writePointer, size);
         swapLeft -= size;
         writePointer += size;
         segmentCounter++;
@@ -209,10 +202,9 @@ public class VirtualMemory {
      * Deletes segment from swap file.
      */
     private void wipeSegment(int base, int limit, int ID) {
-        for (int counter = base; counter < limit; counter++) {
-            swapFile[counter] = 0;
-        }
+        IntStream.range(base, limit).forEach(counter -> swapFile[counter] = 0);
         swapLeft += limit;
+        writePointer -= limit;
         segments.flushSegment(ID);
     }
 }
