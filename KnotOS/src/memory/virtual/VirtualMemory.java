@@ -1,25 +1,31 @@
 package memory.virtual;
 
+import java.util.Queue;;
+import java.util.LinkedList;;;
 import java.util.HashMap;
 
 import memory.SegmentTable;
+import memory.Segment;
 import memory.physical.PhysicalMemoryManager;
 
 
 public class VirtualMemory {
+
     private HashMap<Integer, Integer[]> processMap = new HashMap<Integer, Integer[]>();
-    private PhysicalMemoryManager RAM = new PhysicalMemoryManager(128);
+    private PhysicalMemoryManager RAM;
     private SegmentTable segments = new SegmentTable();
 
+    private Queue<Integer> segmentQueue = new LinkedList<Integer>();
     private Integer segmentCounter = 0;
     private int writePointer = 0;
-    private int SWAP_SIZE = 1024;
+    private int SWAP_SIZE;
     private byte[] swapFile = new byte[SWAP_SIZE];
     private int swapLeft = SWAP_SIZE;
 
-
-    // TODO: FIFO queue
-
+    VirtualMemory(int virtualSize, int physicalSize) {
+        this.SWAP_SIZE = virtualSize;
+        this.RAM = new PhysicalMemoryManager(physicalSize);
+    }
 
     /**
      * Allocates process in swap file.
@@ -33,9 +39,10 @@ public class VirtualMemory {
 
         writePointer = SWAP_SIZE - swapLeft;
 
-        if (swapLeft < textSize) {›
+        if (swapLeft < textSize) {
             loadSegment(textSize, assemblyCode);
             processMap.put(PID, new Integer[]{segmentCounter, -1});
+            segmentQueue.add(segmentCounter);
         } else {
             throw new IllegalArgumentException("OUT_OF_MEMORY");
         }
@@ -45,6 +52,7 @@ public class VirtualMemory {
                 loadSegment(textSize, assemblyCode);
                 loadSegment(dataSize, assemblyCode);
                 processMap.put(PID, new Integer[]{segmentCounter, segmentCounter - 1});
+                segmentQueue.add(segmentCounter);
             } else {
                 throw new IllegalArgumentException("OUT_OF_MEMORY");
             }
@@ -59,24 +67,26 @@ public class VirtualMemory {
      */
     public void flushProcess(int PID) {
 
-        int textSegment = processMap.get(PID)[0];
-        int dataSegment = processMap.get(PID)[1];
+        int textSegmentId = processMap.get(PID)[0];
+        int dataSegmentId = processMap.get(PID)[1];
 
-        if (segments.inSwapFile(textSegment)) {
-            int base = segments.getBase(textSegment);
-            int limit = segments.getLimit(textSegment);
-            wipeSegment(base, limit, textSegment);
+        if (segments.inSwapFile(textSegmentId)) {
+            int base = segments.getBase(textSegmentId);
+            int limit = segments.getLimit(textSegmentId);
+            wipeSegment(base, limit, textSegmentId);
+            segmentQueue.remove(textSegmentId);
         } else {
-            RAM.wipe(textSegment);
+            RAM.wipe(textSegmentId);
         }
 
-        if (dataSegment > 0) {
-            if (segments.inSwapFile(dataSegment)) {
-                int base = segments.getBase(dataSegment);
-                int limit = segments.getLimit(dataSegment);
-                wipeSegment(base, limit, dataSegment);
+        if (dataSegmentId > 0) {
+            if (segments.inSwapFile(dataSegmentId)) {
+                int base = segments.getBase(dataSegmentId);
+                int limit = segments.getLimit(dataSegmentId);
+                wipeSegment(base, limit, dataSegmentId);
+                segmentQueue.remove(dataSegmentId);
             } else {
-                RAM.wipe(dataSegment);
+                RAM.wipe(dataSegmentId);
             }
         }
     }
@@ -84,6 +94,8 @@ public class VirtualMemory {
     /**
      * Reads memory cell.
      *
+     * @param PID    process unique ID
+     * @param OFFSET demanded memory cell index
      * @return byte from RAM.
      */
     public byte read(int PID, int OFFSET) {
@@ -95,7 +107,7 @@ public class VirtualMemory {
                 try {
                     return RAM.read(textSegmentId, OFFSET);
                 } catch (IllegalArgumentException error) {
-                    // Handle not existing segment
+                    System.out.println(error.getMessage());
                 }
             } else {
                 swapToRam(textSegmentId);
@@ -106,7 +118,7 @@ public class VirtualMemory {
                 try {
                     return RAM.read(textSegmentId, OFFSET - segments.getLimit(textSegmentId));
                 } catch (IllegalArgumentException error) {
-                    // Handle not existing segment
+                    System.out.println(error.getMessage());
                 }
             } else {
                 swapToRam(dataSegmentId);
@@ -129,23 +141,14 @@ public class VirtualMemory {
                 try {
                     RAM.write(textSegmentId, OFFSET, data);
                 } catch (IllegalArgumentException error) {
-                    // Handle not existing segment
+                    System.out.println(error.getMessage());
                 }
             } else {
                 swapToFile(textSegmentId);
                 write(PID, OFFSET, data);
             }
         } else {
-            if (segments.inSwapFile(dataSegmentId) == Boolean.FALSE) {
-                try {
-                    RAM.write(textSegmentId, OFFSET, data);
-                } catch (IllegalArgumentException error) {
-                    // Handle not existing segment
-                }
-            } else {
-                swapToFile(dataSegmentId);
-                write(PID, OFFSET, data);
-            }
+            throw new IllegalArgumentException("SEGMENTATION_FAULT");
         }
     }
 
@@ -162,9 +165,10 @@ public class VirtualMemory {
             dataCounter++;
         }
         try {
-            RAM.write(data);
-        } catch (IllegalArgumentException error) {
-            // Handle not existing segment
+            RAM.write(data, segments.getSegment(ID));
+        } catch (IllegalArgumentException SEGMENT_OVERFLOW) {
+            swapToFile(segmentQueue.peek());
+            swapToRam(ID);
         }
         swapLeft += limit;
         segments.swapToRam(ID);
@@ -184,10 +188,13 @@ public class VirtualMemory {
             swapLeft -= segments.getLimit(ID);
             segments.swapToFile(ID);
         } catch (IllegalArgumentException error) {
-            // Handle not existing segment
+            System.out.println(error.getMessage());
         }
     }
 
+    /**
+     * Loads segment to swap file.
+     */
     private void loadSegment(int size, byte[] code) {
         segments.addSegment(segmentCounter, writePointer, size);
         if (size - writePointer >= 0) {
@@ -198,7 +205,9 @@ public class VirtualMemory {
         segmentCounter++;
     }
 
-
+    /**
+     * Deletes segment from swap file.
+     */
     private void wipeSegment(int base, int limit, int ID) {
         for (int counter = base; counter < limit; counter++) {
             swapFile[counter] = 0;

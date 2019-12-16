@@ -10,6 +10,7 @@
  */
 package memory.physical;
 
+import memory.Segment;
 import memory.SegmentTable;
 
 public class PhysicalMemoryManager {
@@ -45,7 +46,7 @@ public class PhysicalMemoryManager {
      * @throws IllegalArgumentException RAM_OVERFLOW, when there is no enough space for data
      * @return ID of segment storing data
      */
-    public int[] write(byte[] data) {
+    public int[] write(byte[] data, Segment seg) {
         int startIndex = segmentTable.bestfit(data.length);
         int address = startIndex;
         if (address == -1) throw new IllegalArgumentException("RAM_OVERFLOW");

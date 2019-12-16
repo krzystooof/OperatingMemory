@@ -12,6 +12,9 @@ public class SegmentTable {
         segments.add(new Segment(ID, base, limit));
         inSwapFile.put(ID, Boolean.TRUE);
     }
+    public Segment getSegment(int ID){
+        return segments.get(ID);
+    }
 
     public int getBase(int ID) {
         return segments.get(ID).BASE;
