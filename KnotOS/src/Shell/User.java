@@ -22,17 +22,17 @@ public class User implements Shell {
 
             switch (params.get(0)) {
                 case "user": {
-                    params.remove(0);
+                    if (params.size() > 0) params.remove(0);
                     user(params);
                     break;
                 }
                 case "logout": {
-                    params.remove(0);
+                    if (params.size() > 0) params.remove(0);
                     logout(params);
                     break;
                 }
                 case "password": {
-                    params.remove(0);
+                    if (params.size() > 0) params.remove(0);
                     password(params);
                     break;
                 }
@@ -61,17 +61,17 @@ public class User implements Shell {
         if (params.size() > 0) {
             switch (params.get(0)) {
                 case "delete": {
-                    params.remove(0);
+                    if (params.size() > 0) params.remove(0);
                     deleteUser(params);
                     break;
                 }
                 case "add": {
-                    params.remove(0);
+                    if (params.size() > 0) params.remove(0);
                     addUser(params);
                     break;
                 }
                 case "list": {
-                    params.remove(0);
+                    if (params.size() > 0) params.remove(0);
                     listUsers(params);
                     break;
                 }

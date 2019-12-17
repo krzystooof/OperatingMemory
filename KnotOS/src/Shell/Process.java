@@ -4,15 +4,17 @@ import java.util.ArrayList;
 
 public class Process implements Shell {
     private ArrayList<String> shellCommands;
+    private static boolean isStepMode;
 
     public Process() {
         shellCommands = new ArrayList<String>();
-        shellCommands.add("cp");
-        shellCommands.add("kp");
-        shellCommands.add("debugp");
-        shellCommands.add("helpp");
+        shellCommands.add("start");
+        shellCommands.add("killtask");
+        shellCommands.add("step");
         shellCommands.add("process");
         shellCommands.add("p");
+
+        isStepMode = false;
     }
 
     @Override
@@ -33,28 +35,24 @@ public class Process implements Shell {
     @Override
     public void pass(ArrayList<String> params) {
         switch (params.get(0)) {
-            case "cp": {
-                params.remove(0);
+            case "start": {
+                if (params.size() > 0) params.remove(0);
                 create(params);
                 break;
             }
-            case "kp": {
-                params.remove(0);
+            case "killtask": {
+                if (params.size() > 0) params.remove(0);
                 kill(params);
                 break;
             }
-            case "debugp": {
-                params.remove(0);
+            case "step": {
+                if (params.size() > 0) params.remove(0);
                 debug(params);
-                break;
-            }
-            case "helpp": {
-                help();
                 break;
             }
             case "p":
             case "process": {
-                params.remove(0);
+                if (params.size() > 0) params.remove(0);
                 processPass(params);
                 break;
             }
@@ -64,17 +62,17 @@ public class Process implements Shell {
     private void processPass(ArrayList<String> params) {
         switch (params.get(0)) {
             case "create": {
-                params.remove(0);
+                if (params.size() > 0) params.remove(0);
                 create(params);
                 break;
             }
             case "kill": {
-                params.remove(0);
+                if (params.size() > 0) params.remove(0);
                 kill(params);
                 break;
             }
-            case "debug": {
-                params.remove(0);
+            case "step": {
+                if (params.size() > 0) params.remove(0);
                 debug(params);
                 break;
             }
@@ -90,7 +88,14 @@ public class Process implements Shell {
     }
 
     private void debug(ArrayList<String> param) {
-
+        if (isStepMode) {
+            isStepMode = false;
+            Interface.post("Step mode deactivated");
+        }
+        else  {
+            isStepMode = true;
+            Interface.post("Step mode activated");
+        }
     }
 
     /*
@@ -109,6 +114,10 @@ public class Process implements Shell {
                 "helpp\n" +
                 "process help\n" +
                 "p help\n");
+    }
+
+    public static boolean getStepMode() {
+        return isStepMode;
     }
 
 }

@@ -30,27 +30,27 @@ public class Filesystem implements Shell {
     public void pass(ArrayList<String> params) {
         switch (params.get(0)) {
             case "cd": {
-                params.remove(0);
+                if (params.size() > 0) params.remove(0);
                 cd(params);
                 break;
             }
             case "dir": {
-                params.remove(0);
+                if (params.size() > 0) params.remove(0);
                 dir(params);
                 break;
             }
             case "mkdir": {
-                params.remove(0);
+                if (params.size() > 0) params.remove(0);
                 mkdir(params);
                 break;
             }
             case "rmdir": {
-                params.remove(0);
+                if (params.size() > 0) params.remove(0);
                 rmdir(params);
                 break;
             }
             case "rm": {
-                params.remove(0);
+                if (params.size() > 0) params.remove(0);
                 rm(params);
                 break;
             }
@@ -142,7 +142,7 @@ public class Filesystem implements Shell {
         }
     }
 
-    public ArrayList<String> getCurrentLocation() {
+    public static ArrayList<String> getCurrentLocation() {
         ArrayList<String> toReturn = currentLocation;
         toReturn.add(0,"C:");
         return toReturn;

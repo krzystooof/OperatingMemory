@@ -12,13 +12,13 @@ public class Interface {
     private static int loadedModules = 0;
     private static Shell[] modules = new Shell[MAX_MODULES];
     private static ArrayList<String> post;
-
+    private static boolean asciiDisplayed = false;
     /**
      * This is main method of this class.
      * It is used to run all other methods.
      * Contains while (true) loop.
      */
-    public void start() {
+    public static void start() {
         //loads necessary components
         welcomeScreen();
 
@@ -53,7 +53,8 @@ public class Interface {
             }
             else {
                 //checks if user wants help
-                if ((userInput.get(1) == "help" && userInput.size() > 1) || (userInput.get(1) == "h" && userInput.size() > 1))
+
+                if ((userInput.size() > 1 && userInput.get(1) == "help" ) || (userInput.size() > 1 && userInput.get(1) == "h"))
                     modules[foundModuleID].getHelp();
                 //passes command to module
                 else modules[foundModuleID].pass(userInput);
@@ -64,7 +65,7 @@ public class Interface {
     /**
     * Is used to check if system
     * should start closing*/
-    private boolean quitCondition() {
+    private static boolean quitCondition() {
         return false;
     }
 
@@ -75,7 +76,7 @@ public class Interface {
      * and displays user-friendly
      * loading screen
      */
-    private void welcomeScreen() {
+    private static void welcomeScreen() {
         System.out.println("KnotOS");
         displayLogo(0);
         loadModule(new Filesystem());
@@ -84,7 +85,6 @@ public class Interface {
         displayLogo(10);
         post = new ArrayList<String>();
         displayLogo(20);
-
         displayLogo(30);
         displayLogo(40);
         displayLogo(50);
@@ -101,7 +101,7 @@ public class Interface {
      * from user and pass request to
      * specialized function
      */
-    private ArrayList<String> readInput() {
+    private static ArrayList<String> readInput() {
         Scanner scanner = new Scanner(System.in);
         String userInput = scanner.nextLine();
         String[] inputArray = userInput.split(" ");
@@ -122,23 +122,48 @@ public class Interface {
      * @param progress Percentage progress
      * to be displayed on screen
      */
-    private void displayLogo(int progress) {
+    private static void displayLogo(int progress) {
+        if (!asciiDisplayed) {
+            System.out.println("__/\\\\\\________/\\\\\\_________________________________________________/\\\\\\\\\\__________/\\\\\\\\\\\\\\\\\\\\\\___        ");
+            System.out.println(" _\\/\\\\\\_____/\\\\\\//________________________________________________/\\\\\\///\\\\\\______/\\\\\\/////////\\\\\\_       ");
+            System.out.println("  _\\/\\\\\\__/\\\\\\//_____________________________________/\\\\\\________/\\\\\\/__\\///\\\\\\___\\//\\\\\\______\\///__      ");
+            System.out.println("   _\\/\\\\\\\\\\\\//\\\\\\______/\\\\/\\\\\\\\\\\\_______/\\\\\\\\\\_____/\\\\\\\\\\\\\\\\\\\\\\__/\\\\\\______\\//\\\\\\___\\////\\\\\\_________     ");
+            System.out.println("    _\\/\\\\\\//_\\//\\\\\\____\\/\\\\\\////\\\\\\____/\\\\\\///\\\\\\__\\////\\\\\\////__\\/\\\\\\_______\\/\\\\\\______\\////\\\\\\______    ");
+            System.out.println("     _\\/\\\\\\____\\//\\\\\\___\\/\\\\\\__\\//\\\\\\__/\\\\\\__\\//\\\\\\____\\/\\\\\\______\\//\\\\\\______/\\\\\\__________\\////\\\\\\___   ");
+            System.out.println("      _\\/\\\\\\_____\\//\\\\\\__\\/\\\\\\___\\/\\\\\\_\\//\\\\\\__/\\\\\\_____\\/\\\\\\_/\\\\___\\///\\\\\\__/\\\\\\_____/\\\\\\______\\//\\\\\\__  ");
+            System.out.println("       _\\/\\\\\\______\\//\\\\\\_\\/\\\\\\___\\/\\\\\\__\\///\\\\\\\\\\/______\\//\\\\\\\\\\______\\///\\\\\\\\\\/_____\\///\\\\\\\\\\\\\\\\\\\\\\/___ ");
+            System.out.println("        _\\///________\\///__\\///____\\///_____\\/////_________\\/////_________\\/////_________\\///////////_____");
+            asciiDisplayed = true;
+        }
         try {
             TimeUnit.MILLISECONDS.sleep(100);
         } catch (InterruptedException e) { }
+        if (progress == 100) {
+            System.out.print("Loading: " + progress + "% ... Done\r");
+        }
+        else {
+            System.out.print("Loading: " + progress + "%\r");
+        }
 
-        System.out.print("Loading: " + progress + "%\r");
     }
 
-    private void displayLocation() {
 
+    private static void displayLocation() {
+        ArrayList<String> location = Filesystem.getCurrentLocation();
+        boolean firstSlash = true;
+        while (location.size() > 0) {
+            if (firstSlash) System.out.print(location.get(0));
+            else System.out.println("\\" + location.get(0));
+            location.remove(0);
+        }
+        System.out.print(">");
     }
 
-    private void getHelp() {
+    private static void getHelp() {
       for (int i = 0; i != loadedModules; i++) modules[i].getHelp();
     }
 
-    private boolean loadModule(Shell module) {
+    private static boolean loadModule(Shell module) {
       for (int i = 0; i != module.getShellCommands().size(); i++) {
         for (int y = 0 ; y != loadedModules; y++)
           for (int a = 0; a != modules[y].getShellCommands().size(); a++)
@@ -156,7 +181,7 @@ public class Interface {
       post.add(toPost);
     }
 
-    private void makePost() {
+    private static void makePost() {
       for (int i = 0; i != post.size(); i++)
         System.out.println(post.get(i));
       post = new ArrayList<String>();
