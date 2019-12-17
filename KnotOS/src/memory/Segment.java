@@ -7,8 +7,9 @@ public class Segment {
     public int LIMIT;
 
     /**
-     * Creates segment structure. Represents block of memory.
-     * @param id segment unique id
+     * Creates segment structure
+     *
+     * @param id    segment unique id
      * @param base  start index
      * @param limit size of block
      */

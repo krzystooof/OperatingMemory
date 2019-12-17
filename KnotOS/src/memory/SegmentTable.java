@@ -5,14 +5,15 @@ import java.util.HashMap;
 
 
 public class SegmentTable {
-    private ArrayList<Segment> segments = new ArrayList<Segment>();
-    private HashMap<Integer, Boolean> inSwapFile = new HashMap<Integer, Boolean>();
+    private ArrayList<Segment> segments = new ArrayList<>();
+    private HashMap<Integer, Boolean> inSwapFile = new HashMap<>();
 
     public void addSegment(int ID, int base, int limit) {
         segments.add(new Segment(ID, base, limit));
         inSwapFile.put(ID, Boolean.TRUE);
     }
-    public Segment getSegment(int ID){
+
+    public Segment getSegment(int ID) {
         return findSegment(ID);
     }
 
@@ -21,9 +22,9 @@ public class SegmentTable {
     }
 
     public void setBase(int ID, int value) {
-        if (inSwapFile(ID)){
+        if (inSwapFile(ID)) {
             throw new IllegalArgumentException("ACCESS DENIED");
-        }else{
+        } else {
             findSegment(ID).BASE = value;
         }
     }
@@ -49,13 +50,12 @@ public class SegmentTable {
         return inSwapFile.get(ID);
     }
 
-    private Segment findSegment(int ID){
-        for(Segment s : segments){
-            if (s.ID == ID){
+    private Segment findSegment(int ID) {
+        for (Segment s : segments) {
+            if (s.ID == ID) {
                 return s;
             }
         }
-        System.out.println("SEGMENT_DOES_NOT_EXIST");
-        return new Segment(-1, -1, -1);
+        throw new IllegalArgumentException("SEGMENT DOES NOT EXIST");
     }
 }
