@@ -1,7 +1,5 @@
-<<<<<<< HEAD
-.idea/
-=======
+*.xml
+*.iml
 .idea/
 out/
 test/
->>>>>>> d9430c1b3db532e9b206a7b92bf6267ea23922ac

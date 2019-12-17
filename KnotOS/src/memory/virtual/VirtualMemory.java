@@ -127,7 +127,7 @@ public class VirtualMemory {
         return 0;
     }
 
-   /**
+    /**
      * * Overwrites memory cell
      *
      * @param PID    segment's unique ID
@@ -181,11 +181,10 @@ public class VirtualMemory {
      * @return int
      */
     public int showMemoryLeft(boolean virtual) {
-        if (virtual) {
-            return swapLeft;
-        } else {
+        if (!virtual) {
             return RAM.showMemoryLeft();
         }
+        return swapLeft;
     }
 
     /**
