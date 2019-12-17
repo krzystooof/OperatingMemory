@@ -27,7 +27,7 @@ public class VirtualMemory {
     }
 
     /**
-     * Allocates process in swap file
+     * Allocates process in memory
      *
      * @param assemblyCode block of assembly instructions
      * @param PID          process unique ID
