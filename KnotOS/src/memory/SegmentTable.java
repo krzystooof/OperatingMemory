@@ -20,6 +20,14 @@ public class SegmentTable {
         return findSegment(ID).BASE;
     }
 
+    public void setBase(int ID, int value) {
+        if (inSwapFile(ID)){
+            throw new IllegalArgumentException("ACCESS DENIED");
+        }else{
+            findSegment(ID).BASE = value;
+        }
+    }
+
     public int getLimit(int ID) {
         return findSegment(ID).LIMIT;
     }

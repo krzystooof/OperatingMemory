@@ -5,7 +5,6 @@ import java.util.LinkedList;;;
 import java.util.HashMap;
 import java.util.stream.IntStream;
 
-import memory.Segment;
 import memory.SegmentTable;
 import memory.physical.PhysicalMemoryManager;
 
