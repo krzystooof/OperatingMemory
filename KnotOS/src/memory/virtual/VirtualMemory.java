@@ -162,7 +162,7 @@ public class VirtualMemory {
         byte[] data = new byte[limit];
         System.arraycopy(swapFile, base, data, 0, limit);
         try {
-            RAM.write(data, segments.getSegment(ID));
+            RAM.write(data, ID);
         } catch (IllegalArgumentException error) {
             swapToFile(segmentQueue.peek());
             swapToRam(ID);
