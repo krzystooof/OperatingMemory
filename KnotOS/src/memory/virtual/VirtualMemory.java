@@ -127,8 +127,7 @@ public class VirtualMemory {
         return 0;
     }
 
-
-    /**
+   /**
      * * Overwrites memory cell
      *
      * @param PID    segment's unique ID
@@ -190,28 +189,6 @@ public class VirtualMemory {
     }
 
     /**
-     * Reads segment's data from RAM or swap file
-     *
-     * @param ID segment's ID
-     * @return array of bytes
-     */
-    private byte[] readSegment(int ID) {
-        int BASE = segments.getBase(ID);
-        int LIMIT = segments.getLimit(ID);
-        byte[] data = new byte[LIMIT];
-        if (segments.inSwapFile(ID)) {
-            System.arraycopy(swapFile, BASE, data, 0, LIMIT);
-        } else {
-            try {
-                data = RAM.read(ID);
-            } catch (IllegalArgumentException error) {
-                System.out.println(error.getMessage());
-            }
-        }
-        return data;
-    }
-
-    /**
      * Moves segment from swap file to RAM
      */
     private void swapToRam(int ID) {
@@ -253,6 +230,28 @@ public class VirtualMemory {
         swapLeft -= size;
         writePointer += size;
         segmentCounter++;
+    }
+
+    /**
+     * Reads segment's data from RAM or swap file
+     *
+     * @param ID segment's ID
+     * @return array of bytes
+     */
+    private byte[] readSegment(int ID) {
+        int BASE = segments.getBase(ID);
+        int LIMIT = segments.getLimit(ID);
+        byte[] data = new byte[LIMIT];
+        if (segments.inSwapFile(ID)) {
+            System.arraycopy(swapFile, BASE, data, 0, LIMIT);
+        } else {
+            try {
+                data = RAM.read(ID);
+            } catch (IllegalArgumentException error) {
+                System.out.println(error.getMessage());
+            }
+        }
+        return data;
     }
 
     /**
