@@ -1,0 +1,5 @@
+
+public class GlobalVariable {
+	public static int changes=1;
+
+}
