@@ -2,11 +2,11 @@ package Shell;
 
 import java.util.ArrayList;
 
-public class System implements Shell {
+public class SystemControl implements Shell {
     private static ArrayList<String> shellCommands;
     private static boolean userExit;
 
-    System() {
+    SystemControl() {
         userExit = false;
         shellCommands.add("exit");
     }

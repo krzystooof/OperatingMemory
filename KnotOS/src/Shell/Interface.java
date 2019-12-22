@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+import static java.lang.System.out;
 
 public class Interface {
     private static final int MAX_MODULES = 50; //defines maximum amount of modules system can handle
