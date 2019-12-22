@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
-import static java.lang.System.out;
 
 public class Interface {
     private static final int MAX_MODULES = 50; //defines maximum amount of modules system can handle
@@ -60,6 +59,8 @@ public class Interface {
                 else modules[foundModuleID].pass(userInput);
             }
         }
+        makePost();
+        System.out.println("System has closed correctly");
     }
 
     /**
@@ -67,7 +68,10 @@ public class Interface {
      * should start closing
      */
     private static boolean quitCondition() {
-        return false;
+        boolean toReturn = false;
+        toReturn = (toReturn || SystemControl.getUserExit());
+        if (toReturn) post("System is now closing");
+        return toReturn;
     }
 
 
@@ -87,7 +91,7 @@ public class Interface {
         displayLogo(20);
         loadModule(new User());
         displayLogo(30);
-        loadModule(new System());
+        loadModule(new SystemControl());
         displayLogo(40);
         post = new ArrayList<String>();
         displayLogo(50);
@@ -166,7 +170,12 @@ public class Interface {
         System.out.print(">");
     }
 
-    private static void getHelp() {
+    /**
+     * Iterates through every module's
+     * getHelp() function effectively displaying
+     * all help available
+     */
+    public static void getHelp() {
         for (int i = 0; i != loadedModules; i++) modules[i].getHelp();
     }
 
@@ -184,10 +193,18 @@ public class Interface {
         return true;
     }
 
+    /**
+     * Use this method to post some text on the screen
+     * right after system returns control back to interface
+     * @param toPost String to post on screen
+     */
     public static void post(String toPost) {
         post.add(toPost);
     }
 
+    /**
+     * Private function used in pair with post(toPost);
+     */
     private static void makePost() {
         for (int i = 0; i != post.size(); i++)
             System.out.println(post.get(i));

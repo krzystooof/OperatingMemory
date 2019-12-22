@@ -9,7 +9,7 @@ public class Process implements Shell {
     public Process() {
         shellCommands = new ArrayList<String>();
         shellCommands.add("start");
-        shellCommands.add("killtask");
+        shellCommands.add("taskkill");
         shellCommands.add("step");
         shellCommands.add("process");
         shellCommands.add("p");
@@ -40,7 +40,7 @@ public class Process implements Shell {
                 create(params);
                 break;
             }
-            case "killtask": {
+            case "taskkill": {
                 if (params.size() > 0) params.remove(0);
                 kill(params);
                 break;
@@ -102,18 +102,15 @@ public class Process implements Shell {
     * Displays help */
     private void help() {
         System.out.println("Help in regard to process operation:\n" +
-                "cp <Name> <Assembly Source> <Shell.Shell.Process ID> <Shell.Shell.Process ID>\n" +
-                "process -create <Name> <Assembly Source> <Shell.Shell.Process ID> <Shell.Shell.Process ID>" +
-                "p -create <Name> <Assembly Source> <Shell.Shell.Process ID> <Shell.Shell.Process ID>\n" +
-                "kp <Name>\n" +
+                "start <Name> <Assembly Source> <PID> <Priority>\n" +
+                "process -create <Name> <Assembly Source> <PID> <Priority>\n" +
+                "p -create <Name> <Assembly Source> <PID> <Priority>\n" +
+                "taskkill <Name>\n" +
                 "process -kill <Name>\n" +
                 "p -kill <Name>\n" +
-                "debugp <Name> <Assembly Source> <Shell.Shell.Process ID> <Shell.Shell.Process ID>\n" +
-                "process -debug <Name> <Assembly Source> <Shell.Shell.Process ID> <Shell.Shell.Process ID>\n" +
-                "p -debug <Name> <Assembly Source> <Shell.Shell.Process ID> <Shell.Shell.Process ID>\n" +
-                "helpp\n" +
-                "process help\n" +
-                "p help\n");
+                "step\n" +
+                "process step\n" +
+                "p step\n");
     }
 
     public static boolean getStepMode() {

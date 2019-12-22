@@ -48,7 +48,7 @@ public class User implements Shell {
                 "      -add <Login> <Password>\n" +
                 "      -list" +
                 "password <Action>\n" +
-                "logout");
+                "logout\n");
     }
 
     @Override

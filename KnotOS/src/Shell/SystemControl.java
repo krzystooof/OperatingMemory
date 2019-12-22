@@ -7,8 +7,10 @@ public class SystemControl implements Shell {
     private static boolean userExit;
 
     SystemControl() {
+        shellCommands = new ArrayList<String>();
         userExit = false;
         shellCommands.add("exit");
+        shellCommands.add("help");
     }
 
     @Override
@@ -21,18 +23,29 @@ public class SystemControl implements Shell {
         switch (params.get(0)) {
             case "exit": {
                 exit();
+                break;
+            }
+            case "help": {
+                displayHelp();
+                break;
             }
         }
     }
 
     @Override
     public void getHelp() {
-
+        System.out.println("Help regarding system controls:\n" +
+                "exit\n" +
+                "help\n");
     }
 
     @Override
     public String getName() {
-        return null;
+        return "System Control";
+    }
+
+    private void displayHelp() {
+        Interface.getHelp();
     }
 
     private void exit() {
