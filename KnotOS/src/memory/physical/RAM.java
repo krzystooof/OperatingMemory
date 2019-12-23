@@ -39,6 +39,17 @@ public class RAM {
     protected void saveByte(int adress, byte data) {
         memory[adress] = data;
     }
+    /**
+     * Save given table of bytes to memory
+     * @param address first index of given bytes in memory (byte table)
+     * @param data given byte
+     */
+    protected void saveByte(int address,byte[] data){
+        for(byte b : data){
+            saveByte(address,b);
+            address++;
+        }
+    }
 
     /**
      * Read part of memory
@@ -46,7 +57,7 @@ public class RAM {
      * @param stopIndex index of last byte in memory (byte table)
      * @return byte[] wanted part of memory
      */
-    protected byte[] getBytes(int startIndex, int stopIndex) {
+    protected byte[] getByte(int startIndex, int stopIndex) {
         byte[] result = new byte[stopIndex - startIndex + 1];
         for (int i = 0; i < result.length; i++) {
             result[i] = getByte(startIndex);
@@ -55,3 +66,4 @@ public class RAM {
         return result;
     }
 }
+

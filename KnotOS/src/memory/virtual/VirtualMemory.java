@@ -23,7 +23,7 @@ public class VirtualMemory {
 
     public VirtualMemory(int virtualSize, int physicalSize) {
         this.SWAP_SIZE = virtualSize;
-        this.RAM = new PhysicalMemoryManager(physicalSize);
+        this.RAM = new PhysicalMemoryManager(physicalSize,segments);
     }
 
     /**
@@ -182,7 +182,7 @@ public class VirtualMemory {
      */
     public int showMemoryLeft(boolean virtual) {
         if (!virtual) {
-            return RAM.showMemoryLeft();
+            return RAM.checkAvailableSpace();
         }
         return swapLeft;
     }
@@ -262,6 +262,8 @@ public class VirtualMemory {
         writePointer -= limit;
         segments.flushSegment(ID);
     }
+
+    // to read whole ram (for printing ram to screen) use RAM.read() it will return a table of bytes of whole RAM
 }
 
 

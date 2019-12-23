@@ -1,12 +1,13 @@
 package memory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 
 public class SegmentTable {
-    private ArrayList<Segment> segments = new ArrayList<>();
-    private HashMap<Integer, Boolean> inSwapFile = new HashMap<>();
+    public ArrayList<Segment> segments = new ArrayList<>();
+    public HashMap<Integer, Boolean> inSwapFile = new HashMap<>();
 
     public void addSegment(int ID, int base, int limit) {
         segments.add(new Segment(ID, base, limit));
@@ -57,5 +58,8 @@ public class SegmentTable {
             }
         }
         throw new IllegalArgumentException("SEGMENT DOES NOT EXIST");
+    }
+    public void sort(){
+        Collections.sort(segments);
     }
 }

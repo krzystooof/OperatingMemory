@@ -1,7 +1,7 @@
 package memory;
 
 
-public class Segment {
+public class Segment implements Comparable<Segment> {
     public int ID;
     public int BASE;
     public int LIMIT;
@@ -18,4 +18,15 @@ public class Segment {
         this.BASE = base;
         this.LIMIT = limit;
     }
+
+    /**
+     * Created to allow sorting. Ascending sorting by startIndex (0-n)
+     * @param segment other instance of same class
+     * @return›
+     */
+    @Override
+    public int compareTo(Segment segment) {
+        return Integer.compare(this.BASE, segment.BASE);
+    }
+
 }
