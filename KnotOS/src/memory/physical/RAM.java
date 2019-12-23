@@ -1,5 +1,6 @@
 /**
  * <h1>KnotOS PhysicalMemory</h1>
+ *
  * @author Krzysztof Greczka
  * @since 12.2019
  * This code is a project for Operating Systems 2019 subject.
@@ -15,6 +16,7 @@ public class RAM {
     public RAM() {
         memory = new byte[ramSize];
     }
+
     /**
      * Creates memory with given size
      **/
@@ -39,14 +41,15 @@ public class RAM {
     protected void saveByte(int adress, byte data) {
         memory[adress] = data;
     }
+
     /**
      * Save given table of bytes to memory
      * @param address first index of given bytes in memory (byte table)
      * @param data given byte
      */
-    protected void saveByte(int address,byte[] data){
-        for(byte b : data){
-            saveByte(address,b);
+    protected void saveByte(int address, byte[] data) {
+        for (byte b : data) {
+            saveByte(address, b);
             address++;
         }
     }

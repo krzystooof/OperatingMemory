@@ -21,8 +21,9 @@ public class Segment implements Comparable<Segment> {
 
     /**
      * Created to allow sorting. Ascending sorting by startIndex (0-n)
+     *
      * @param segment other instance of same class
-     * @return›
+     * @return› segment with lower base
      */
     @Override
     public int compareTo(Segment segment) {

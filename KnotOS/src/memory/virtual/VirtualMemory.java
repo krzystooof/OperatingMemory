@@ -74,7 +74,8 @@ public class VirtualMemory {
             wipeSegment(base, limit, textSegmentId);
             segmentQueue.remove(textSegmentId);
         } else {
-            RAM.wipe(textSegmentId);
+            // IF something is flushed from segmenttable it is flushed from ram, so probably segmentTable.flush()
+            //RAM.wipe(textSegmentId);
         }
 
         if (dataSegmentId > 0) {
@@ -84,7 +85,7 @@ public class VirtualMemory {
                 wipeSegment(base, limit, dataSegmentId);
                 segmentQueue.remove(dataSegmentId);
             } else {
-                RAM.wipe(dataSegmentId);
+                // RAM.wipe(dataSegmentId);
             }
         }
     }

@@ -19,11 +19,12 @@ import java.util.Collections;
 public class PhysicalMemoryManager {
     /**
      * PMM uses:
+     *
      * @param ram as imitation of physical memory
      * @param segmentsTable to store info about written segments
      * @param ramSize to determine physical memory size
      */
-    private SegmentTable segmentTable;
+    public SegmentTable segmentTable;
     private RAM ram;
     private int ramSize = 128;
 
@@ -36,7 +37,7 @@ public class PhysicalMemoryManager {
     }
 
     /**
-     * Initialize segmentsTable and ram with given  ram size and segmentTable
+     * Initialize segmentsTable and ram with given ram size and segmentTable
      */
     public PhysicalMemoryManager(int ramSize, SegmentTable segmentTable) {
         this.segmentTable = segmentTable;
@@ -45,10 +46,11 @@ public class PhysicalMemoryManager {
 
     /**
      * Write to ram
-     * @param data table of bytes to be saved in memory
+     *
+     * @param data      table of bytes to be saved in memory
      * @param segmentID unique ID of segment
-     * @throws IllegalArgumentException RAM_OVERFLOW, when there is no enough space for data
      * @return ID of segment storing data
+     * @throws IllegalArgumentException RAM_OVERFLOW, when there is no enough space for data
      */
     public int write(byte[] data, int segmentID) {
         int startIndex = bestfit(data.length);
@@ -57,10 +59,9 @@ public class PhysicalMemoryManager {
             if (checkAvailableSpace() < data.length) throw new IllegalArgumentException("RAM_OVERFLOW");
             else {
                 compacificate();
-                return write(data,segmentID);
+                return write(data, segmentID);
             }
-        }
-        else {
+        } else {
             for (byte b : data) {
                 ram.saveByte(address, b);
                 address++;
@@ -72,9 +73,10 @@ public class PhysicalMemoryManager {
 
     /**
      * Write one byte to existing segment
+     *
      * @param segmentID ID of wanted segment
-     * @param offset index in segment of wanted byte
-     * @param data byte to save
+     * @param offset    index in segment of wanted byte
+     * @param data      byte to save
      */
     public void write(int segmentID, int offset, byte data) {
         int base = segmentTable.getSegment(segmentID).BASE;
@@ -85,18 +87,20 @@ public class PhysicalMemoryManager {
 
     /**
      * Read whole ram
+     *
      * @return ram in table of bytes
      */
     public byte[] read() {
         int base = 0;
-        int limit = ramSize-1;
-        return ram.getByte(base,limit);
+        int limit = ramSize - 1;
+        return ram.getByte(base, limit);
     }
 
     /**
      * Read a byte from ram
+     *
      * @param segmentID ID of wanted segment
-     * @param offset index in segment of wanted byte
+     * @param offset    index in segment of wanted byte
      * @return wanted byte
      */
     public byte read(int segmentID, int offset) {
@@ -108,6 +112,7 @@ public class PhysicalMemoryManager {
 
     /**
      * Read whole segment from ram
+     *
      * @param segmentID ID of wanted segment
      * @return whole wanted segment in table of bytes
      */
@@ -119,9 +124,10 @@ public class PhysicalMemoryManager {
 
     /**
      * Read a part of segment from ram
-     * @param segmentID ID of wanted segment
+     *
+     * @param segmentID   ID of wanted segment
      * @param startOffset index of first wanted byte in segment
-     * @param stopOffset index of last wanted byte in segment
+     * @param stopOffset  index of last wanted byte in segment
      * @return wanted part of segment in table of bytes
      */
     public byte[] read(int segmentID, int startOffset, int stopOffset) {
@@ -134,36 +140,27 @@ public class PhysicalMemoryManager {
     }
 
     /**
-     * Delete info about given segment in SegmentTable
-     * NOTE: ram cells of given segment are not changed
-     * @param segmentID ID of wanted segment
-     */
-    public void wipe(int segmentID) {
-        segmentTable.flushSegment(segmentID);
-    }
-
-    /**
      * Delete unused space between segments
      */
-    private void compacificate(){
-        for(int i=0;i<segmentTable.segments.size();i++){
+    private void compacificate() {
+        for (int i = 0; i < segmentTable.segments.size(); i++) {
             segmentTable.sort();
-            if (segmentTable.inSwapFile.get(i)==false) {
+            if (segmentTable.inSwapFile.get(i) == false) {
                 Segment segment = segmentTable.segments.get(i);
                 int startByte = 0;
                 if (i != 0) {
                     //find previous ram segment
                     boolean notFound = true;
-                    int j=1;
-                    while (notFound){
-                        if(i-j<0){
-                            notFound =false;
-                            j=-1;
+                    int j = 1;
+                    while (notFound) {
+                        if (i - j < 0) {
+                            notFound = false;
+                            j = -1;
                         }
-                        if(segmentTable.inSwapFile.get(i-j)==false) notFound=false;
+                        if (segmentTable.inSwapFile.get(i - j) == false) notFound = false;
                         j++;
                     }
-                    if(j>-1) startByte = segmentTable.segments.get(i - j).BASE + 1;
+                    if (j > -1) startByte = segmentTable.segments.get(i - j).BASE + 1;
                 }
                 byte[] data = ram.getByte(segment.BASE, segment.LIMIT);
                 segmentTable.flushSegment(segment.ID);
@@ -172,14 +169,16 @@ public class PhysicalMemoryManager {
             }
         }
     }
+
     /**
      * Get only ram segments form segmentsTable
+     *
      * @return Array of only ram segments
      */
     public ArrayList<Segment> getRamSegments() {
         ArrayList<Segment> RAMsegments = new ArrayList<>();
-        for (int i =0; i<segmentTable.segments.size();i++){
-            if(segmentTable.inSwapFile.get(i)==false) RAMsegments.add(segmentTable.segments.get(i));
+        for (int i = 0; i < segmentTable.segments.size(); i++) {
+            if (segmentTable.inSwapFile.get(i) == false) RAMsegments.add(segmentTable.segments.get(i));
         }
         return RAMsegments;
     }
