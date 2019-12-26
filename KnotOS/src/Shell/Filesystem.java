@@ -51,20 +51,43 @@ public class Filesystem implements Shell {
             }
             case "mkdir": {
                 if (params.size() > 0) params.remove(0);
-                //mkdir(params);
+                //mkdir(params); // TODO
                 break;
             }
             case "rmdir": {
                 if (params.size() > 0) params.remove(0);
-                //rmdir(params);
+                rmdir(params);
                 break;
             }
             case "rm": {
                 if (params.size() > 0) params.remove(0);
-                //rm(params);
+                rm(params);
                 break;
             }
         }
+    }
+
+    private void rmdir(ArrayList<String> params) {
+        /* TODO:
+        *   * check if param is a directory
+        *   * check if param exists */
+        remove(params.get(0));
+    }
+
+    private void rm(ArrayList<String> params) {
+        /* TODO:
+         *   * check if param is a file
+         *   * check if param exists */
+        remove(params.get(0));
+    }
+
+    private void remove(String filename) { //TODO fix this
+        ArrayList<String> path = new ArrayList<String>();
+        for (String dir : userLocationPathname) path.add(dir);
+        path.add(filename);
+        File toRemove = new File(makeStringPath(path));
+        if (toRemove.delete()) Interface.post("Deleted successfully");
+        else Interface.post("Error occurred while deleting file or directory");
     }
 
     private void cd(ArrayList<String> params) {
@@ -87,7 +110,8 @@ public class Filesystem implements Shell {
             }
         }
         if (directoryExists) {
-            /* TODO */
+            userLocationPathname.add(params.get(0));
+            userLocation = new File(makeStringPath(userLocationPathname));
         }
         else {
             Interface.post("No such file or directory");
@@ -106,9 +130,10 @@ public class Filesystem implements Shell {
 
     private void dir(ArrayList<String> params) {
         String[] fileList = userLocation.list();
-        for (String name : fileList) {
-            System.out.println(name);
+        if ((fileList != null) && (fileList.length > 0)) {
+            for (String name : fileList) System.out.println(name);
         }
+        else Interface.post("Directory is empty");
     }
 
     @Override
