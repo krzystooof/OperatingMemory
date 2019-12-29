@@ -70,6 +70,8 @@ public class Interface {
     private static boolean quitCondition() {
         boolean toReturn = false;
         toReturn = (toReturn || SystemControl.getUserExit());
+        toReturn = (toReturn || !User.isLogged());
+        toReturn = (toReturn || !Filesystem.filesystemOK());
         if (toReturn) post("System is now closing");
         return toReturn;
     }
@@ -102,6 +104,7 @@ public class Interface {
 
         displayLogo(100);
         System.out.print("\n");
+        User.login();
     }
 
     /**

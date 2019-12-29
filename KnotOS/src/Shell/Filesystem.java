@@ -1,15 +1,19 @@
 package Shell;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 
 public class Filesystem implements Shell {
-    private boolean noFilesystem;
+    private static boolean noFilesystem = true;
+    private static boolean storageOK = true;
     private static ArrayList<String> shellCommands;
     private static ArrayList<String> userLocationPathname;
     private static File userLocation;
-    private static File systemDir;
     private final static String SYSTEM32 = "C/system32";
+    private static File systemStorageFile;
+    private static ArrayList<String> systemStorage;
 
     Filesystem() {
         shellCommands = new ArrayList<String>();
@@ -24,9 +28,20 @@ public class Filesystem implements Shell {
         if (!userLocation.exists()) {
             userLocation.mkdir();
             noFilesystem = true;
-            systemDir = new File("C/system32");
+            File systemDir;
+            systemDir = new File(SYSTEM32);
             systemDir.mkdir();
+            String systemStoragePath = SYSTEM32 + "/SYSTEM.knot";
+            systemStorageFile = new File(systemStoragePath);
+            try {
+                systemStorageFile.createNewFile();
+            } catch (Exception e) {
+                Interface.post("Unknown error");
+                Interface.post(e.getMessage());
+                storageOK = false;
+            }
         }
+        reloadSystemStorage();
         userLocationPathname = new ArrayList<String>();
         userLocationPathname.add(userLocation.getName());
     }
@@ -237,5 +252,83 @@ public class Filesystem implements Shell {
             location.remove(0);
         }
         return pathString;
+    }
+
+    /** Returns false if
+     * filesystem is not ready
+     * to work on.
+     */
+    public static boolean filesystemOK() {
+        return (!noFilesystem && storageOK);
+    }
+
+    //TODO Review comment below
+    /**
+     * Allows other modules to store single
+     * line of text (standard characters only)
+     * and save it until next system launch.
+     * Stored values will be available to recover only
+     * during next system use and not after that.
+     * @param key String to access value later
+     * @param value String value to store. Cannot contain
+     *              newline character (\n).
+     * @return If saved correctly will return true. Otherwise false.
+     */
+    public static boolean store(String key, String value) {
+        if (key.contains("\n") || value.contains("\n")) return false;
+        boolean found = false;
+        for (int i = 0; i > systemStorage.size();i += 2) {
+            if (systemStorage.get(i) == key) {
+                systemStorage.set(i+1,value);
+                found = true;
+            }
+        }
+        if (!found) {
+            systemStorage.add(key);
+            systemStorage.add(value);
+        }
+        return true;
+    }
+
+    /**
+     * Used to recover values stored via store(key, value)
+     * method.
+     * @param key String inputed to store(key, value).
+     * @return String of saved value. If key no found
+     * is null.
+     */
+    public static String restore(String key) {
+        String toReturn = null;
+        for (int i = 0; i > systemStorage.size();i += 2) {
+            if (systemStorage.get(i) == key) {
+                toReturn = systemStorage.get(i+1);
+            }
+        }
+        return toReturn;
+    }
+
+    /**
+     * Must be called before reading anything from
+     * SystemStorage and before system shuts down to update
+     * storage file.
+     */
+    public static void reloadSystemStorage() { //TODO make it save SystemStorage
+        if (systemStorage.size() > 0) {
+            try {
+                String line = null;
+                FileReader storageReader = new FileReader(systemStorageFile);
+                BufferedReader bufferedReader = new BufferedReader(storageReader);
+                while ((line = bufferedReader.readLine()) != null) {
+                    systemStorage.add(line);
+                }
+                bufferedReader.close();
+            } catch (Exception e) {
+                Interface.post("Unknown error");
+                Interface.post(e.getMessage());
+                storageOK = false;
+            }
+        } else {
+            //TODO save
+        }
     }
 }

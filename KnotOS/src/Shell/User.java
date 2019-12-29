@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class User implements Shell {
     private static ArrayList<String> shellCommands;
-
+    private static boolean userLogged = false;
     public User() {
         shellCommands = new ArrayList<String>();
         shellCommands.add("user");
@@ -117,9 +117,16 @@ public class User implements Shell {
     }
 
     private void logout(ArrayList<String> params) {
-
+        userLogged = false;
+        System.out.println("Do you want to log again?");
+        //TODO
     }
-    public void login() {
+    public static void login() {
+        userLogged = true;
+    }
+
+    public static boolean isLogged() {
+        return userLogged;
     }
 
 }
