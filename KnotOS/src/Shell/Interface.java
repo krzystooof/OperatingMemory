@@ -159,7 +159,7 @@ public class Interface {
     }
 
 
-    private static void displayLocation() {
+    private static void displayLocation() { //TODO slashes
         ArrayList<String> location = Filesystem.getCurrentLocation();
         boolean firstSlash = true;
         while (location.size() > 0) {

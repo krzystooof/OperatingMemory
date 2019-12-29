@@ -51,7 +51,7 @@ public class Filesystem implements Shell {
             }
             case "mkdir": {
                 if (params.size() > 0) params.remove(0);
-                //mkdir(params); // TODO
+                mkdir(params);
                 break;
             }
             case "rmdir": {
@@ -67,25 +67,49 @@ public class Filesystem implements Shell {
         }
     }
 
+    private void mkdir(ArrayList<String> params) {
+        if (nameIsLegal(params.get(0))) {
+            ArrayList<String> path = new ArrayList<String>();
+            for (String dir : userLocationPathname) path.add(dir);
+            path.add(params.get(0));
+            String stringPath = makeStringPath(path);
+            File toMake = new File(stringPath);
+            if (!toMake.exists()) {
+                toMake.mkdir();
+                Interface.post("Directory created");
+            } else Interface.post("Name already taken");
+        }
+        else Interface.post("Illegal name");
+    }
+
     private void rmdir(ArrayList<String> params) {
-        /* TODO:
-        *   * check if param is a directory
-        *   * check if param exists */
-        remove(params.get(0));
+        ArrayList<String> path = new ArrayList<String>();
+        for (String dir : userLocationPathname) path.add(dir);
+        path.add(params.get(0));
+        String stringPath = makeStringPath(path);
+        File toRemove = new File(stringPath);
+        if (toRemove.exists() && toRemove.isDirectory()) {
+            remove(params.get(0));
+        } else Interface.post("Directory does not exist");
     }
 
     private void rm(ArrayList<String> params) {
-        /* TODO:
-         *   * check if param is a file
-         *   * check if param exists */
-        remove(params.get(0));
+        ArrayList<String> path = new ArrayList<String>();
+        for (String dir : userLocationPathname) path.add(dir);
+        path.add(params.get(0));
+        String stringPath = makeStringPath(path);
+        File toRemove = new File(stringPath);
+        if (toRemove.exists() && toRemove.isFile()) {
+            remove(params.get(0));
+        } else Interface.post("File does not exist");
     }
 
-    private void remove(String filename) { //TODO fix this
+    private void remove(String filename) {
         ArrayList<String> path = new ArrayList<String>();
         for (String dir : userLocationPathname) path.add(dir);
         path.add(filename);
-        File toRemove = new File(makeStringPath(path));
+        String stringPath = makeStringPath(path);
+        File toRemove = new File(stringPath);
         if (toRemove.delete()) Interface.post("Deleted successfully");
         else Interface.post("Error occurred while deleting file or directory");
     }
@@ -205,7 +229,10 @@ public class Filesystem implements Shell {
         String pathString = new String();
         boolean firstSlash = true;
         while (location.size() > 0) {
-            if (firstSlash) pathString = location.get(0);
+            if (firstSlash) {
+                pathString = location.get(0);
+                firstSlash = false;
+            }
             else pathString = pathString + "/" + location.get(0);
             location.remove(0);
         }
