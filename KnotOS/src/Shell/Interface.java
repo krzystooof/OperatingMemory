@@ -1,6 +1,7 @@
 package Shell;
 
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -52,13 +53,13 @@ public class Interface {
                 getHelp();
             } else {
                 //checks if user wants help
-
-                if ((userInput.size() > 1 && userInput.get(1) == "help") || (userInput.size() > 1 && userInput.get(1) == "h"))
+                if ((userInput.size() > 1 && userInput.get(1).equals("help")) || (userInput.size() > 1 && userInput.get(1).equals("h")))
                     modules[foundModuleID].getHelp();
                     //passes command to module
                 else modules[foundModuleID].pass(userInput);
             }
         }
+        Filesystem.reloadSystemStorage();
         makePost();
         System.out.println("System has closed correctly");
     }
@@ -71,7 +72,7 @@ public class Interface {
         boolean toReturn = false;
         toReturn = (toReturn || SystemControl.getUserExit());
         toReturn = (toReturn || !User.isLogged());
-        toReturn = (toReturn || !Filesystem.filesystemOK());
+        //toReturn = (toReturn || !Filesystem.filesystemOK());
         if (toReturn) post("System is now closing");
         return toReturn;
     }
@@ -103,6 +104,7 @@ public class Interface {
         displayLogo(90);
 
         displayLogo(100);
+
         System.out.print("\n");
         User.login();
     }
@@ -202,7 +204,11 @@ public class Interface {
      * @param toPost String to post on screen
      */
     public static void post(String toPost) {
-        post.add(toPost);
+        try {
+            if (toPost != null) post.add(toPost);
+        } catch (Exception e) {
+            post(e.getMessage());
+        }
     }
 
     /**
@@ -214,4 +220,21 @@ public class Interface {
         post = new ArrayList<String>();
     }
 
+    public static boolean askUserYN(String question) {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.println(question + "(y/n)");
+            String ans = scanner.next();
+            if (ans.equals("y")) return true;
+            if (ans.equals("n")) return false;
+            System.out.println("Incorrect input");
+            System.out.println("Please answer again");
+        }
+    }
+
+    public static String askUser(String question) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println(question);
+        return scanner.nextLine();
+    }
 }

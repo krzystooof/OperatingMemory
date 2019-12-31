@@ -1,8 +1,6 @@
 package Shell;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.util.ArrayList;
 
 public class Filesystem implements Shell {
@@ -13,7 +11,7 @@ public class Filesystem implements Shell {
     private static File userLocation;
     private final static String SYSTEM32 = "C/system32";
     private static File systemStorageFile;
-    private static ArrayList<String> systemStorage;
+    private static ArrayList<String> systemStorage = new ArrayList<String>();
 
     Filesystem() {
         shellCommands = new ArrayList<String>();
@@ -25,13 +23,13 @@ public class Filesystem implements Shell {
 
         noFilesystem = false;
         userLocation = new File("C");
+        String systemStoragePath = SYSTEM32 + "/SYSTEM.knot";
         if (!userLocation.exists()) {
             userLocation.mkdir();
             noFilesystem = true;
             File systemDir;
             systemDir = new File(SYSTEM32);
             systemDir.mkdir();
-            String systemStoragePath = SYSTEM32 + "/SYSTEM.knot";
             systemStorageFile = new File(systemStoragePath);
             try {
                 systemStorageFile.createNewFile();
@@ -40,6 +38,11 @@ public class Filesystem implements Shell {
                 Interface.post(e.getMessage());
                 storageOK = false;
             }
+            store("userID", "count", "1");
+            store("userName", "admin", "user0");
+            store("userID", "user0", "password");
+        } else {
+            systemStorageFile = new File(systemStoragePath);
         }
         reloadSystemStorage();
         userLocationPathname = new ArrayList<String>();
@@ -254,7 +257,8 @@ public class Filesystem implements Shell {
         return pathString;
     }
 
-    /** Returns false if
+    /**
+     * Returns false if
      * filesystem is not ready
      * to work on.
      */
@@ -262,19 +266,19 @@ public class Filesystem implements Shell {
         return (!noFilesystem && storageOK);
     }
 
-    //TODO Review comment below
     /**
      * Allows other modules to store single
      * line of text (standard characters only)
-     * and save it until next system launch.
-     * Stored values will be available to recover only
-     * during next system use and not after that.
-     * @param key String to access value later
+     * and save it permanently.
+     * @param group group of keys. Cannot contain
+     *              newline character (\n).
+     * @param key String to access value later.
      * @param value String value to store. Cannot contain
      *              newline character (\n).
      * @return If saved correctly will return true. Otherwise false.
      */
-    public static boolean store(String key, String value) {
+    public static boolean store(String group, String key, String value) {
+        key = group + "." + key;
         if (key.contains("\n") || value.contains("\n")) return false;
         boolean found = false;
         for (int i = 0; i > systemStorage.size();i += 2) {
@@ -293,14 +297,16 @@ public class Filesystem implements Shell {
     /**
      * Used to recover values stored via store(key, value)
      * method.
+     * @param group group of keys.
      * @param key String inputed to store(key, value).
      * @return String of saved value. If key no found
      * is null.
      */
-    public static String restore(String key) {
+    public static String restore(String group, String key) {
+        key = group + "." + key;
         String toReturn = null;
-        for (int i = 0; i > systemStorage.size();i += 2) {
-            if (systemStorage.get(i) == key) {
+        for (int i = 0; i < (systemStorage.size() - 1);i += 2) {
+            if (systemStorage.get(i).equals(key)) {
                 toReturn = systemStorage.get(i+1);
             }
         }
@@ -308,12 +314,31 @@ public class Filesystem implements Shell {
     }
 
     /**
+     * Clears key and value from system storage
+     * @param group group of keys
+     * @param key key of the value to remove
+     * @return true if key was found
+     */
+    public static boolean removeValue(String group, String key) {
+        key = group + "." + key;
+        if (key.contains("\n")) return false;
+        for (int i = 0; i < (systemStorage.size() - 1);i += 2) {
+            if (systemStorage.get(i).equals(key)) {
+                systemStorage.remove(i+1);
+                systemStorage.remove(i);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Must be called before reading anything from
      * SystemStorage and before system shuts down to update
      * storage file.
      */
-    public static void reloadSystemStorage() { //TODO make it save SystemStorage
-        if (systemStorage.size() > 0) {
+    public static void reloadSystemStorage() {
+        if (systemStorage.size() == 0) {
             try {
                 String line = null;
                 FileReader storageReader = new FileReader(systemStorageFile);
@@ -328,7 +353,21 @@ public class Filesystem implements Shell {
                 storageOK = false;
             }
         } else {
-            //TODO save
+            try {
+                systemStorageFile.delete();
+                systemStorageFile.createNewFile();
+                FileWriter storageWriter = new FileWriter(systemStorageFile);
+                BufferedWriter storage = new BufferedWriter(storageWriter);
+                for (String line : systemStorage) {
+                    storage.write(line);
+                    storage.newLine();
+                }
+                storage.close();
+            } catch (Exception e) {
+                Interface.post("Unknown error");
+                Interface.post(e.getMessage());
+                storageOK = false;
+            }
         }
     }
 }

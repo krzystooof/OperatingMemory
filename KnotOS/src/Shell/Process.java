@@ -13,6 +13,7 @@ public class Process implements Shell {
         shellCommands.add("step");
         shellCommands.add("process");
         shellCommands.add("p");
+        shellCommands.add("tasklist");
 
         isStepMode = false;
     }
@@ -56,6 +57,11 @@ public class Process implements Shell {
                 processPass(params);
                 break;
             }
+            case "tasklist": {
+                //TODO
+                break;
+            }
+
         }
     }
 
