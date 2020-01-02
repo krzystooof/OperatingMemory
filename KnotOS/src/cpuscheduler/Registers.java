@@ -1,11 +1,13 @@
 package cpuscheduler;
-
+/**
+ * Class Registers represents all 4 registers ax, bx, cx, dx
+ */
 public class Registers{
-    public int ax, bc, cx, dx;
+    public int ax, bx, cx, dx;
 
     public Registers() {
         this.ax = 0;
-        this.bc = 0;
+        this.bx = 0;
         this.cx = 0;
         this.dx = 0;
     }
@@ -14,7 +16,7 @@ public class Registers{
     public String toString() {
         return "Registers{" +
                 "ax=" + ax +
-                ", bc=" + bc +
+                ", bc=" + bx +
                 ", cx=" + cx +
                 ", dx=" + dx +
                 '}';
