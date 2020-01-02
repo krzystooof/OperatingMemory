@@ -127,9 +127,9 @@ public class VirtualMemory {
     /**
      * * Overwrites memory cell
      *
-     * @param PID    segment's unique ID
+     * @param PID    process id
      * @param OFFSET index to write
-     * @param data   data to writewa
+     * @param data   data to write
      * @throws IllegalArgumentException when calling data outside assigned block
      */
     public void write(int PID, int OFFSET, byte data) {
@@ -144,18 +144,27 @@ public class VirtualMemory {
                     System.out.println(error.getMessage());
                 }
             } else {
-                swapToFile(textSegmentId);
+                swapToRam(textSegmentId);
                 write(PID, OFFSET, data);
             }
         } else {
-            throw new IllegalArgumentException("SEGMENTATION FAULT");
+            if (segments.inSwapFile(dataSegmentId) == Boolean.FALSE) {
+                try {
+                    RAM.write(dataSegmentId, OFFSET, data);
+                } catch (IllegalArgumentException error) {
+                    System.out.println(error.getMessage());
+                }
+            } else {
+                swapToRam(dataSegmentId);
+                write(PID, OFFSET, data);
+            }
         }
     }
 
     /**
      * Returns specified process memory
      *
-     * @param PID process unique id
+     * @param PID process id
      * @return array of bytes
      */
     public byte[] showProcessData(int PID) {
@@ -175,13 +184,14 @@ public class VirtualMemory {
      * Returns size of free memory
      *
      * @param virtual specifies if show swap or RAM left
-     * @return int
      */
-    public int showMemoryLeft(boolean virtual) {
-        if (!virtual) {
-            return RAM.checkAvailableSpace();
+    public void showMemoryLeft(boolean physical, boolean virtual) {
+        if (virtual) {
+            System.out.println(swapLeft);
         }
-        return swapLeft;
+        if (physical) {
+            System.out.println(RAM.checkAvailableSpace());
+        }
     }
 
     /**
@@ -194,7 +204,7 @@ public class VirtualMemory {
         System.arraycopy(swapFile, base, data, 0, limit);
         try {
             RAM.write(data, ID);
-        } catch (IllegalArgumentException segmentation_fault) {
+        } catch (IllegalArgumentException page_fault) {
             int index = 0;
             try {
                 index = segmentQueue.peek();
