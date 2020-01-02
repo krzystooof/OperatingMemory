@@ -194,8 +194,14 @@ public class VirtualMemory {
         System.arraycopy(swapFile, base, data, 0, limit);
         try {
             RAM.write(data, ID);
-        } catch (IllegalArgumentException error) {
-            swapToFile(segmentQueue.peek());
+        } catch (IllegalArgumentException segmentation_fault) {
+            int index = 0;
+            try {
+                index = segmentQueue.peek();
+            }catch (NullPointerException pointer_error){
+                System.out.println("FATAL ERROR: SEGMENT DOES NOT EXIST");
+            }
+            swapToFile(index);
             swapToRam(ID);
         }
         swapLeft += limit;
