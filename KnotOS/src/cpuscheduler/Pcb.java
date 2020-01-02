@@ -1,5 +1,7 @@
 package cpuscheduler;
-
+/**
+ * Class Pcb represents Process Control Block
+ */
 public class Pcb {
 
     public int pid;

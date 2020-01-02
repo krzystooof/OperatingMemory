@@ -1,9 +1,8 @@
 package cpuscheduler;
 import java.util.*;
 
-// TODO: 04.12.2019
+// TODO:
 // - aging
-// - terminate?
 
 /**
  * Class CpuScheduler represents a simulator of cpu scheduler
@@ -38,12 +37,12 @@ public class CpuScheduler {
 
     /**
      * Method finds next process which will be execute in the near future
-     * @param pcb process
+     *
      * @return next process which will be execute in the near future
      */
-    private Pcb findNextProcces(Pcb pcb){
-
-        return readyPcb.poll();
+    private Pcb findNextProccess(){
+        Pcb pcb = readyPcb.poll();
+        return pcb;
     }
 
     /**
@@ -63,18 +62,21 @@ public class CpuScheduler {
      * */
     public boolean addProcess(Pcb pcb){
 
+        // Checks if priority is valid
         if (pcb.priority > 31 && pcb.priority < 0){
             return false;
         }
 
         if(pcb.priority > this.runningPcb.priority){
-            runningPcb.state = State.WAITING;
-            waitingPcb.add(runningPcb);
+            if(runningPcb.priority != 0){
+                runningPcb.state = State.READY;
+                readyPcb.add(runningPcb);
+            }
             runProcess(pcb);
-
         }
-
-        waitingPcb.add(pcb);
+        else {
+            readyPcb.add(pcb);
+        }
 
         return true;
     }
@@ -87,12 +89,18 @@ public class CpuScheduler {
      */
     public boolean removeProcess(int pid){
 
-        for(Pcb pcb: readyPcb){
-            if(pcb.pid == pid){
-                readyPcb.remove(pcb);
-                return true;
-            }
+        if(getRunningPcb().pid == pid){
+            runProcess(findNextProccess());
+            return true;
+        }
+        else {
+            for (Pcb pcb : readyPcb) {
+                if (pcb.pid == pid) {
+                    readyPcb.remove(pcb);
+                    return true;
+                }
 
+            }
         }
 
         return false;
@@ -121,16 +129,29 @@ public class CpuScheduler {
 
 
     /**
-     * Method return process which has Running state
+     * Method return process which has Running state,
+     * if ready list is empty, returns process with priority 0 - Idle.
      * @return PCB which has state Running
      */
     public Pcb getRunningPcb() {
 
-        if (waitingPcb.isEmpty()){
+        if (readyPcb.isEmpty() && runningPcb==null){
             return new Pcb(0,0, State.RUNNING, "Idle process");
         }
 
         return runningPcb;
+    }
+
+    /**
+     * Method tells Cpu to find next process to be executed.
+     * @return true if ready list is not empty, otherwise false
+     */
+    public boolean nextProcess(){
+        if(readyPcb.isEmpty()){
+            return false;
+        }
+        runProcess(findNextProccess());
+        return true;
     }
 }
 
@@ -141,6 +162,6 @@ class PcbComparator implements Comparator<Pcb>{
 
     @Override
     public int compare(Pcb o1, Pcb o2) {
-        return Integer.compare(o1.priority, o2.priority);
+        return Integer.compare(o2.priority, o1.priority);
     }
 }
