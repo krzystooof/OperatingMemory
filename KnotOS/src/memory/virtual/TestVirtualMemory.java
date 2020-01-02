@@ -16,9 +16,9 @@ public class TestVirtualMemory {
         IntStream.range(0, 63).forEach(n -> code[n] = 1);
         IntStream.range(0, procLen).forEach(n -> {
             if (testData) {
-                memory.loadProcess(n, procSize, procSize, code);
+                memory.load(n, procSize, procSize, code);
             } else {
-                memory.loadProcess(n, procSize, 0, code);
+                memory.load(n, procSize, 0, code);
             }
         });
     }
@@ -35,7 +35,7 @@ public class TestVirtualMemory {
     public void testFlushProcess() {
         initTestEnv(1024, 128, 64, 1, true);
         assertThrows(IllegalArgumentException.class, () -> {
-            memory.flushProcess(0);
+            memory.delete(0);
         });
     }
 
@@ -49,7 +49,7 @@ public class TestVirtualMemory {
     @Test
     public void testShowMemoryLeft() {
         initTestEnv(1024, 128, 0, 0, true);
-        assertEquals(memory.showMemoryLeft(true), 1024);
+        assertEquals(memory.showSpaceLeft(true), 1024);
     }
 
     @Test
@@ -57,13 +57,13 @@ public class TestVirtualMemory {
         this.memory = new VirtualMemory(128, 16);
         byte[] code = new byte[8];
         IntStream.range(0, 7).forEach(n -> code[n] = 1);
-        memory.loadProcess(0, 8, 0, code);
+        memory.load(0, 8, 0, code);
         memory.read(0, 1);
-        memory.loadProcess(1, 8, 0, code);
+        memory.load(1, 8, 0, code);
         memory.read(1, 1);
-        memory.loadProcess(2, 8, 0, code);
-        assertEquals(memory.showMemoryLeft(true), 120);
-        assertEquals(memory.showMemoryLeft(false), 0);
+        memory.load(2, 8, 0, code);
+        assertEquals(memory.showSpaceLeft(true), 120);
+        assertEquals(memory.showSpaceLeft(false), 0);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class TestVirtualMemory {
         byte[] code = new byte[8];
         IntStream.range(0, 7).forEach(n -> code[n] = 1);
         assertThrows( IllegalStateException.class, () -> {
-            memory.loadProcess(200, 8, 0, code);
+            memory.load(200, 8, 0, code);
         });
     }
 }

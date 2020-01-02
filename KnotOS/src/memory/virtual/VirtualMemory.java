@@ -36,7 +36,7 @@ public class VirtualMemory {
      * @param dataSize     data section size
      * @throws IllegalStateException when no memory left
      */
-    public void loadProcess(int PID, int textSize, int dataSize, byte[] assemblyCode) {
+    public void load(int PID, int textSize, int dataSize, byte[] assemblyCode) {
         writePointer = SWAP_SIZE - swapLeft;
 
         if (swapLeft >= textSize) {
@@ -64,7 +64,7 @@ public class VirtualMemory {
      *
      * @param PID process unique ID
      */
-    public void flushProcess(int PID) {
+    public void delete(int PID) {
 
         int textSegmentId = processMap.get(PID)[0];
         int dataSegmentId = processMap.get(PID)[1];
@@ -185,12 +185,34 @@ public class VirtualMemory {
      *
      * @param virtual specifies if show swap or RAM left
      */
-    public void showMemoryLeft(boolean physical, boolean virtual) {
+    public void showSpaceLeft(boolean physical, boolean virtual) {
         if (virtual) {
             System.out.println(swapLeft);
         }
         if (physical) {
             System.out.println(RAM.checkAvailableSpace());
+        }
+    }
+
+    /**
+     * Prints memory.
+     *
+     * @param physical prints RAM
+     * @param virtual  prints SWAP
+     */
+    public void show(boolean physical, boolean virtual) {
+        if (physical) {
+            byte[] pmemory = RAM.read();
+            System.out.println("RAM");
+            for (byte cell : pmemory) {
+                System.out.println(cell);
+            }
+        }
+        if (virtual) {
+            System.out.println("SWAP");
+            for (byte cell : swapFile) {
+                System.out.println(cell);
+            }
         }
     }
 
@@ -208,7 +230,7 @@ public class VirtualMemory {
             int index = 0;
             try {
                 index = segmentQueue.peek();
-            }catch (NullPointerException pointer_error){
+            } catch (NullPointerException pointer_error) {
                 System.out.println("FATAL ERROR: SEGMENT DOES NOT EXIST");
             }
             swapToFile(index);
@@ -219,27 +241,6 @@ public class VirtualMemory {
         segments.swapToRam(ID);
     }
 
-    /**
-     * Prints memory.
-     *
-     * @param physical prints RAM
-     * @param virtual  prints SWAP
-     */
-    public void showMemory(boolean physical, boolean virtual) {
-        if (physical) {
-            byte[] pmemory = RAM.read();
-            System.out.println("RAM");
-            for (byte cell : pmemory) {
-                System.out.println(cell);
-            }
-        }
-        if (virtual) {
-            System.out.println("SWAP");
-            for (byte cell : swapFile) {
-                System.out.println(cell);
-            }
-        }
-    }
 
     /**
      * Moves segment from RAM to swap file
