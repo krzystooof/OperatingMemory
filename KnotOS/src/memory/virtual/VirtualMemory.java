@@ -1,5 +1,6 @@
 package memory.virtual;
 
+import java.awt.*;
 import java.util.Queue;;
 import java.util.LinkedList;;;
 import java.util.HashMap;
@@ -23,7 +24,7 @@ public class VirtualMemory {
 
     public VirtualMemory(int virtualSize, int physicalSize) {
         this.SWAP_SIZE = virtualSize;
-        this.RAM = new PhysicalMemoryManager(physicalSize,segments);
+        this.RAM = new PhysicalMemoryManager(physicalSize, segments);
     }
 
     /**
@@ -69,23 +70,18 @@ public class VirtualMemory {
         int dataSegmentId = processMap.get(PID)[1];
 
         if (segments.inSwapFile(textSegmentId)) {
-            int base = segments.getBase(textSegmentId);
-            int limit = segments.getLimit(textSegmentId);
-            wipeSegment(base, limit, textSegmentId);
+            wipeSegment(segments.getLimit(textSegmentId), textSegmentId);
             segmentQueue.remove(textSegmentId);
         } else {
-            // IF something is flushed from segmenttable it is flushed from ram, so probably segmentTable.flush()
-            //RAM.wipe(textSegmentId);
+            segments.delete(textSegmentId);
         }
 
         if (dataSegmentId > 0) {
             if (segments.inSwapFile(dataSegmentId)) {
-                int base = segments.getBase(dataSegmentId);
-                int limit = segments.getLimit(dataSegmentId);
-                wipeSegment(base, limit, dataSegmentId);
+                wipeSegment(segments.getLimit(dataSegmentId), dataSegmentId);
                 segmentQueue.remove(dataSegmentId);
             } else {
-                // RAM.wipe(dataSegmentId);
+                segments.delete(dataSegmentId);
             }
         }
     }
@@ -208,6 +204,28 @@ public class VirtualMemory {
     }
 
     /**
+     * Prints memory.
+     *
+     * @param physical prints RAM
+     * @param virtual  prints SWAP
+     */
+    public void showMemory(boolean physical, boolean virtual) {
+        if (physical) {
+            byte[] pmemory = RAM.read();
+            System.out.println("RAM");
+            for (byte cell : pmemory) {
+                System.out.println(cell);
+            }
+        }
+        if (virtual) {
+            System.out.println("SWAP");
+            for (byte cell : swapFile) {
+                System.out.println(cell);
+            }
+        }
+    }
+
+    /**
      * Moves segment from RAM to swap file
      */
     private void swapToFile(int ID) {
@@ -257,14 +275,12 @@ public class VirtualMemory {
     /**
      * Removes segment from swap file
      */
-    private void wipeSegment(int base, int limit, int ID) {
-        IntStream.range(base, limit).forEach(counter -> swapFile[counter] = 0);
+    private void wipeSegment(int limit, int ID) {
         swapLeft += limit;
         writePointer -= limit;
-        segments.flushSegment(ID);
+        segments.delete(ID);
     }
 
-    // to read whole ram (for printing ram to screen) use RAM.read() it will return a table of bytes of whole RAM
 }
 
 

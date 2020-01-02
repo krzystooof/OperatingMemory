@@ -42,7 +42,7 @@ public class SegmentTable {
         inSwapFile.put(ID, Boolean.TRUE);
     }
 
-    public void flushSegment(int ID) {
+    public void delete(int ID) {
         inSwapFile.remove(ID);
         segments.removeIf(segment -> (segment.ID == ID));
     }

@@ -163,7 +163,7 @@ public class PhysicalMemoryManager {
                     if (j > -1) startByte = segmentTable.segments.get(i - j).BASE + 1;
                 }
                 byte[] data = ram.getByte(segment.BASE, segment.LIMIT);
-                segmentTable.flushSegment(segment.ID);
+                segmentTable.delete(segment.ID);
                 segmentTable.addSegment(segment.ID, startByte, startByte + data.length);
                 ram.saveByte(startByte, data);
             }
