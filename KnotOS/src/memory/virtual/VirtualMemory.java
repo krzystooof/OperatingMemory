@@ -224,6 +224,23 @@ public class VirtualMemory {
         return -1;
     }
 
+    /**
+     * Get segment's limit.
+     *
+     * @param PID         process ID
+     * @param textSegment to choose text or data segment
+     * @return segment's limit
+     */
+    public int getLimit(int PID, boolean textSegment) {
+        int segmentID;
+        if (textSegment) {
+            segmentID = processMap.get(PID)[0];
+        } else {
+            segmentID = processMap.get(PID)[1];
+        }
+        return segments.getLimit(segmentID);
+    }
+
 
     /**
      * Moves segment from swap file to RAM
