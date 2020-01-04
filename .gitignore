@@ -2,7 +2,7 @@
 *.iml
 .idea/
 out/
-test/
+lib/
 .idea/
 production/
 
