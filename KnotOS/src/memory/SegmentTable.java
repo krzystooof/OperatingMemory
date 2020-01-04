@@ -34,6 +34,14 @@ public class SegmentTable {
         return findSegment(ID).LIMIT;
     }
 
+    public void setLimit(int ID, int value) {
+        if (inSwapFile(ID)) {
+            throw new IllegalArgumentException("ACCESS DENIED");
+        } else {
+            findSegment(ID).LIMIT = value;
+        }
+    }
+
     public void swapToRam(int ID) {
         inSwapFile.put(ID, Boolean.FALSE);
     }
@@ -52,14 +60,15 @@ public class SegmentTable {
     }
 
     private Segment findSegment(int ID) {
-        for (Segment s : segments) {
-            if (s.ID == ID) {
-                return s;
+        for (Segment segment : segments) {
+            if (segment.ID == ID) {
+                return segment;
             }
         }
         throw new IllegalArgumentException("SEGMENT DOES NOT EXIST");
     }
-    public void sort(){
+
+    public void sort() {
         Collections.sort(segments);
     }
 }

@@ -21,11 +21,13 @@ public class RAM {
      * Creates memory with given size
      **/
     public RAM(int ramSize) {
+        this.ramSize = ramSize; // dodałem bo inaczej nie zapisze zmiany
         memory = new byte[ramSize];
     }
 
     /**
      * Read byte from memory
+     *
      * @param adress index of wanted byte in memory (byte table)
      * @return wanted byte
      */
@@ -35,8 +37,9 @@ public class RAM {
 
     /**
      * Save given byte to memory
+     *
      * @param adress index of given byte in memory (byte table)
-     * @param data given byte
+     * @param data   given byte
      */
     protected void saveByte(int adress, byte data) {
         memory[adress] = data;
@@ -44,8 +47,9 @@ public class RAM {
 
     /**
      * Save given table of bytes to memory
+     *
      * @param address first index of given bytes in memory (byte table)
-     * @param data given byte
+     * @param data    given byte
      */
     protected void saveByte(int address, byte[] data) {
         for (byte b : data) {
@@ -56,8 +60,9 @@ public class RAM {
 
     /**
      * Read part of memory
+     *
      * @param startIndex index of first byte in memory (byte table)
-     * @param stopIndex index of last byte in memory (byte table)
+     * @param stopIndex  index of last byte in memory (byte table)
      * @return byte[] wanted part of memory
      */
     protected byte[] getByte(int startIndex, int stopIndex) {

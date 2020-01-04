@@ -41,6 +41,7 @@ public class PhysicalMemoryManager {
      */
     public PhysicalMemoryManager(int ramSize, SegmentTable segmentTable) {
         this.segmentTable = segmentTable;
+        this.ramSize = ramSize; // dodałem bo inaczej nie zapisze zmiany
         ram = new RAM(ramSize);
     }
 
@@ -53,6 +54,12 @@ public class PhysicalMemoryManager {
      * @throws IllegalArgumentException RAM_OVERFLOW, when there is no enough space for data
      */
     public int write(byte[] data, int segmentID) {
+        /*
+            Zrobiłem lekkiego debuga - bestfit zle podaje adres.
+            Mozliwe ze to przez to ze zmienilem Ci troche logike pod koniec tej funkcji,
+            ale tak musi być - vmemory przekazuje tylko namiar na segment,
+            nie możesz wywoływać segments.add
+         */
         int startIndex = bestfit(data.length);
         int address = startIndex;
         if (address == -1) {
@@ -66,8 +73,13 @@ public class PhysicalMemoryManager {
                 ram.saveByte(address, b);
                 address++;
             }
-            segmentTable.addSegment(segmentID, startIndex, address - 1);
-            return segmentID;
+            segmentTable.swapToRam(segmentID); // przeniesione z vmemory, musi tu byc
+            // addSegment w tym wypadku zduplikuje segment
+            segmentTable.setBase(segmentID, startIndex);
+            // Limitu nie mozna zmieniac, bo definiuje on dlugosc segmentu, jest stały
+            // Bestfit podaje adresy ktore nadpisuja inne segmenty,
+            // oprocz tego ładowanie o 1 za dużo np. base 64 limit 64; powinno ladowac <64;127> a laduje  <65,128>
+            return segmentID; // nie potrzebuje, bo daje tylko wskaznik na segment
         }
     }
 
@@ -106,7 +118,8 @@ public class PhysicalMemoryManager {
     public byte read(int segmentID, int offset) {
         int base = segmentTable.getSegment(segmentID).BASE;
         int limit = segmentTable.getSegment(segmentID).LIMIT;
-        if (limit - base < offset) throw new IllegalArgumentException("SEGMENT_OVERFLOW");
+//        if (limit - base < offset) throw new IllegalArgumentException("SEGMENT_OVERFLOW");
+        if (offset >= limit || offset < 0) throw new IllegalArgumentException("SEGMENTATION ERROR");
         return ram.getByte(base + offset);
     }
 
