@@ -40,13 +40,11 @@ public class VirtualMemory {
     public void load(int PID, int textSize, int dataSize, byte[] assemblyCode) {
         writePointer = SWAP_SIZE - swapLeft;
 
-
         if (dataSize > 0) {
             if (swapLeft >= dataSize + textSize) {
                 processMap.put(PID, new Integer[]{segmentCounter, segmentCounter + 1});
                 loadSegment(Arrays.copyOfRange(assemblyCode, 0, textSize));
                 loadSegment(Arrays.copyOfRange(assemblyCode, textSize, textSize + dataSize));
-
             } else {
                 throw new IllegalStateException("OUT OF SPACE");
             }
@@ -57,7 +55,6 @@ public class VirtualMemory {
         } else {
             throw new IllegalStateException("OUT OF SPACE");
         }
-
     }
 
     /**
@@ -66,7 +63,6 @@ public class VirtualMemory {
      * @param PID process unique ID
      */
     public void delete(int PID) {
-
         int textSegmentId = processMap.get(PID)[0];
         int dataSegmentId = processMap.get(PID)[1];
 
@@ -109,22 +105,14 @@ public class VirtualMemory {
                 swapToRam(textSegmentId);
                 return read(PID, OFFSET);
             }
+        } else if (segments.inSwapFile(dataSegmentId) == Boolean.FALSE) {
+            int index = OFFSET - segments.getLimit(dataSegmentId);
+            return RAM.read(dataSegmentId, index);
         } else {
-            if (segments.inSwapFile(dataSegmentId) == Boolean.FALSE) {
-                int index = OFFSET - segments.getLimit(dataSegmentId);
-                return RAM.read(dataSegmentId, index);
-//                try {
-//                    int index = OFFSET - segments.getLimit(dataSegmentId);
-//                    return RAM.read(dataSegmentId, index);
-//                } catch (IllegalArgumentException error) {
-//                    System.out.println(error.getMessage());
-//                }
-            } else {
-                swapToRam(dataSegmentId);
-                return read(PID, OFFSET);
-            }
+            swapToRam(dataSegmentId);
+            return read(PID, OFFSET);
         }
-        return 0;
+        throw new IllegalArgumentException("FATAL ERROR: MEMORY READING");
     }
 
     /**
@@ -241,20 +229,17 @@ public class VirtualMemory {
         return segments.getLimit(segmentID);
     }
 
-
     /**
      * Moves segment from swap file to RAM
      */
     private void swapToRam(int ID) {
-
         int base = segments.getBase(ID);
         int limit = segments.getLimit(ID);
+
         byte[] data = new byte[limit];
         System.arraycopy(swapFile, base, data, 0, limit);
         try {
-            // segments.swapToRam(ID);
             RAM.write(data, ID);
-
         } catch (IllegalArgumentException page_fault) {
             int index = 0;
             try {
@@ -269,7 +254,6 @@ public class VirtualMemory {
         swapLeft += limit;
         writePointer -= limit;
     }
-
 
     /**
      * Moves segment from RAM to swap file
