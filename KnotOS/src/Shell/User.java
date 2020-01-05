@@ -2,6 +2,7 @@ package Shell;
 
 import java.beans.IntrospectionException;
 import java.io.File;
+import java.nio.file.FileStore;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -48,10 +49,11 @@ public class User implements Shell {
     public void getHelp() {
         System.out.println("Help in regard to user accounts:\n" +
                 "user <Action> <Login> <Password>\n" +
-                "      -delete <Login> <Password>\n" +
-                "      -add <Login> <Password>\n" +
-                "      -list" +
+                "     -delete <Login> <Password>\n" +
+                "     -add <Login> <Password>\n" +
+                "     -list\n" +
                 "password <Action>\n" +
+                "         -change <Old Pass> <New Pass>\n" +
                 "logout\n");
     }
 
@@ -70,7 +72,7 @@ public class User implements Shell {
                     break;
                 }
                 case "add": {
-                    if (params.size() > 0) params.remove(0);
+                    if (params.size() > 2) params.remove(0);
                     addUser(params);
                     break;
                 }
@@ -109,19 +111,26 @@ public class User implements Shell {
     }
 
     private void changePassword(ArrayList<String> params) {
-        //TODO change askUser Strings to param.get() Strings
-        boolean correct = false;
-        String newPassword = null;
-        while (!correct) {
-            newPassword = Interface.askUser("Enter new password");
-            if (newPassword.contains("\n") || newPassword.contains(".")) {
-                System.out.println("Password cannot contain \".\"");
-                continue;
+        String newPass = params.get(1);
+        String oldPass = params.get(0);
+        //check for illegal characters
+        if (oldPass.contains("\n") ||
+            oldPass.contains(".") ||
+            newPass.contains("\n") ||
+            newPass.contains(".")) {
+            Interface.post("Password cannot contain \".\" or newline character");
+        } else {
+            //passwords are legal. Reading old password and userID from storage
+            String userID = Filesystem.restore("userName", currentUser);
+            String correctPass = Filesystem.restore("userID", userID);
+            if (userID != null && correctPass != null) { // checking if read was successful
+                if (correctPass.equals(oldPass)) { // checking if user-provided password was ok
+                    Filesystem.store("userID", userID, newPass); // saving new password
+                }
+            } else {
+                Interface.post("Cannot access system storage");
             }
-            correct = true;
         }
-        String userID = Filesystem.restore("userName", currentUser);
-        Filesystem.store("userID", userID, newPassword);
     }
 
     private void deleteUser(ArrayList<String> params) {
@@ -134,24 +143,62 @@ public class User implements Shell {
                 return;
             } else {
                 if (params.get(1).equals(Filesystem.restore("userID", userID))) {
-                    Filesystem.removeValue("UserID", userID);
-                    Filesystem.removeValue("UserName", params.get(0));
+                    Filesystem.removeValue("userID", userID);
+                    Filesystem.removeValue("userName", params.get(0));
+                    Interface.post("User " + params.get(0) + " deleted");
+                    //decrement user count
+                    userCount--;
+                    Filesystem.store("userID","count", Integer.toString(userCount));
                 } else {
                     Interface.post("Wrong password");
                 }
             }
 
+        } else {
+            Interface.post("Cannot delete only user");
         }
     }
 
     private void addUser(ArrayList<String> params) {
-        //TODO
-        Interface.post("This function is still in development");
+        String user = params.get(0);
+        String password  = params.get(1);
+        //checking if user and password are legal
+        if ( user.contains("\n") ||
+            user.contains(".") ||
+            password.contains("\n") ||
+            password.contains(".")) {
+            Interface.post("Username or password cannot contain \".\" or newline character");
+        } else {
+            //check if username is not taken
+            if (Filesystem.restore("userName", user) == null) {
+                //user and password are legal. Incrementing user count
+                String userCount = Filesystem.restore("userID", "count");
+                String newUserCount = Integer.toString(Integer.parseInt(userCount) + 1);
+                if (Filesystem.store("userID", "count", newUserCount)) {
+                    //check for first userID available
+                    int userNum = 0;
+                    for (int i = 0; i != Integer.parseInt(userCount); i++) {
+                        if (Filesystem.restore("userID", ("user" + Integer.toString(i)))==null) {
+                            userNum = i;
+                            break;
+                        }
+                    }
+                    String userID = "user" + Integer.toString(userNum);
+                    boolean success = true;
+                    success = success && Filesystem.store("userName", user, userID);
+                    success = success && Filesystem.store("userID", userID, password);
+                    if (success) Interface.post("New user added");
+                    else Interface.post("Cannot access system storage");
+                } else Interface.post("Cannot access system storage");
+            } else Interface.post("Username already taken");
+        }
     }
 
     private void listUsers(ArrayList<String> params) {
-        //TODO
-        Interface.post("This function is still in development");
+        String userCount = Filesystem.restore("userID", "count");
+        if (userCount != null) {
+            Interface.post("Total users: " + userCount);
+        } else Interface.post("Cannot access system storage");
     }
 
     private void logout(ArrayList<String> params) {
@@ -174,7 +221,11 @@ public class User implements Shell {
                     userLogged = true;
                     currentUser = user;
                     Interface.post(("Welcome back " + user));
+                } else {
+                    System.out.println("Wrong password");
                 }
+            } else {
+                System.out.println("Username not found");
             }
         }
     }

@@ -1,7 +1,6 @@
 package Shell;
 
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -86,7 +85,7 @@ public class Interface {
      * loading screen
      */
     private static void welcomeScreen() {
-        System.out.println("KnotOS");
+        System.out.println("KnotOS starting..");
         displayLogo(0);
         loadModule(new Filesystem());
         displayLogo(10);
@@ -98,6 +97,7 @@ public class Interface {
         displayLogo(40);
         post = new ArrayList<String>();
         displayLogo(50);
+        loadModule(new Tester());
         displayLogo(60);
         displayLogo(70);
         displayLogo(80);
@@ -114,7 +114,7 @@ public class Interface {
      * from user and pass request to
      * specialized function
      */
-    private static ArrayList<String> readInput() {
+    private static ArrayList<String> readInput() { //TODO bugged. Doesnt remove dashes
         Scanner scanner = new Scanner(System.in);
         String userInput = scanner.nextLine();
         String trimmed = userInput.trim();
@@ -164,7 +164,7 @@ public class Interface {
     }
 
 
-    private static void displayLocation() { //TODO slashes
+    private static void displayLocation() { //TODO bugged. No slashes
         ArrayList<String> location = Filesystem.getCurrentLocation();
         boolean firstSlash = true;
         while (location.size() > 0) {
@@ -236,5 +236,44 @@ public class Interface {
         Scanner scanner = new Scanner(System.in);
         System.out.println(question);
         return scanner.nextLine();
+    }
+
+    public static void pass(String cmd) {
+
+        String trimmed = cmd.trim();
+        String[] inputArray = trimmed.split(" ");
+        ArrayList<String> userInput = new ArrayList<String>(Arrays.asList(inputArray));
+        for (int i = 1; i != userInput.size(); i++) {
+            if (userInput.get(i).substring(0, 1) == "-") {
+                userInput.set(i, userInput.get(i).substring(1));
+            }
+        }
+
+        int foundModuleID = MAX_MODULES;
+        boolean foundModule = false;
+        for (int i = 0; i != loadedModules; i++) {
+            for (int y = 0; y != modules[i].getShellCommands().size(); y++) {
+                String cmdToCheck = modules[i].getShellCommands().get(y);
+                String inputToCheck = userInput.get(0);
+                if (inputToCheck.equals(cmdToCheck)) {
+                    foundModuleID = i;
+                    foundModule = true;
+                }
+                if (foundModule) break;
+            }
+            if (foundModule) break;
+        }
+        //checks if any module was found
+        if (foundModuleID == MAX_MODULES) {
+            System.out.println("Command was not found. Help:");
+            getHelp();
+        } else {
+            //checks if user wants help
+            if ((userInput.size() > 1 && userInput.get(1).equals("help")) || (userInput.size() > 1 && userInput.get(1).equals("h")))
+                modules[foundModuleID].getHelp();
+                //passes command to module
+            else modules[foundModuleID].pass(userInput);
+        }
+        makePost();
     }
 }

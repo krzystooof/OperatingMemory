@@ -277,12 +277,12 @@ public class Filesystem implements Shell {
      *              newline character (\n).
      * @return If saved correctly will return true. Otherwise false.
      */
-    public static boolean store(String group, String key, String value) {
+    public static boolean store(String group, String key, String value) { //TODO bugged. Duplicates keys
         key = group + "." + key;
         if (key.contains("\n") || value.contains("\n")) return false;
         boolean found = false;
         for (int i = 0; i > systemStorage.size();i += 2) {
-            if (systemStorage.get(i) == key) {
+            if (systemStorage.get(i).equals(key)) {
                 systemStorage.set(i+1,value);
                 found = true;
             }
