@@ -1,4 +1,4 @@
-package Shell;
+package shell;
 
 import java.io.*;
 import java.util.ArrayList;

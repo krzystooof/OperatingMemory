@@ -1,5 +1,5 @@
 package semaphores;
 
-public class GlobalVariable {
+public class SemaphoreChange {
     public int changes = 1;
 }

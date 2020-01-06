@@ -1,7 +1,7 @@
-package Test.cpu;
+package tests.cpu;
 
 import cpuscheduler.CpuScheduler;
-import cpuscheduler.Pcb;
+import cpuscheduler.PCB;
 import cpuscheduler.State;
 
 import java.util.ArrayList;
@@ -20,22 +20,22 @@ public class CpuSchedulerTest {
     @Test
     public void testReadyList() {
         CpuScheduler cpuScheduler = new CpuScheduler();
-        Pcb first = new Pcb(1, 1, State.NEW, "First");
-        Pcb second = new Pcb(2, 2, State.NEW, "Second");
-        Pcb third = new Pcb(3, 3, State.NEW, "Third");
+        PCB first = new PCB(1, 1, State.NEW, "First");
+        PCB second = new PCB(2, 2, State.NEW, "Second");
+        PCB third = new PCB(3, 3, State.NEW, "Third");
 
         cpuScheduler.addProcess(first);
         cpuScheduler.addProcess(second);
         cpuScheduler.addProcess(third);
 
-        List<Pcb> items = new ArrayList<>();
+        List<PCB> items = new ArrayList<>();
         items.add(second);
         items.add(first);
 
-        Pcb [] itemsArray = new Pcb[2];
+        PCB[] itemsArray = new PCB[2];
         itemsArray = items.toArray(itemsArray);
 
-        Queue<Pcb> readyList = cpuScheduler.getReadyPcb();
+        Queue<PCB> readyList = cpuScheduler.getReadyPCB();
         Object [] readyListArray = readyList.toArray();
 
         assertArrayEquals(readyListArray, itemsArray);
@@ -45,16 +45,16 @@ public class CpuSchedulerTest {
     @Test
     public void testRemoveProcess() {
         CpuScheduler cpuScheduler = new CpuScheduler();
-        Pcb first = new Pcb(1, 1, State.NEW, "First");
-        Pcb second = new Pcb(2, 2, State.NEW, "Second");
-        Pcb third = new Pcb(3, 3, State.NEW, "Third");
+        PCB first = new PCB(1, 1, State.NEW, "First");
+        PCB second = new PCB(2, 2, State.NEW, "Second");
+        PCB third = new PCB(3, 3, State.NEW, "Third");
 
         cpuScheduler.addProcess(first);
         cpuScheduler.addProcess(second);
         cpuScheduler.addProcess(third);
 
         assertTrue(cpuScheduler.removeProcess(3));
-        assertEquals(cpuScheduler.getRunningPcb().name, "Second");
+        assertEquals(cpuScheduler.getRunningPCB().NAME, "Second");
 
     }
 
@@ -63,28 +63,28 @@ public class CpuSchedulerTest {
     @Test
     public void testGetRunningPcb() {
         CpuScheduler cpuScheduler = new CpuScheduler();
-        Pcb first = new Pcb(1, 1, State.NEW, "First");
-        Pcb second = new Pcb(2, 2, State.NEW, "Second");
-        Pcb third = new Pcb(3, 3, State.NEW, "Third");
+        PCB first = new PCB(1, 1, State.NEW, "First");
+        PCB second = new PCB(2, 2, State.NEW, "Second");
+        PCB third = new PCB(3, 3, State.NEW, "Third");
 
         cpuScheduler.addProcess(third);
-        assertEquals(cpuScheduler.getRunningPcb().name, "Third");
+        assertEquals(cpuScheduler.getRunningPCB().NAME, "Third");
 
     }
 
     @Test
     public void testNextProcess() {
         CpuScheduler cpuScheduler = new CpuScheduler();
-        Pcb first = new Pcb(1, 1, State.NEW, "First");
-        Pcb second = new Pcb(2, 2, State.NEW, "Second");
-        Pcb third = new Pcb(3, 3, State.NEW, "Third");
+        PCB first = new PCB(1, 1, State.NEW, "First");
+        PCB second = new PCB(2, 2, State.NEW, "Second");
+        PCB third = new PCB(3, 3, State.NEW, "Third");
 
         cpuScheduler.addProcess(first);
         cpuScheduler.addProcess(third);
         cpuScheduler.addProcess(second);
 
         cpuScheduler.nextProcess();
-        assertEquals("Second", cpuScheduler.getRunningPcb().name);
+        assertEquals("Second", cpuScheduler.getRunningPCB().NAME);
     }
 
 

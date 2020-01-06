@@ -1,31 +1,32 @@
 package cpuscheduler;
+
 /**
  * Class Pcb represents semaphores.Process Control Block
  */
-public class Pcb {
+public class PCB {
 
-    public int pid;
-    public int priority;
+    public int PID;
+    public int PRIORITY;
+    public String NAME;
     public State state;
-    public String name;
     public int programCounter;
     public Registers registers;
 
-    public Pcb(int pid, int priority, State state, String name) {
-        this.pid = pid;
-        this.priority = priority;
+    public PCB(int PID, int PRIORITY, State state, String NAME) {
+        this.PID = PID;
+        this.PRIORITY = PRIORITY;
+        this.NAME = NAME;
         this.state = state;
-        this.name = name;
     }
 
 
     @Override
     public String toString() {
         return "Pcb{" +
-                "pid=" + pid +
-                ", priority=" + priority +
+                "pid=" + PID +
+                ", priority=" + PRIORITY +
                 ", state=" + state +
-                ", name='" + name + '\'' +
+                ", name='" + NAME + '\'' +
                 ", programCounter=" + programCounter +
                 ", registers=" + registers +
                 '}';

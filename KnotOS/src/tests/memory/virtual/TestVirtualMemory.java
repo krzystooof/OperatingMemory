@@ -1,4 +1,4 @@
-package Test.memory.virtual;
+package tests.memory.virtual;
 
 import memory.virtual.VirtualMemory;
 

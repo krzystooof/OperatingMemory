@@ -1,4 +1,4 @@
-package Shell;
+package shell;
 
 import java.util.ArrayList;
 
@@ -8,7 +8,7 @@ public class Tester implements Shell {
     @Override
     public ArrayList<String> getShellCommands() {
         ArrayList<String> ret =  new ArrayList<String>();
-        ret.add("test");
+        ret.add("tests");
         return ret;
     }
 
@@ -20,7 +20,7 @@ public class Tester implements Shell {
     @Override
     public void getHelp() {
         System.out.println("Help regarding system tests:\n" +
-                "test");
+                "tests");
     }
 
     @Override
@@ -31,9 +31,9 @@ public class Tester implements Shell {
     private void test() {
 
         //HEADERS
-        printTestHeader("Test", "Testing header printing", "Printed header");
+        printTestHeader("tests", "Testing header printing", "Printed header");
 
-        printTestHeader("Test", "Testing headers with really long descriptions to test breaking strings into lines. " +
+        printTestHeader("tests", "Testing headers with really long descriptions to test breaking strings into lines. " +
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
                 "Suspendisse ullamcorper neque sodales ultricies scelerisque. " +
                 "Sed facilisis euismod tellus, eu aliquet nulla posuere et. " +

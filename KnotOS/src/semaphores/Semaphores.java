@@ -7,7 +7,7 @@ import java.util.*;
  *
  * @author Grzegorz
  * @version 1.1
- * @since 2014-12-16
+ * @since 2019-12-16
  */
 
 
@@ -22,7 +22,7 @@ public class Semaphores {
     Process Process = new Process();
 
     //Checking if warning happened in system
-    GlobalVariable changes = new GlobalVariable();
+    SemaphoreChange changes = new SemaphoreChange();
 
     /**
      * Allocates process in memory
@@ -52,7 +52,7 @@ public class Semaphores {
      *
      * @param Process object
      */
-    private void wakeup(Process Process) {
+    private void wakeUp(Process Process) {
         Process.state = ProcessState.Ready;
         changes.changes = 1;
 
@@ -67,7 +67,7 @@ public class Semaphores {
         semaphore.value++;
         if (semaphore.value <= 0) {
             semaphore.queue.remove(Process);
-            wakeup(Process);
+            wakeUp(Process);
         }
     }
 

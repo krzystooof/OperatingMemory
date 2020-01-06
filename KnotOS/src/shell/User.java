@@ -1,8 +1,5 @@
-package Shell;
+package shell;
 
-import java.beans.IntrospectionException;
-import java.io.File;
-import java.nio.file.FileStore;
 import java.util.ArrayList;
 import java.util.Scanner;
 

@@ -15,23 +15,23 @@ import java.util.*;
 public class CpuScheduler {
 
     // semaphores.Process in Running state
-    private Pcb runningPcb;
+    private PCB runningPCB;
 
 
     //List of processes in Ready state
-    private PriorityQueue<Pcb> readyPcb;
+    private PriorityQueue<PCB> readyPCB;
 
 
     //List of processes in Waiting state
-    private PriorityQueue<Pcb> waitingPcb;
+    private PriorityQueue<PCB> waitingPCB;
 
     /**
      *  Method change state of process to Running
      * @param pcb process
      */
-    private void runProcess(Pcb pcb){
+    private void runProcess(PCB pcb){
         pcb.state = State.RUNNING;
-        this.runningPcb = pcb;
+        this.runningPCB = pcb;
     }
 
 
@@ -40,8 +40,8 @@ public class CpuScheduler {
      *
      * @return next process which will be execute in the near future
      */
-    private Pcb findNextProccess(){
-        Pcb pcb = readyPcb.poll();
+    private PCB findNextProccess(){
+        PCB pcb = readyPCB.poll();
         return pcb;
     }
 
@@ -49,9 +49,9 @@ public class CpuScheduler {
      *  Public constructor of CpuScheduler class
      */
     public CpuScheduler(){
-        waitingPcb = new PriorityQueue<>(new PcbComparator());
-        readyPcb = new PriorityQueue<>(new PcbComparator());
-        runProcess(new Pcb(0,0, State.NEW, "idle thread"));
+        waitingPCB = new PriorityQueue<>(new PcbComparator());
+        readyPCB = new PriorityQueue<>(new PcbComparator());
+        runProcess(new PCB(0,0, State.NEW, "idle thread"));
     }
 
     /**
@@ -60,22 +60,24 @@ public class CpuScheduler {
      * @return true if process is valid otherwise false
      *
      * */
-    public boolean addProcess(Pcb pcb){
+    public boolean addProcess(PCB pcb){
 
         // Checks if priority is valid
-        if (pcb.priority > 31 && pcb.priority < 0){
+        if (pcb.PRIORITY > 31 && pcb.PRIORITY < 0){
+            // TODO:
+            // Condition 'pcb.priority > 31 && pcb.priority < 0' is always 'false'
             return false;
         }
 
-        if(pcb.priority > this.runningPcb.priority){
-            if(runningPcb.priority != 0){
-                runningPcb.state = State.READY;
-                readyPcb.add(runningPcb);
+        if(pcb.PRIORITY > this.runningPCB.PRIORITY){
+            if(runningPCB.PRIORITY != 0){
+                runningPCB.state = State.READY;
+                readyPCB.add(runningPCB);
             }
             runProcess(pcb);
         }
         else {
-            readyPcb.add(pcb);
+            readyPCB.add(pcb);
         }
 
         return true;
@@ -89,14 +91,14 @@ public class CpuScheduler {
      */
     public boolean removeProcess(int pid){
 
-        if(getRunningPcb().pid == pid){
+        if(getRunningPCB().PID == pid){
             runProcess(findNextProccess());
             return true;
         }
         else {
-            for (Pcb pcb : readyPcb) {
-                if (pcb.pid == pid) {
-                    readyPcb.remove(pcb);
+            for (PCB pcb : readyPCB) {
+                if (pcb.PID == pid) {
+                    readyPCB.remove(pcb);
                     return true;
                 }
 
@@ -109,22 +111,22 @@ public class CpuScheduler {
      * Method returns list of readyPcb
      * @return List of ready PCB if the list is empty return null
      */
-    public PriorityQueue<Pcb> getReadyPcb() {
-        if(readyPcb.isEmpty()){
+    public PriorityQueue<PCB> getReadyPCB() {
+        if(readyPCB.isEmpty()){
             return null;
         }
-        return readyPcb;
+        return readyPCB;
     }
 
     /**
      * Method returns list of readyPcb
      * @return List of ready PCB if the list is empty return null
      */
-    public PriorityQueue<Pcb> getWaitingPcb() {
-        if(waitingPcb.isEmpty()){
+    public PriorityQueue<PCB> getWaitingPCB() {
+        if(waitingPCB.isEmpty()){
             return null;
         }
-        return waitingPcb;
+        return waitingPCB;
     }
 
 
@@ -133,13 +135,13 @@ public class CpuScheduler {
      * if ready list is empty, returns process with priority 0 - Idle.
      * @return PCB which has state Running
      */
-    public Pcb getRunningPcb() {
+    public PCB getRunningPCB() {
 
-        if (readyPcb.isEmpty() && runningPcb==null){
-            return new Pcb(0,0, State.RUNNING, "Idle process");
+        if (readyPCB.isEmpty() && runningPCB ==null){
+            return new PCB(0,0, State.RUNNING, "Idle process");
         }
 
-        return runningPcb;
+        return runningPCB;
     }
 
     /**
@@ -147,7 +149,7 @@ public class CpuScheduler {
      * @return true if ready list is not empty, otherwise false
      */
     public boolean nextProcess(){
-        if(readyPcb.isEmpty()){
+        if(readyPCB.isEmpty()){
             return false;
         }
         runProcess(findNextProccess());
@@ -158,10 +160,10 @@ public class CpuScheduler {
 /**
  * Comparator for comparing different Pcb objects
  */
-class PcbComparator implements Comparator<Pcb>{
+class PcbComparator implements Comparator<PCB>{
 
     @Override
-    public int compare(Pcb o1, Pcb o2) {
-        return Integer.compare(o2.priority, o1.priority);
+    public int compare(PCB o1, PCB o2) {
+        return Integer.compare(o2.PRIORITY, o1.PRIORITY);
     }
 }
