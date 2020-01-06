@@ -8,7 +8,12 @@ import java.util.HashMap;
 import memory.SegmentTable;
 import memory.physical.PhysicalMemoryManager;
 
-
+/**
+ * VirtualMemory is responsible for memory management.
+ * Implemented by memory segmentation.
+ *
+ * @author Roland
+ */
 public class VirtualMemory {
     private HashMap<Integer, Integer[]> processMap = new HashMap<>();
     private SegmentTable segments = new SegmentTable();
