@@ -1,4 +1,5 @@
+
 public class GlobalVariable {
-	public static int changes=1;
+	public int changes=1;
 
 }
