@@ -12,7 +12,11 @@ import java.util.stream.IntStream;
 public class TestVirtualMemory {
     VirtualMemory memory;
 
-    public void initTestEnv(){
+    /*
+    Initialise test environment by simulating multiple process loading.
+    Each process has one or two segment with different data for debug purposes.
+     */
+    public void initTest() {
         this.memory = new VirtualMemory(1024, 256);
         byte[] data = new byte[128];
         IntStream.range(0, 64).forEach(n -> data[n] = 1);
@@ -27,7 +31,6 @@ public class TestVirtualMemory {
         IntStream.range(0, 64).forEach(n -> data[n] = 5);
         IntStream.range(64, 128).forEach(n -> data[n] = 6);
         memory.load(5, 64, 64, data);
-
         IntStream.range(0, 32).forEach(n -> data[n] = 7);
         IntStream.range(32, 64).forEach(n -> data[n] = 8);
         memory.load(6, 32, 32, data);
@@ -36,21 +39,17 @@ public class TestVirtualMemory {
         IntStream.range(0, 10).forEach(n -> data[n] = 'A');
         memory.load(8, 10, 0, data);
     }
-    public TestVirtualMemory() {
-
-    }
-
 
     @Test
     public void testLoad() {
-        initTestEnv();
+        initTest();
         assertEquals(memory.getSpaceLeft(true, false), 256);
         assertEquals(memory.getSpaceLeft(false, true), 172);
     }
 
     @Test
     public void testSegmentationError() {
-        initTestEnv();
+        initTest();
         assertThrows(IllegalArgumentException.class, () -> {
             memory.read(0, 128);
         });
@@ -62,19 +61,23 @@ public class TestVirtualMemory {
         });
     }
 
-    @Test
-    public void testSwapToFile() {
-        initTestEnv();
-        memory.read(0,2);
-        memory.read(0,92);
-        memory.read(3,2);
-        memory.read(3,92);
-        assertEquals(memory.getSpaceLeft(true,false), 0);
-    }
+//    @Test
+//    public void testSwapToFile() {
+//        initTest();
+//        memory.read(0, 2);
+//        memory.read(0, 92);
+//        memory.read(3, 2);
+//        memory.read(3, 92);
+//        assertEquals(memory.getSpaceLeft(true, false), 0);
+//        assertEquals(memory.getSpaceLeft(false, true), 428);
+//
+//        memory.read(1,1);
+//        assertEquals(memory.getSpaceLeft(false, true), 428);
+//    }
 
     @Test
     public void testRead() {
-        initTestEnv();
+        initTest();
         assertEquals(memory.read(0, 63), 1);
         assertEquals(memory.read(0, 127), 2);
         assertEquals(memory.read(1, 0), 1);
@@ -112,7 +115,7 @@ public class TestVirtualMemory {
 
     @Test
     public void testDelete() {
-        initTestEnv();
+        initTest();
         memory.delete(0);
         assertThrows(IllegalArgumentException.class, () -> {
             memory.read(0, 10);
@@ -129,7 +132,7 @@ public class TestVirtualMemory {
 
     @Test
     public void testWrite() {
-        initTestEnv();
+        initTest();
         memory.write(0, 5, (byte) 9);
         assertEquals(memory.read(0, 5), (byte) 9);
     }
@@ -137,7 +140,7 @@ public class TestVirtualMemory {
 
     @Test
     public void testMemoryShortage() {
-        initTestEnv();
+        initTest();
         byte[] code = new byte[1200];
         IntStream.range(0, 1200).forEach(n -> code[n] = 1);
         assertThrows(IllegalStateException.class, () -> {

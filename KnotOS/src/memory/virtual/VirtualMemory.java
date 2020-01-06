@@ -263,7 +263,9 @@ public class VirtualMemory {
     private void swapToFile(int ID) {
         try {
             byte[] data = readSegment(ID);
-            swapLeft -= segments.getLimit(ID);
+            int limit = segments.getLimit(ID);
+            System.arraycopy(data, 0, swapFile, writePointer, limit);
+            swapLeft -= limit;
             writePointer += data.length;
             segments.swapToFile(ID);
         } catch (IllegalArgumentException error) {

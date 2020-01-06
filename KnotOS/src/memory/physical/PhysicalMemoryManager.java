@@ -152,8 +152,9 @@ public class PhysicalMemoryManager {
             Segment nextSegment = segmentsInfos.get(i + 1);
             byte[] backup = ram.getByte(nextSegment.BASE, nextSegment.BASE + nextSegment.LIMIT - 1);
             if (nextFreeByte + backup.length - 1 < ramSize) {
-                segmentTable.delete(nextSegment.ID);
-                segmentTable.addSegment(nextSegment.ID, nextFreeByte, backup.length);
+//                segmentTable.delete(nextSegment.ID);
+//                segmentTable.addSegment(nextSegment.ID, nextFreeByte, backup.length);
+                segmentTable.setBase(nextSegment.ID, nextFreeByte);
                 ram.saveByte(nextFreeByte, backup);
             }
         }
