@@ -70,7 +70,4 @@ public class SegmentTable {
         return true;
     }
 
-    public void sort() {
-        Collections.sort(segments);
-    }
 }

@@ -21,28 +21,28 @@ public class RAM {
      * Creates memory with given size
      **/
     public RAM(int ramSize) {
-        this.ramSize = ramSize; // dodałem bo inaczej nie zapisze zmiany
+        this.ramSize = ramSize;
         memory = new byte[ramSize];
     }
 
     /**
      * Read byte from memory
      *
-     * @param adress index of wanted byte in memory (byte table)
+     * @param address index of wanted byte in memory (byte table)
      * @return wanted byte
      */
-    protected byte getByte(int adress) {
-        return memory[adress];
+    protected byte getByte(int address) {
+        return memory[address];
     }
 
     /**
      * Save given byte to memory
      *
-     * @param adress index of given byte in memory (byte table)
+     * @param address index of given byte in memory (byte table)
      * @param data   given byte
      */
-    protected void saveByte(int adress, byte data) {
-        memory[adress] = data;
+    protected void saveByte(int address, byte data) {
+        memory[address] = data;
     }
 
     /**
