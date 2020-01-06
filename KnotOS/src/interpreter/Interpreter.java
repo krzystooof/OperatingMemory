@@ -1076,7 +1076,7 @@ public class Interpreter {
 
             }
         }
-        process.saveRegisters(regs);
+        // process.saveRegisters(regs);
     }
 }
 
