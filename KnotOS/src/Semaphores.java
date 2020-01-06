@@ -1,48 +1,69 @@
 import java.io.*;
 import java.util.*;
 
-//block,waitt,wakeup,signal - Tested
+/**
+* Class Semaphores is used for synchronization 
+*
+* @author  Grzegorz
+* @version 1.1
+* @since   2014-12-16 
+*/
 
  
 public class Semaphores {
-  public int value = 0;
-  Queue<Process> queue = new ArrayDeque<Process>(); //Queue of waiting processes
-  Process Process = new Process();
-  GlobalVariable changes = new GlobalVariable();
-  /*
-  Semaphores(int value){
-      this.value=value;
-  }
-  */
+	//value of Semaphore
+	public int value = 0;
+	
+	//Queue of waiting processes
+	Queue<Process> queue = new ArrayDeque<Process>(); 
+	
+	//Process object
+	Process Process = new Process();
+	
+	//Checking if warning happened in system
+	GlobalVariable changes = new GlobalVariable();
  
- 
-  //Changes ProcessState to waiting
-  private void block(){
-        Process.state=ProcessState.Waiting;
+	/**
+   	* Allocates process in memory
+   	*/
+	private void block(){
+		Process.state=ProcessState.Waiting;
         changes.changes=-1; // process is blocked
        
-  }
+	}
    
-  //Checking if memory is empty
-  public void waitt(Semaphores semaphore){
-     semaphore.value--;
+	/**
+	 * Checking if memory is empty
+	 *
+	 * @param semaphore object
+	 */
+	public void waitSem(Semaphores semaphore){
+		semaphore.value--;
         if(semaphore.value<0){
-        semaphore.queue.add(Process);
+        	semaphore.queue.add(Process);
             block();
         }
  
-    }
- 
-  //Changes ProcessState to Ready
-    private void wakeup(Process Process){
+	}
+  
+	/**
+	 * Changes ProcessState to Ready from Waiting
+	 *
+	 * @param Process object
+	 */
+	private void wakeup(Process Process){
         Process.state=ProcessState.Ready;
         changes.changes=1;
        
     }
- 
-    //Frees up memory space
-    public void signal(Semaphores semaphore){
-        semaphore.value++;
+    
+    /**
+     * Frees up memory space
+     *
+     * @param semaphore object
+     */
+    public void signalSem(Semaphores semaphore){
+    	semaphore.value++;
         if(semaphore.value<=0){
             semaphore.queue.remove(Process);
             wakeup(Process);

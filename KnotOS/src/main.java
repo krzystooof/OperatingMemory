@@ -4,15 +4,15 @@ public class main {
 	public static void main(String[] args) throws InterruptedException  {
 		Semaphores semafor= new Semaphores();
 		System.out.println(semafor.value);
-		semafor.signal(semafor);
+		semafor.signalSem(semafor);
 		System.out.println(semafor.value);
-		semafor.waitt(semafor);
+		semafor.waitSem(semafor);
 		System.out.println(semafor.value);
-		semafor.waitt(semafor);
+		semafor.waitSem(semafor);
 		System.out.println(semafor.value);
-		semafor.waitt(semafor);
+		semafor.waitSem(semafor);
 		System.out.println(semafor.queue.size());
-		semafor.signal(semafor);
+		semafor.signalSem(semafor);
 		System.out.println(semafor.queue.size());
 		
 	}
