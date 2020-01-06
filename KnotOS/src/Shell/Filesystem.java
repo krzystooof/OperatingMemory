@@ -86,29 +86,32 @@ public class Filesystem implements Shell {
     }
 
     private void mkdir(ArrayList<String> params) {
-        if (nameIsLegal(params.get(0))) {
+        if (params.size() > 0) {
+            if (nameIsLegal(params.get(0))) {
+                ArrayList<String> path = new ArrayList<String>();
+                for (String dir : userLocationPathname) path.add(dir);
+                path.add(params.get(0));
+                String stringPath = makeStringPath(path);
+                File toMake = new File(stringPath);
+                if (!toMake.exists()) {
+                    toMake.mkdir();
+                    Interface.post("Directory created");
+                } else Interface.post("Name already taken");
+            } else Interface.post("Illegal name");
+        } else Interface.post("Too few arguments");
+    }
+
+    private void rmdir(ArrayList<String> params) {
+        if (params.size() > 0) {
             ArrayList<String> path = new ArrayList<String>();
             for (String dir : userLocationPathname) path.add(dir);
             path.add(params.get(0));
             String stringPath = makeStringPath(path);
-            File toMake = new File(stringPath);
-            if (!toMake.exists()) {
-                toMake.mkdir();
-                Interface.post("Directory created");
-            } else Interface.post("Name already taken");
-        }
-        else Interface.post("Illegal name");
-    }
-
-    private void rmdir(ArrayList<String> params) {
-        ArrayList<String> path = new ArrayList<String>();
-        for (String dir : userLocationPathname) path.add(dir);
-        path.add(params.get(0));
-        String stringPath = makeStringPath(path);
-        File toRemove = new File(stringPath);
-        if (toRemove.exists() && toRemove.isDirectory()) {
-            remove(params.get(0));
-        } else Interface.post("Directory does not exist");
+            File toRemove = new File(stringPath);
+            if (toRemove.exists() && toRemove.isDirectory()) {
+                remove(params.get(0));
+            } else Interface.post("Directory does not exist");
+        } else Interface.post("Too few arguments");
     }
 
     private void rm(ArrayList<String> params) {
@@ -277,11 +280,11 @@ public class Filesystem implements Shell {
      *              newline character (\n).
      * @return If saved correctly will return true. Otherwise false.
      */
-    public static boolean store(String group, String key, String value) { //TODO bugged. Duplicates keys
+    public static boolean store(String group, String key, String value) {
         key = group + "." + key;
         if (key.contains("\n") || value.contains("\n")) return false;
         boolean found = false;
-        for (int i = 0; i > systemStorage.size();i += 2) {
+        for (int i = 0; i < systemStorage.size();i += 2) {
             if (systemStorage.get(i).equals(key)) {
                 systemStorage.set(i+1,value);
                 found = true;

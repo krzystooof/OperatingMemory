@@ -114,7 +114,7 @@ public class Interface {
      * from user and pass request to
      * specialized function
      */
-    private static ArrayList<String> readInput() { //TODO bugged. Doesnt remove dashes
+    private static ArrayList<String> readInput() {
         Scanner scanner = new Scanner(System.in);
         String userInput = scanner.nextLine();
         String trimmed = userInput.trim();
@@ -122,7 +122,7 @@ public class Interface {
         ArrayList<String> toReturn = new ArrayList<String>(Arrays.asList(inputArray));
         //deletes dashes
         for (int i = 1; i != toReturn.size(); i++) {
-            if (toReturn.get(i).substring(0, 1) == "-") {
+            if (toReturn.get(i).substring(0, 1).equals("-")) {
                 toReturn.set(i, toReturn.get(i).substring(1));
             }
         }
@@ -164,12 +164,15 @@ public class Interface {
     }
 
 
-    private static void displayLocation() { //TODO bugged. No slashes
+    private static void displayLocation() {
         ArrayList<String> location = Filesystem.getCurrentLocation();
         boolean firstSlash = true;
         while (location.size() > 0) {
-            if (firstSlash) System.out.print(location.get(0));
-            else System.out.println("\\" + location.get(0));
+            if (firstSlash) {
+                System.out.print(location.get(0));
+                firstSlash = false;
+            }
+            else System.out.print("\\" + location.get(0));
             location.remove(0);
         }
         System.out.print(">");
