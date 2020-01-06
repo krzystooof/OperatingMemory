@@ -146,12 +146,12 @@ public class PhysicalMemoryManager {
      */
     private void compacificate() {
         ArrayList<Segment> segmentsInfos = getRamSegments();
-        for (int i = 0; i < segmentsInfos.size()-1; i++) {
+        for (int i = 0; i < segmentsInfos.size() - 1; i++) {
             Collections.sort(segmentsInfos);
             int nextFreeByte = segmentsInfos.get(i).BASE + segmentsInfos.get(i).LIMIT;
-            Segment nextSegment = segmentsInfos.get(i+1);
+            Segment nextSegment = segmentsInfos.get(i + 1);
             byte[] backup = ram.getByte(nextSegment.BASE, nextSegment.BASE + nextSegment.LIMIT - 1);
-            if(nextFreeByte+backup.length-1<ramSize) {
+            if (nextFreeByte + backup.length - 1 < ramSize) {
                 segmentTable.delete(nextSegment.ID);
                 segmentTable.addSegment(nextSegment.ID, nextFreeByte, backup.length);
                 ram.saveByte(nextFreeByte, backup);
@@ -167,9 +167,9 @@ public class PhysicalMemoryManager {
      */
     public ArrayList<Segment> getRamSegments() {
         ArrayList<Segment> RAMsegments = new ArrayList<>();
-        for (int i = 0; i < segmentTable.segments.size(); i++) {
-            if (segmentTable.inSwapFile.get(i) == false) RAMsegments.add(segmentTable.segments.get(i));
-        }
+        segmentTable.inSwapFile.forEach((k, v) -> {
+            if (v == false) RAMsegments.add(segmentTable.getSegment(k));
+        });
         return RAMsegments;
     }
 
@@ -199,54 +199,47 @@ public class PhysicalMemoryManager {
         //if return -1, no available space
         ArrayList<Segment> segmentsInfos = getRamSegments();
         if (requestedSize > ramSize) return -1;
-        else if (segmentsInfos.size() > 1) {
-            Collections.sort(segmentsInfos);
-            boolean first = true;
-            boolean found = false;
-            int startIndex = ramSize; //beginning of second segment
-            int stopIndex = 0; //size of first segment
-            //check beginning of ram
-            int startOfFirstSegment = segmentsInfos.get(0).BASE;
-            if (startOfFirstSegment > requestedSize) {
-                first = false;
-                startIndex = startOfFirstSegment;
-                stopIndex = -1;
-            }
-            //check space between every two segments
-            for (int i = 0; i < segmentsInfos.size() - 1; i++) {
-                int difference = segmentsInfos.get(i + 1).BASE - (segmentsInfos.get(i).BASE + segmentsInfos.get(i).LIMIT);
-                if (difference >= requestedSize) {
-                    found = true;
-                    if (first) {
-                        first = false;
-                        startIndex = segmentsInfos.get(i + 1).BASE;
-                        stopIndex = segmentsInfos.get(i).BASE + segmentsInfos.get(i).LIMIT - 1;
-                    } else if (difference < startIndex - stopIndex) {
-                        startIndex = segmentsInfos.get(i + 1).BASE;
-                        stopIndex = segmentsInfos.get(i).BASE + segmentsInfos.get(i).LIMIT - 1;
-                    }
-                }
-                //if no available space found
-                else if (i == segmentsInfos.size() - 2 && !found) stopIndex = -2;
-            }
-            //checking space after last segment
-            int endOfLastSegment = segmentsInfos.get(segmentsInfos.size() - 1).BASE + segmentsInfos.get(segmentsInfos.size() - 1).LIMIT - 1;
-            int spaceAtEndofRam = ramSize - 1 - endOfLastSegment;
-            if (spaceAtEndofRam >= requestedSize && spaceAtEndofRam < startIndex - stopIndex)
-                stopIndex = endOfLastSegment;
-            //returns startIndex for the new segment
-            return stopIndex + 1;
-        }
-        //if no segments return 0
-        else if (segmentsInfos.size() == 0) return 0;
-            //if one segment return space after it
         else {
-            int nextAvailable = segmentsInfos.get(0).BASE + segmentsInfos.get(0).LIMIT;
-
-            //if required bigger than available
-            if (nextAvailable + requestedSize > ramSize) nextAvailable = -1;
-
-            return nextAvailable;
+            if (segmentsInfos.size() > 0) {
+                Collections.sort(segmentsInfos);
+                boolean first = true;
+                boolean found = false;
+                int startIndex = ramSize; //beginning of second segment
+                int stopIndex = 0; //beginning of first segment
+                //check beginning of ram
+                int startOfFirstSegment = segmentsInfos.get(0).BASE;
+                if (startOfFirstSegment >= requestedSize) {
+                    first = false;
+                    startIndex = startOfFirstSegment;
+                    stopIndex = -1;
+                }
+                //check space between every two segments
+                for (int i = 0; i < segmentsInfos.size() - 1; i++) {
+                    int difference = segmentsInfos.get(i + 1).BASE - (segmentsInfos.get(i).BASE + segmentsInfos.get(i).LIMIT);
+                    if (difference >= requestedSize) {
+                        found = true;
+                        if (first) {
+                            first = false;
+                            startIndex = segmentsInfos.get(i + 1).BASE;
+                            stopIndex = segmentsInfos.get(i).BASE + segmentsInfos.get(i).LIMIT - 1;
+                        } else if (difference < startIndex - stopIndex) {
+                            startIndex = segmentsInfos.get(i + 1).BASE;
+                            stopIndex = segmentsInfos.get(i).BASE + segmentsInfos.get(i).LIMIT - 1;
+                        }
+                    }
+                    //if no available space found
+                    else if (i == segmentsInfos.size() - 2 && !found) stopIndex = -2;
+                }
+                //checking space after last segment
+                int endOfLastSegment = segmentsInfos.get(segmentsInfos.size() - 1).BASE + segmentsInfos.get(segmentsInfos.size() - 1).LIMIT - 1;
+                int spaceAtEndofRam = ramSize - 1 - endOfLastSegment;
+                if (spaceAtEndofRam >= requestedSize && spaceAtEndofRam < startIndex - stopIndex)
+                    stopIndex = endOfLastSegment;
+                //returns startIndex for the new segment
+                return stopIndex + 1;
+            }
+            //if no segments return 0
+            else return 0;
         }
     }
 
