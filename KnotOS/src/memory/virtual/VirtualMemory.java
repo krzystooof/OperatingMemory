@@ -26,6 +26,12 @@ public class VirtualMemory {
     private byte[] swapFile;
     private int swapLeft;
 
+
+    /**
+     * Initialises VirtualMemory with specified parameters.
+      * @param virtualSize size of swap file
+     * @param physicalSize  size of RAM
+     */
     public VirtualMemory(int virtualSize, int physicalSize) {
         this.SWAP_SIZE = virtualSize;
         this.swapLeft = SWAP_SIZE;

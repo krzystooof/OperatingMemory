@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class CpuScheduler {
 
-    // Process in Running state
+    // semaphores.Process in Running state
     private Pcb runningPcb;
 
 

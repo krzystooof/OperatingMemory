@@ -25,7 +25,7 @@ public class Process implements Shell {
 
     @Override
     public String getName() {
-        return "Process";
+        return "semaphores.Process";
     }
 
     @Override

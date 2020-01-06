@@ -1,6 +1,6 @@
 package cpuscheduler;
 /**
- * Class Pcb represents Process Control Block
+ * Class Pcb represents semaphores.Process Control Block
  */
 public class Pcb {
 

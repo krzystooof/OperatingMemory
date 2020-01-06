@@ -95,7 +95,7 @@ public class Tester implements Shell {
         Interface.pass("rmdir testfolder");
 
         //PROCESS TODO when assembly files available
-        //printTestHeader("Process", "start", "-");
+        //printTestHeader("semaphores.Process", "start", "-");
 
         //USER TODO when debugged
 
