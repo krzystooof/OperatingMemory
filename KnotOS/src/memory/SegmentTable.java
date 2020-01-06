@@ -34,14 +34,6 @@ public class SegmentTable {
         return findSegment(ID).LIMIT;
     }
 
-    public void setLimit(int ID, int value) {
-        if (inSwapFile(ID)) {
-            throw new IllegalArgumentException("ACCESS DENIED");
-        } else {
-            findSegment(ID).LIMIT = value;
-        }
-    }
-
     public void swapToRam(int ID) {
         inSwapFile.put(ID, Boolean.FALSE);
     }
@@ -66,6 +58,16 @@ public class SegmentTable {
             }
         }
         throw new IllegalArgumentException("SEGMENT DOES NOT EXIST");
+    }
+
+    public boolean hasHighestBase(int ID){
+        Segment highest = findSegment(ID);
+        for (Segment segment : segments) {
+            if (segment.BASE > highest.BASE && inSwapFile(segment.ID)){
+                 return false;
+            }
+        }
+        return true;
     }
 
     public void sort() {

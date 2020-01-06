@@ -1,8 +1,8 @@
 package memory.virtual;
 
 import java.util.Arrays;
-import java.util.Queue;;
-import java.util.LinkedList;;;
+import java.util.Queue;
+import java.util.LinkedList;
 import java.util.HashMap;
 
 import memory.SegmentTable;
@@ -59,6 +59,7 @@ public class VirtualMemory {
 
     /**
      * Removes program from memory
+     * Clears process swap memory only if segments have highest indexes.
      *
      * @param PID process unique ID
      */
@@ -66,20 +67,21 @@ public class VirtualMemory {
         int textSegmentId = processMap.get(PID)[0];
         int dataSegmentId = processMap.get(PID)[1];
 
-        if (segments.inSwapFile(textSegmentId)) {
-            wipeSegment(segments.getLimit(textSegmentId), textSegmentId);
-            segmentQueue.remove(textSegmentId);
-        } else {
-            segments.delete(textSegmentId);
+        if (segments.hasHighestBase(textSegmentId)) {
+            swapLeft += segments.getLimit(textSegmentId);
+            writePointer -= segments.getLimit(textSegmentId);
         }
 
+        segments.delete(textSegmentId);
+        segmentQueue.remove(textSegmentId);
+
         if (dataSegmentId > 0) {
-            if (segments.inSwapFile(dataSegmentId)) {
-                wipeSegment(segments.getLimit(dataSegmentId), dataSegmentId);
-                segmentQueue.remove(dataSegmentId);
-            } else {
-                segments.delete(dataSegmentId);
+            if (segments.hasHighestBase(dataSegmentId)) {
+                swapLeft += segments.getLimit(dataSegmentId);
+                writePointer -= segments.getLimit(dataSegmentId);
             }
+            segments.delete(dataSegmentId);
+            segmentQueue.remove(dataSegmentId);
         }
     }
 
@@ -302,16 +304,6 @@ public class VirtualMemory {
         }
         return data;
     }
-
-    /**
-     * Removes segment from swap file
-     */
-    private void wipeSegment(int limit, int ID) {
-        swapLeft += limit;
-        writePointer -= limit;
-        segments.delete(ID);
-    }
-
 }
 
 
