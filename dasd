@@ -1,0 +1,126 @@
+[33mcommit fd5ecdc492ebf5a71ff36db173349fc525dc38d2[m[33m ([m[1;36mHEAD -> [m[1;32mSemaphores[m[33m, [m[1;31morigin/Semaphores[m[33m)[m
+Author: MCGregoryy <gregordr123@gmail.com>
+Date:   Wed Dec 18 00:10:39 2019 +0100
+
+    Semaforki
+
+[33mcommit 5358f3f4e209a706029fda596ea8120ac39fc8e4[m
+Author: Grzegorz D <gregordr123@gmail.com>
+Date:   Tue Dec 17 22:58:53 2019 +0000
+
+    Delete Semaphores
+
+[33mcommit 7b5dd808a5e38c1d736501f9cc81dcd05ba09bf2[m
+Author: MCGregoryy <gregordr123@gmail.com>
+Date:   Tue Dec 17 23:46:49 2019 +0100
+
+    Semafory
+
+[33mcommit 316cb0014d5ceb387452a9bdc7035d61167d14df[m
+Author: Grzegorz D <gregordr123@gmail.com>
+Date:   Tue Dec 17 00:03:31 2019 +0000
+
+    Add new file
+
+[33mcommit ce08fed06c929f5df2fd6b4339dbe5fedc9ca464[m
+Author: Grzegorz D <gregordr123@gmail.com>
+Date:   Tue Dec 17 00:02:50 2019 +0000
+
+    Delete GlobalVariable
+
+[33mcommit 32a4b0edd671c72465b842f04346d7eff14783f6[m
+Author: Grzegorz D <gregordr123@gmail.com>
+Date:   Tue Dec 17 00:02:36 2019 +0000
+
+    Update .gitignore
+
+[33mcommit c0b3f5d672f7262a7bd37e752c7dfa5ad3308dfb[m
+Author: Grzegorz D <gregordr123@gmail.com>
+Date:   Tue Dec 17 00:01:46 2019 +0000
+
+    Add new file
+
+[33mcommit 563d83f8ac227a2e309f3dbed9326f5a773c9e30[m
+Author: Grzegorz D <gregordr123@gmail.com>
+Date:   Mon Dec 16 23:59:06 2019 +0000
+
+    Update KnotOS/src/Sempahore.java
+
+[33mcommit 4b657ed61f0a618f07342b72be0670b80405a700[m
+Author: unknown <rellayt09s@gmail.com>
+Date:   Thu Dec 5 14:01:15 2019 +0100
+
+    deleted
+
+[33mcommit 577d5a5f9465ad0d2569243b5e43f1f68d249345[m
+Author: unknown <rellayt09s@gmail.com>
+Date:   Thu Dec 5 13:59:50 2019 +0100
+
+    init
+
+[33mcommit b915d40ed41c54a3a94da5b0ad599e659b0c8265[m
+Author: Grzegorz D <gregordr123@gmail.com>
+Date:   Tue Dec 3 19:49:01 2019 +0000
+
+    Semaphore class and methods
+
+[33mcommit 08d99c525d73739d1f8e3ac83bfec07234273019[m
+Author: Grzegorz D <gregordr123@gmail.com>
+Date:   Tue Dec 3 18:15:32 2019 +0000
+
+    Update .gitignore
+
+[33mcommit c003423106d587796e954d2a2d09e594798446fc[m
+Author: Grzegorz D <gregordr123@gmail.com>
+Date:   Tue Dec 3 18:00:32 2019 +0000
+
+    Add new file
+
+[33mcommit 5c70e5f4fcd0893dc377cca282a8954ce33fb7b6[m
+Merge: 4c8b127 66edcaa
+Author: Roland <rolandj@protonmail.com>
+Date:   Wed Nov 20 22:59:54 2019 +0100
+
+    Update README.md
+
+[33mcommit 4c8b1278c6bbbc193df8ac253e60d75deeb3fe97[m
+Author: Roland <rolandj@protonmail.com>
+Date:   Wed Nov 20 22:55:44 2019 +0100
+
+    Update .gitignore
+
+[33mcommit 66edcaae3bc5e5ebf7e49eaa64d97d9d236dbd63[m
+Author: Roland Jaloszynski <rolandj@protonmail.com>
+Date:   Wed Nov 20 21:06:05 2019 +0000
+
+    Update README.md
+
+[33mcommit cecdd121865a7062ca68b51354f737faf0bcd726[m
+Author: Roland Jaloszynski <rolandj@protonmail.com>
+Date:   Wed Nov 20 21:04:51 2019 +0000
+
+    Update README.md
+
+[33mcommit 1bc215008bf140c2fb6423aa535656fd2f2089f6[m
+Author: Roland <rolandj@protonmail.com>
+Date:   Wed Nov 20 22:03:38 2019 +0100
+
+    VirtualMemory class added
+
+[33mcommit 25e9bf9e4bf39dabca551be4f5b733ae045320fe[m
+Author: Roland <rolandj@protonmail.com>
+Date:   Mon Nov 18 14:58:40 2019 +0100
+
+    .gitignore added
+
+[33mcommit 23ba2e5089bb56872dac65c60807b89cd409dfb2[m
+Author: Jcob <jchodubski@pm.me>
+Date:   Fri Nov 15 14:49:42 2019 +0100
+
+    Adds Main class
+
+[33mcommit d351d3ec686fc2be0dc4db954e010afa11bf1846[m
+Author: Jcob <jchodubski@pm.me>
+Date:   Thu Nov 14 16:50:04 2019 +0100
+
+    Initial commit
