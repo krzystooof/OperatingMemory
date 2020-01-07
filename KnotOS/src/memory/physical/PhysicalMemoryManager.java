@@ -60,7 +60,7 @@ public class PhysicalMemoryManager {
         if (address == -1) {
             if (checkAvailableSpace() < data.length) throw new IllegalArgumentException("RAM_OVERFLOW");
             else {
-                compacificate();
+                mergeSegments();
                 write(data, segmentID);
             }
         } else {
@@ -144,16 +144,18 @@ public class PhysicalMemoryManager {
     /**
      * Delete unused space between segments
      */
-    private void compacificate() {
+    private void mergeSegments() {
         ArrayList<Segment> segmentsInfos = getRamSegments();
+        //move first to beginning of ram
+        Segment firstSegment = segmentsInfos.get(0);
+        segmentTable.setBase(firstSegment.ID, 0);
+        //move others, no free space between
         for (int i = 0; i < segmentsInfos.size() - 1; i++) {
             Collections.sort(segmentsInfos);
             int nextFreeByte = segmentsInfos.get(i).BASE + segmentsInfos.get(i).LIMIT;
             Segment nextSegment = segmentsInfos.get(i + 1);
             byte[] backup = ram.getByte(nextSegment.BASE, nextSegment.BASE + nextSegment.LIMIT - 1);
             if (nextFreeByte + backup.length - 1 < ramSize) {
-//                segmentTable.delete(nextSegment.ID);
-//                segmentTable.addSegment(nextSegment.ID, nextFreeByte, backup.length);
                 segmentTable.setBase(nextSegment.ID, nextFreeByte);
                 ram.saveByte(nextFreeByte, backup);
             }
