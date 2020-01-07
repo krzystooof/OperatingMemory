@@ -30,75 +30,125 @@ public class Tester implements Shell {
 
     private void test() {
 
-        //HEADERS
-        printTestHeader("tests", "Testing header printing", "Printed header");
+        if (Interface.askUserYN("This test will result in system exit. Do you want to continue?")) {
 
-        printTestHeader("tests", "Testing headers with really long descriptions to test breaking strings into lines. " +
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
-                "Suspendisse ullamcorper neque sodales ultricies scelerisque. " +
-                "Sed facilisis euismod tellus, eu aliquet nulla posuere et. " +
-                "Praesent tempor nisi et facilisis dapibus. " +
-                "Nam cursus, augue ut semper ornare, risus risus feugiat velit, ac dictum diam libero a urna. " +
-                "Vivamus at lacus nec quam tincidunt laoreet. Vestibulum tincidunt imperdiet urna et viverra. " +
-                "Morbi nec turpis ornare, molestie nunc vitae, mollis ipsum. Donec a nunc eu mauris accumsan iaculis. " +
-                "Etiam mollis quam eget justo maximus bibendum. Vestibulum a mi nec tortor interdum mollis at sit amet enim. " +
-                "Ut bibendum ultricies nulla in porttitor. Duis vel risus leo. " +
-                "Aenean ornare, urna eleifend iaculis auctor, erat mi venenatis leo, quis iaculis nibh ante in purus. " +
-                "Aliquam hendrerit semper ultricies.", "Printed header");
 
-        //INTERFACE
-        printTestHeader("Interface", "Testing posting", "Hello world!");
-        Interface.post("Hello world!");
+            //HEADERS
+            printTestHeader("tests", "Testing header printing", "Printed header");
 
-        printTestHeader("Interface", "Testing Y/N questions", "question");
-        while (!Interface.askUserYN("Do you see this question? First answer \"n\""));
+            printTestHeader("tests", "Testing headers with really long descriptions to test breaking strings into lines. " +
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
+                    "Suspendisse ullamcorper neque sodales ultricies scelerisque. " +
+                    "Sed facilisis euismod tellus, eu aliquet nulla posuere et. " +
+                    "Praesent tempor nisi et facilisis dapibus. " +
+                    "Nam cursus, augue ut semper ornare, risus risus feugiat velit, ac dictum diam libero a urna. " +
+                    "Vivamus at lacus nec quam tincidunt laoreet. Vestibulum tincidunt imperdiet urna et viverra. " +
+                    "Morbi nec turpis ornare, molestie nunc vitae, mollis ipsum. Donec a nunc eu mauris accumsan iaculis. " +
+                    "Etiam mollis quam eget justo maximus bibendum. Vestibulum a mi nec tortor interdum mollis at sit amet enim. " +
+                    "Ut bibendum ultricies nulla in porttitor. Duis vel risus leo. " +
+                    "Aenean ornare, urna eleifend iaculis auctor, erat mi venenatis leo, quis iaculis nibh ante in purus. " +
+                    "Aliquam hendrerit semper ultricies.", "Printed header");
 
-        printTestHeader("Interface", "Testing questions", "Question");
-        Interface.askUser("If this appeared on the screen then everything is working. Press enter");
+            //INTERFACE
+            printTestHeader("Interface", "Testing posting", "Hello world!");
+            Interface.post("Hello world!");
 
-        printTestHeader("Interface", "Testing help", "All help");
-        Interface.getHelp();
+            printTestHeader("Interface", "Testing Y/N questions", "question");
+            while (!Interface.askUserYN("Do you see this question? First answer \"n\"")) ;
 
-        //FILESYSTEM
-        printTestHeader("Filesystem", "Testing help", "Filesystem help");
-        Interface.pass("cd help" );
+            printTestHeader("Interface", "Testing questions", "Question");
+            Interface.askUser("If this appeared on the screen then everything is working. Press enter");
 
-        printTestHeader("Filesystem", "Testing for filesystem movement", "No parent; No dir; No dir");
-        Interface.pass("cd ..");
-        Interface.pass("cd winrar");
-        Interface.pass("cd *");
+            printTestHeader("Interface", "Testing help", "All help");
+            Interface.getHelp();
 
-        printTestHeader("Filesystem", "Testing for folder creation", "created; created; created");
-        Interface.pass("mkdir testfolder");
-        Interface.pass("cd testfolder");
-        Interface.pass("mkdir testfolder");
-        Interface.pass("mkdir testfolder2");
-        Interface.pass("mkdir testfolder3");
+            //FILESYSTEM
+            printTestHeader("Filesystem", "Testing help", "Filesystem help");
+            Interface.pass("cd help");
 
-        printTestHeader("Filesystem", "Testing for folder creation", "fail");
-        Interface.pass("mkdir \\");
+            printTestHeader("Filesystem", "Testing for filesystem movement", "No parent; No dir; No dir");
+            Interface.pass("cd ..");
+            Interface.pass("cd winrar");
+            Interface.pass("cd *");
 
-        printTestHeader("Filesystem", "Testing for folder removal", "success; check drive C for testfolder, 2 dir within");
-        Interface.pass("rmdir testfolder3");
+            printTestHeader("Filesystem", "Testing for folder creation", "created; created; created");
+            Interface.pass("mkdir testfolder");
+            Interface.pass("cd testfolder");
+            Interface.pass("mkdir testfolder");
+            Interface.pass("mkdir testfolder2");
+            Interface.pass("mkdir testfolder3");
 
-        printTestHeader("Filesystem", "Testing for filesystem movement", "No parent");
-        Interface.pass("cd ..");
-        Interface.pass("cd ..");
+            printTestHeader("Filesystem", "Testing for folder creation", "fail");
+            Interface.pass("mkdir \\");
 
-        while (!Interface.askUserYN("Did you check C drive?"));
+            printTestHeader("Filesystem", "Testing for folder removal", "success; check drive C for testfolder, 2 dir within");
+            Interface.pass("rmdir testfolder3");
 
-        printTestHeader("Filesystem cleanup", "Test folders are being removed now", "-");
-        Interface.pass("cd testfolder");
-        Interface.pass("rmdir testfolder");
-        Interface.pass("rmdir testfolder2");
-        Interface.pass("cd ..");
-        Interface.pass("rmdir testfolder");
+            printTestHeader("Filesystem", "Testing for filesystem movement", "No parent");
+            Interface.pass("cd ..");
+            Interface.pass("cd ..");
 
-        //PROCESS TODO when assembly files available
-        //printTestHeader("semaphores.Process", "start", "-");
+            while (!Interface.askUserYN("Did you check C drive?")) ;
 
-        //USER TODO when debugged
+            printTestHeader("Filesystem cleanup", "Test folders are being removed now", "-");
+            Interface.pass("cd testfolder");
+            Interface.pass("rmdir testfolder");
+            Interface.pass("rmdir testfolder2");
+            Interface.pass("cd ..");
+            Interface.pass("rmdir testfolder");
 
+            //PROCESS TODO when assembly files available
+            //printTestHeader("semaphores.Process", "start", "-");
+
+            //USER TODO when debugged
+            printTestHeader("User", "Test user adding", "5 users added; Total 6");
+            Interface.pass("user -add test test");
+            Interface.pass("user -add test1 test1");
+            Interface.pass("user -add test2 test2");
+            Interface.pass("user -add test3 test3");
+            Interface.pass("user -add test4 test4");
+            Interface.pass("user -list");
+
+            printTestHeader("User", "Test user removal", "4 users deleted; Total 2");
+            Interface.pass("user -delete test1 test1");
+            Interface.pass("user -delete test2 test2");
+            Interface.pass("user -delete test3 test3");
+            Interface.pass("user -delete test4 test4");
+            Interface.pass("user -list");
+
+            printTestHeader("User", "Test user duplication", "2x added;2x failed");
+            Interface.pass("user -add test1 test1");
+            Interface.pass("user -add test2 test1");
+            Interface.pass("user -add test1 test1");
+            Interface.pass("user -add test test");
+
+            printTestHeader("User", "Test user logging", "Logged as \"test\"");
+            while (!Interface.askUserYN("Please make sure you know username and password of currently logged user. Please log in now as test:test. Input \"y\" to continue"))
+                ;
+            Interface.pass("logout");
+
+            printTestHeader("User", "Test user password changing", "Password changed");
+            Interface.pass("password change test test1");
+
+            printTestHeader("User", "Test user removal", "2x removed;2x failed; Total 2");
+            Interface.pass("user -delete test1 test1");
+            Interface.pass("user -delete test2 test1");
+            Interface.pass("user -delete test test");
+            Interface.pass("user -delete test2 test1");
+            Interface.pass("user -list");
+
+            printTestHeader("User Cleanup", "Test user logging", "Logged as previous user; User test deleted; Total 1");
+            while (!Interface.askUserYN("Please login now as previous user. Input \"y\" to continue")) ;
+            Interface.pass("logout");
+            Interface.pass("user -delete test test1");
+            Interface.pass("user -list");
+
+            printTestHeader("User", "Test user logging between sessions", "Logged as previous user; Total 1");
+            while (!Interface.askUserYN("System will now close. Input \"y\" to continue"));
+            Interface.pass("exit");
+            Interface.pass("user -list");
+
+        } else Interface.post("Tests aborted");
     }
 
     private void printTestHeader(String module, String description, String expected) {

@@ -6,6 +6,16 @@ import java.util.Arrays;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
+
+/**
+ * <h1>KnotOS Interface</h1>
+ *  This class, along with bounded: Filesystem, Process
+ *  SystemControl, TaskList, Tester, User classes are part
+ *  of interface for cooperative project "KnotOS".
+ * @author Jakub Chodubski
+ * @version 1.3
+ * @since 11.2019
+ */
 public class Interface {
     private static final int MAX_MODULES = 50; //defines maximum amount of modules system can handle
     private static int loadedModules = 0;
@@ -126,6 +136,8 @@ public class Interface {
                 toReturn.set(i, toReturn.get(i).substring(1));
             }
         }
+        //delete null fields (double space prevention)
+        toReturn.remove(null);
         return toReturn;
     }
 
