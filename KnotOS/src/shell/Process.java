@@ -179,6 +179,9 @@ public class Process implements Shell {
                 }
             }
 
+            if(cpuScheduler.getReadyPCB()==null)
+                throw new IllegalArgumentException("Process with specified name doesn't exist");
+
             for(PCB pcb:cpuScheduler.getReadyPCB()){
                 if(pcb.NAME.equals(name)){
                     cpuScheduler.removeProcess(name);
