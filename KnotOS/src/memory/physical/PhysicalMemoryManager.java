@@ -226,9 +226,7 @@ public class PhysicalMemoryManager {
                     freeSpace.put(endOfLastSegment + 1, spaceAtEndofRam);
                 }
                 //delete entries that are smaller than required space
-                freeSpace.forEach((k, v) -> {
-                    if (v < requestedSize) freeSpace.put(k, ramSize);
-                });
+                freeSpace.entrySet().removeIf(entry -> entry.getValue()<requestedSize);
 
                 if (freeSpace.isEmpty()) return -1;
                 else
