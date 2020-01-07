@@ -102,48 +102,98 @@ public class Process implements Shell {
     }
 
     private void create(ArrayList<String> param) {
-        if(param.size() > 2) {
+        try {
             String name = param.get(0);
             String filePath = param.get(1);
             int pid = Integer.parseInt(param.get(2));
             int priority = Integer.parseInt(param.get(3));
 
-            //TODO Search for ids
-            // Check if user id is not 0
+            //Checking if
+            if (param.size() > 2)
+                throw new IllegalArgumentException("Too few arguments");
+
+            // Checking if given pid is different than 0
+            if (pid == 0)
+                throw new IllegalArgumentException("pid should be greater than 0");
+
+            // Checking if pcb with given id exists
+            for (Interpreter interpreter : interpreters) {
+                if (interpreter.getPcb().PID == pid) {
+                    throw new IllegalArgumentException("Give pid is already used");
+                }
+            }
 
             PCB pcb = new PCB(pid, priority, State.NEW, name);
             cpuScheduler.addProcess(pcb);
             File file = Filesystem.getFile(filePath);
-            if (file != null) {
-                Interpreter interpreter = new Interpreter(file, pcb);
-                interpreters.add(interpreter);
-                run();
-            }
 
-        } else {
-            Interface.post("Too few arguments");
+            if (file == null)
+                throw new IllegalArgumentException("Can not found file");
+
+            Interpreter interpreter = new Interpreter(file, pcb);
+            interpreters.add(interpreter);
+            run();
+
+        }
+        catch (IllegalArgumentException e){
+            Interface.post(e.getMessage());
         }
     }
 
     private void run(){
-        PCB runningPcb = cpuScheduler.getRunningPCB();
+        try {
+            PCB runningPcb = cpuScheduler.getRunningPCB();
 
-        if(runningPcb.PID==0){
-            Interface.post("There is only idle process");
-        }
-        else {
+            if (runningPcb.PID == 0)
+                throw new IllegalArgumentException("There is only Idle Process");
+
             for (Interpreter interpreter : interpreters) {
                 if (interpreter.getPcb().PID == runningPcb.PID) {
                     interpreter.runInterpreter();
                     break;
                 }
+
             }
+        }catch (IllegalArgumentException exc){
+            Interface.post(exc.getMessage());
         }
 
     }
 
     private void kill(ArrayList<String> param) {
-        //TODO
+        try{
+            String name = param.get(0);
+            boolean removed = false;
+
+            if(cpuScheduler.getRunningPCB().NAME.equals(name)) {
+                cpuScheduler.removeProcess(cpuScheduler.getRunningPCB().NAME);
+                removed = true;
+                run();
+            }
+
+            for(Interpreter interpreter:interpreters){
+                if(interpreter.getPcb().NAME.equals(name)){
+                    interpreters.remove(interpreter);
+                    removed = true;
+                    break;
+                }
+            }
+
+            for(PCB pcb:cpuScheduler.getReadyPCB()){
+                if(pcb.NAME.equals(name)){
+                    cpuScheduler.removeProcess(name);
+                    removed = true;
+                    break;
+                }
+            }
+
+            if(!removed)
+                throw new IllegalArgumentException("Process with specified name doesn't exist");
+
+        }
+        catch (IllegalArgumentException exc){
+            Interface.post(exc.getMessage());
+        }
     }
 
     private void next() {

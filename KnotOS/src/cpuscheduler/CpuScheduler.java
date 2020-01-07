@@ -82,19 +82,19 @@ public class CpuScheduler {
 
     /**
      *  Method removes process from list of readyPcb
-     * @param  pid int
+     * @param  name String
      * @return true if process is in a list otherwise false
      *
      */
-    public boolean removeProcess(int pid){
+    public boolean removeProcess(String name){
 
-        if(getRunningPCB().PID == pid){
+        if(getRunningPCB().NAME.equals(name)){
             runProcess(findNextProccess());
             return true;
         }
         else {
             for (PCB pcb : readyPCB) {
-                if (pcb.PID == pid) {
+                if (pcb.NAME.equals(name)) {
                     readyPCB.remove(pcb);
                     return true;
                 }

@@ -53,8 +53,8 @@ public class CpuSchedulerTest {
         cpuScheduler.addProcess(second);
         cpuScheduler.addProcess(third);
 
-        assertTrue(cpuScheduler.removeProcess(3));
-        assertEquals(cpuScheduler.getRunningPCB().NAME, "Second");
+        assertTrue(cpuScheduler.removeProcess("Third"));
+        assertEquals("Second", cpuScheduler.getRunningPCB().NAME);
 
     }
 
