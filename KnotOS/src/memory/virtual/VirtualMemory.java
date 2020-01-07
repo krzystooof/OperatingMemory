@@ -50,6 +50,7 @@ public class VirtualMemory {
      * @throws IllegalStateException when no memory left
      */
     public void load(int PID, int textSize, int dataSize, byte[] assemblyCode) {
+
         if (dataSize > 0) {
             if (swapLeft >= dataSize + textSize) {
                 processMap.put(PID, new Integer[]{segmentCounter, segmentCounter + 1});
@@ -61,7 +62,6 @@ public class VirtualMemory {
         } else if (textSize <= swapLeft) {
             processMap.put(PID, new Integer[]{segmentCounter, -1});
             loadSegment(Arrays.copyOfRange(assemblyCode, 0, textSize));
-
         } else {
             throw new IllegalStateException("OUT OF SPACE");
         }
@@ -79,7 +79,6 @@ public class VirtualMemory {
         if (segments.hasHighestBase(textSegmentId)) {
             swapLeft += segments.getLimit(textSegmentId);
         }
-
         segments.delete(textSegmentId);
         segmentQueue.remove(textSegmentId);
 
@@ -96,7 +95,7 @@ public class VirtualMemory {
      * Read memory cell
      *
      * @param PID    process unique ID
-     * @param OFFSET demanded data index
+     * @param OFFSET demanded data's index
      * @return byte from RAM
      */
     public byte read(int PID, int OFFSET) {
