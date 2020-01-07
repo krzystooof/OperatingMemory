@@ -13,8 +13,7 @@ package memory.physical;
 import memory.Segment;
 import memory.SegmentTable;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
 public class PhysicalMemoryManager {
     /**
@@ -203,42 +202,37 @@ public class PhysicalMemoryManager {
         else {
             if (segmentsInfos.size() > 0) {
                 Collections.sort(segmentsInfos);
-                boolean first = true;
-                boolean found = false;
-                int startIndex = ramSize; //beginning of second segment
-                int stopIndex = 0; //beginning of first segment
-                //check beginning of ram
-                int startOfFirstSegment = segmentsInfos.get(0).BASE;
-                if (startOfFirstSegment >= requestedSize) {
-                    first = false;
-                    found = true;
-                    startIndex = startOfFirstSegment;
-                    stopIndex = -1;
+                HashMap<Integer, Integer> freeSpace = new HashMap<>(); //adress of first cell, available cells
+                //space between 0 ram cell and first segment
+                Segment firstSegment = segmentsInfos.get(0);
+                if (firstSegment.BASE != 0) {
+                    freeSpace.put(0, firstSegment.BASE);
                 }
-                //check space between every two segments
+                //space between segments
                 for (int i = 0; i < segmentsInfos.size() - 1; i++) {
-                    int difference = segmentsInfos.get(i + 1).BASE - (segmentsInfos.get(i).BASE + segmentsInfos.get(i).LIMIT);
-                    if (difference >= requestedSize) {
-                        found = true;
-                        if (first) {
-                            first = false;
-                            startIndex = segmentsInfos.get(i + 1).BASE;
-                            stopIndex = segmentsInfos.get(i).BASE + segmentsInfos.get(i).LIMIT - 1;
-                        } else if (difference < startIndex - stopIndex) {
-                            startIndex = segmentsInfos.get(i + 1).BASE;
-                            stopIndex = segmentsInfos.get(i).BASE + segmentsInfos.get(i).LIMIT - 1;
-                        }
+                    Segment thisSegment = segmentsInfos.get(i);
+                    Segment nextSegment = segmentsInfos.get(i + 1);
+                    int endOfThisSegment = thisSegment.BASE + thisSegment.LIMIT - 1;
+                    if (endOfThisSegment + 1 != nextSegment.BASE) {
+                        //there are available cells between segments
+                        int spaceBetweenSegments = nextSegment.BASE - endOfThisSegment - 1;
+                        freeSpace.put(endOfThisSegment + 1, spaceBetweenSegments);
                     }
-                    //if no available space found
-                    else if (i == segmentsInfos.size() - 2 && !found) stopIndex = -2;
                 }
-                //checking space after last segment
+                //space between last segment last ram cell
                 int endOfLastSegment = segmentsInfos.get(segmentsInfos.size() - 1).BASE + segmentsInfos.get(segmentsInfos.size() - 1).LIMIT - 1;
                 int spaceAtEndofRam = ramSize - 1 - endOfLastSegment;
-                if (spaceAtEndofRam >= requestedSize && spaceAtEndofRam < startIndex - stopIndex)
-                    stopIndex = endOfLastSegment;
-                //returns startIndex for the new segment
-                return stopIndex + 1;
+                if (endOfLastSegment != 0) {
+                    freeSpace.put(endOfLastSegment + 1, spaceAtEndofRam);
+                }
+                //delete entries that are smaller than required space
+                freeSpace.forEach((k, v) -> {
+                    if (v < requestedSize) freeSpace.put(k, ramSize);
+                });
+
+                if (freeSpace.isEmpty()) return -1;
+                else
+                    return Collections.min(freeSpace.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
             }
             //if no segments return 0
             else return 0;
