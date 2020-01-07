@@ -5,6 +5,7 @@ import cpuscheduler.PCB;
 import cpuscheduler.State;
 import interpreter.Interpreter;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,13 +104,27 @@ public class Process implements Shell {
             int priority = Integer.parseInt(param.get(3));
             PCB pcb = new PCB(pid, priority, State.NEW, name);
             cpuScheduler.addProcess(pcb);
-            PCB runningPcb = cpuScheduler.getRunningPCB();
-            
-
-        }
-        else{
+            File file = Filesystem.getFile(filePath);
+            if (file != null) {
+                Interpreter interpreter = new Interpreter(file);
+                interpreters.add(interpreter);
+            }
+        } else {
             Interface.post("Too few arguments");
         }
+    }
+
+    private void run(PCB pcb, File file){
+        PCB runningPcb = cpuScheduler.getRunningPCB();
+
+        for(Interpreter interpreter: interpreters){
+            if(interpreter.getPcb().PID == runningPcb.PID){
+                interpreter.runInterpreter(pcb);
+                break;
+            }
+        }
+
+
     }
 
     private void kill(ArrayList<String> param) {
