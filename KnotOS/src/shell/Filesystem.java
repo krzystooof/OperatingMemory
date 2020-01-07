@@ -373,4 +373,17 @@ public class Filesystem implements Shell {
             }
         }
     }
+
+    public static File getFile(String path) {
+        String pre;
+        pre = makeStringPath(userLocationPathname);
+        String fullPath = pre + "/" +  path;
+        File toRet = new File(fullPath);
+        if (toRet.exists()) {
+            return toRet;
+        } else {
+            Interface.post("File not found");
+        }
+        return null;
+    }
 }
