@@ -22,11 +22,8 @@ public class SegmentTable {
     }
 
     public void setBase(int ID, int value) {
-        if (inSwapFile(ID)) {
-            throw new IllegalArgumentException("ACCESS DENIED");
-        } else {
             findSegment(ID).BASE = value;
-        }
+
     }
 
     public int getLimit(int ID) {
@@ -69,4 +66,15 @@ public class SegmentTable {
         return true;
     }
 
+//    public int getHighestBase(int ID){
+//        Segment first = new Segment(-1,-1,-1);
+//        for (Segment segment : segments) {
+//            if (segment.BASE > first.BASE && inSwapFile(segment.ID)){
+//                if (inSwapFile(segment.ID)){
+//                    first = segment;
+//                }
+//            }
+//        }
+//        return first.BASE + first.LIMIT;
+//    }
 }
