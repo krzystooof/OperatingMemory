@@ -101,8 +101,13 @@ public class VirtualMemory {
     public byte read(int PID, int OFFSET) {
         int textSegmentId = processMap.get(PID)[0];
         int dataSegmentId = processMap.get(PID)[1];
+        int textLimit = segments.getLimit(textSegmentId);
+        int dataLimit = 0;
+        if (dataSegmentId > 0) {
+            dataLimit = segments.getLimit(dataSegmentId);
+        }
 
-        if (OFFSET >= 0 && OFFSET < segments.getLimit(textSegmentId)) {
+        if (OFFSET >= 0 && OFFSET < textLimit) {
             if (segments.inSwapFile(textSegmentId) == Boolean.FALSE) {
                 try {
                     return RAM.read(textSegmentId, OFFSET);
@@ -113,7 +118,7 @@ public class VirtualMemory {
                 swapToRam(textSegmentId);
                 return read(PID, OFFSET);
             }
-        } else if (OFFSET >= 0 && OFFSET < segments.getLimit(textSegmentId) + segments.getLimit(dataSegmentId)) {
+        } else if (OFFSET >= textLimit && OFFSET < textLimit + dataLimit) {
             if (segments.inSwapFile(dataSegmentId) == Boolean.FALSE) {
                 int index = OFFSET - segments.getLimit(dataSegmentId);
                 return RAM.read(dataSegmentId, index);
@@ -136,8 +141,13 @@ public class VirtualMemory {
     public void write(int PID, int OFFSET, byte data) {
         int textSegmentId = processMap.get(PID)[0];
         int dataSegmentId = processMap.get(PID)[1];
+        int textLimit = segments.getLimit(textSegmentId);
+        int dataLimit = 0;
+        if (dataSegmentId > 0) {
+            dataLimit = segments.getLimit(dataSegmentId);
+        }
 
-        if (OFFSET <= segments.getLimit(textSegmentId)) {
+        if (OFFSET >= 0 && OFFSET < textLimit) {
             if (segments.inSwapFile(textSegmentId) == Boolean.FALSE) {
                 try {
                     RAM.write(textSegmentId, OFFSET, data);
@@ -148,7 +158,7 @@ public class VirtualMemory {
                 swapToRam(textSegmentId);
                 write(PID, OFFSET, data);
             }
-        } else {
+        } else if (OFFSET >= textLimit && OFFSET < textLimit + dataLimit)
             if (segments.inSwapFile(dataSegmentId) == Boolean.FALSE) {
                 try {
                     RAM.write(dataSegmentId, OFFSET, data);
@@ -159,7 +169,6 @@ public class VirtualMemory {
                 swapToRam(dataSegmentId);
                 write(PID, OFFSET, data);
             }
-        }
     }
 
     /**
@@ -312,6 +321,7 @@ public class VirtualMemory {
         }
         return data;
     }
+
 }
 
 
