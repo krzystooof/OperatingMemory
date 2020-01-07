@@ -64,7 +64,7 @@ public class TestVirtualMemory {
         memory.read(1,35);
         assertEquals(memory.getSpaceLeft(true, false), 0);
         memory.read(1,1);
-        assertEquals(memory.getSpaceLeft(true, false), 16);
+         assertEquals(memory.getSpaceLeft(true, false), 16);
 
     }
 

@@ -55,6 +55,7 @@ public class PhysicalMemoryManager {
     public boolean write(byte[] data, int segmentID) {
 
         int startIndex = bestfit(data.length);
+
         int address = startIndex;
         if (address == -1) {
             if (checkAvailableSpace() < data.length) throw new IllegalArgumentException("RAM_OVERFLOW");
