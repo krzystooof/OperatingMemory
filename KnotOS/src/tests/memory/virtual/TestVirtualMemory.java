@@ -32,37 +32,13 @@ public class TestVirtualMemory {
         IntStream.range(0, 16).forEach(n -> thirdProcess[n] = 2);
         IntStream.range(16, 32).forEach(n -> thirdProcess[n] = 'B');
         memory.load(2, 16, 16, thirdProcess);
-//        byte[] data = new byte[128];
-//        IntStream.range(0, 64).forEach(n -> data[n] = 0);
-//        IntStream.range(64, 128).forEach(n -> data[n] = 1);
-//        memory.load(0, 64, 64, data);
-//        IntStream.range(0, 64).forEach(n -> data[n] = 2);
-//        IntStream.range(64, 128).forEach(n -> data[n] = 3);
-//        memory.load(1, 64, 64, data);
-//        IntStream.range(0, 64).forEach(n -> data[n] = 4);
-//        IntStream.range(64, 128).forEach(n -> data[n] = 5);
-//        memory.load(2, 64, 64, data);
-//        IntStream.range(0, 64).forEach(n -> data[n] = 3);
-//        IntStream.range(64, 128).forEach(n -> data[n] = 4);
-//        memory.load(3, 64, 64, data);
-//        memory.load(4, 64, 64, data);
-//        IntStream.range(0, 64).forEach(n -> data[n] = 5);
-//        IntStream.range(64, 128).forEach(n -> data[n] = 6);
-//        memory.load(5, 64, 64, data);
-//        IntStream.range(0, 32).forEach(n -> data[n] = 7);
-//        IntStream.range(32, 64).forEach(n -> data[n] = 8);
-//        memory.load(6, 32, 32, data);
-//        IntStream.range(0, 10).forEach(n -> data[n] = 9);
-//        memory.load(7, 10, 0, data);
-//        IntStream.range(0, 10).forEach(n -> data[n] = 'A');
-//        memory.load(8, 10, 0, data);
     }
 
     @Test
     public void testLoad() {
         initTest();
-        assertEquals(memory.getSpaceLeft(true, false), 256);
-        assertEquals(memory.getSpaceLeft(false, true), 172);
+        assertEquals(memory.getSpaceLeft(true, false), 64);
+        assertEquals(memory.getSpaceLeft(false, true), 900);
     }
 
     @Test
@@ -82,17 +58,14 @@ public class TestVirtualMemory {
     @Test
     public void testSwapToFile() {
         initTest();
-        assertEquals(memory.getSpaceLeft(false, true), 172);
-
         memory.read(0, 2);
-        memory.read(0, 92);
-        memory.read(3, 2);
-        memory.read(3, 92);
+        memory.read(1, 31);
+        assertEquals(memory.getSpaceLeft(true, false), 4);
+        memory.read(1,35);
         assertEquals(memory.getSpaceLeft(true, false), 0);
-        assertEquals(memory.getSpaceLeft(false, true), 172);
-
         memory.read(1,1);
-        assertEquals(memory.getSpaceLeft(false, true), 108);
+        assertEquals(memory.getSpaceLeft(true, false), 16);
+
     }
 
     @Test
@@ -124,38 +97,6 @@ public class TestVirtualMemory {
         assertEquals(memory.read(1, 32), 'A');
         assertEquals(memory.read(2, 15), 2);
         assertEquals(memory.read(2, 16), 'B');
-//        assertEquals(memory.read(0, 63), 0);
-//        assertEquals(memory.read(0, 127), 1);
-//        assertEquals(memory.read(1, 0), 2);
-//        assertEquals(memory.read(1, 64), 3);
-//        assertEquals(memory.read(2, 63), 4);
-//        assertEquals(memory.read(2, 64), 5);
-//        assertEquals(memory.read(3, 1), 3);
-//        assertEquals(memory.read(3, 127), 4);
-//        assertEquals(memory.read(4, 0), 3);
-//        assertEquals(memory.read(4, 127), 4);
-//        assertEquals(memory.read(5, 63), 5);
-//        assertEquals(memory.read(5, 127), 6);
-//        assertEquals(memory.read(6, 31), 7);
-//        assertEquals(memory.read(6, 32), 8);
-//        assertEquals(memory.read(7, 2), 9);
-//        assertEquals(memory.read(8, 2), 'A');
-//        assertEquals(memory.read(0, 63), 0);
-//        assertEquals(memory.read(0, 127), 1);
-//        assertEquals(memory.read(1, 0), 2);
-//        assertEquals(memory.read(1, 64), 3);
-//        assertEquals(memory.read(2, 63), 4);
-//        assertEquals(memory.read(2, 64), 5);
-//        assertEquals(memory.read(3, 1), 3);
-//        assertEquals(memory.read(3, 127), 4);
-//        assertEquals(memory.read(4, 0), 3);
-//        assertEquals(memory.read(4, 127), 4);
-//        assertEquals(memory.read(5, 63), 5);
-//        assertEquals(memory.read(5, 127), 6);
-//        assertEquals(memory.read(6, 31), 7);
-//        assertEquals(memory.read(6, 32), 8);
-//        assertEquals(memory.read(7, 2), 9);
-//        assertEquals(memory.read(8, 2), 'A');
     }
 
 
@@ -166,13 +107,13 @@ public class TestVirtualMemory {
         assertThrows(IllegalArgumentException.class, () -> {
             memory.read(0, 10);
         });
-        memory.delete(5);
+        memory.delete(1);
         assertThrows(IllegalArgumentException.class, () -> {
-            memory.read(5, 10);
+            memory.read(1, 10);
         });
-        memory.delete(6);
+        memory.delete(2);
         assertThrows(IllegalArgumentException.class, () -> {
-            memory.read(6, 10);
+            memory.read(2, 10);
         });
     }
 
@@ -190,7 +131,7 @@ public class TestVirtualMemory {
         byte[] code = new byte[1200];
         IntStream.range(0, 1200).forEach(n -> code[n] = 1);
         assertThrows(IllegalStateException.class, () -> {
-            memory.load(6, 400, 100, code);
+            memory.load(4, 1100, 100, code);
         });
     }
 }
