@@ -113,14 +113,16 @@ public class VirtualMemory {
                 swapToRam(textSegmentId);
                 return read(PID, OFFSET);
             }
-        } else if (segments.inSwapFile(dataSegmentId) == Boolean.FALSE) {
-            int index = OFFSET - segments.getLimit(dataSegmentId);
-            return RAM.read(dataSegmentId, index);
-        } else {
-            swapToRam(dataSegmentId);
-            return read(PID, OFFSET);
+        } else if (OFFSET >= 0 && OFFSET < segments.getLimit(textSegmentId) + segments.getLimit(dataSegmentId)) {
+            if (segments.inSwapFile(dataSegmentId) == Boolean.FALSE) {
+                int index = OFFSET - segments.getLimit(dataSegmentId);
+                return RAM.read(dataSegmentId, index);
+            } else {
+                swapToRam(dataSegmentId);
+                return read(PID, OFFSET);
+            }
         }
-        throw new IllegalArgumentException("FATAL ERROR: MEMORY READING");
+        throw new IllegalArgumentException("SEGMENTATION ERROR");
     }
 
     /**
