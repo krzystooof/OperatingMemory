@@ -131,28 +131,31 @@ public class User implements Shell {
         }
     }
 
-    private void deleteUser(ArrayList<String> params) { //TODO check if user is logged right now
+    private void deleteUser(ArrayList<String> params) {
         if (params.size() > 1) {
             String userCountString = Filesystem.restore("userID", "count");
             int userCount = Integer.parseInt(userCountString);
             if (userCount > 1) {
                 String userID = Filesystem.restore("userName", params.get(0));
-                if (userID == null) {
-                    Interface.post("Username not found");
-                    return;
+                if (params.get(0).equals(currentUser)) {
+                    Interface.post("Cannot delete currently logged user");
                 } else {
-                    if (params.get(1).equals(Filesystem.restore("userID", userID))) {
-                        Filesystem.removeValue("userID", userID);
-                        Filesystem.removeValue("userName", params.get(0));
-                        Interface.post("User " + params.get(0) + " deleted");
-                        //decrement user count
-                        userCount--;
-                        Filesystem.store("userID", "count", Integer.toString(userCount));
+                    if (userID == null) {
+                        Interface.post("Username not found");
+                        return;
                     } else {
-                        Interface.post("Wrong password");
+                        if (params.get(1).equals(Filesystem.restore("userID", userID))) {
+                            Filesystem.removeValue("userID", userID);
+                            Filesystem.removeValue("userName", params.get(0));
+                            Interface.post("User " + params.get(0) + " deleted");
+                            //decrement user count
+                            userCount--;
+                            Filesystem.store("userID", "count", Integer.toString(userCount));
+                        } else {
+                            Interface.post("Wrong password");
+                        }
                     }
                 }
-
             } else {
                 Interface.post("Cannot delete only user");
             }
