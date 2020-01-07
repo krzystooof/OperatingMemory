@@ -222,7 +222,7 @@ public class PhysicalMemoryManager {
                 //space between last segment last ram cell
                 int endOfLastSegment = segmentsInfos.get(segmentsInfos.size() - 1).BASE + segmentsInfos.get(segmentsInfos.size() - 1).LIMIT - 1;
                 int spaceAtEndofRam = ramSize - 1 - endOfLastSegment;
-                if (endOfLastSegment != 0) {
+                if (spaceAtEndofRam >=requestedSize) {
                     freeSpace.put(endOfLastSegment + 1, spaceAtEndofRam);
                 }
                 //delete entries that are smaller than required space
