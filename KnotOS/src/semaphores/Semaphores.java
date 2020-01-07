@@ -1,6 +1,7 @@
 package semaphores;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 /**
  * Class Semaphores is used for synchronization
@@ -25,7 +26,7 @@ public class Semaphores {
     SemaphoreChange changes = new SemaphoreChange();
 
     /**
-     * Allocates process in memory
+     * Allocate process in memory
      */
     private void block() {
         Process.state = ProcessState.Waiting;
@@ -34,12 +35,12 @@ public class Semaphores {
     }
 
     /**
-     * Checking if memory is empty
+     * Decrease value of semaphore
      *
      * @param semaphore object
      */
-    public void waitSem(Semaphores semaphore) {
-        semaphore.value--;
+    public void waitSem(Semaphores semaphore, int value) {
+        semaphore.value -= value;
         if (semaphore.value < 0) {
             semaphore.queue.add(Process);
             block();
@@ -48,7 +49,7 @@ public class Semaphores {
     }
 
     /**
-     * Changes semaphores.ProcessState to Ready from Waiting
+     * Change semaphores.ProcessState to Ready from Waiting
      *
      * @param Process object
      */
@@ -59,12 +60,12 @@ public class Semaphores {
     }
 
     /**
-     * Frees up memory space
+     * Increase value of semaphore
      *
      * @param semaphore object
      */
-    public void signalSem(Semaphores semaphore) {
-        semaphore.value++;
+    public void signalSem(Semaphores semaphore, int value) {
+        semaphore.value += value;
         if (semaphore.value <= 0) {
             semaphore.queue.remove(Process);
             wakeUp(Process);
