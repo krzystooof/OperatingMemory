@@ -65,7 +65,7 @@ public class PhysicalMemoryManager {
             }
         } else {
             ram.saveByte(address, data);
-            segmentTable.swapToRam(segmentID);
+            segmentTable.updateToRam(segmentID);
             segmentTable.setBase(segmentID, startIndex);
             return true;
         }

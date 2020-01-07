@@ -9,10 +9,11 @@ import memory.SegmentTable;
 import memory.physical.PhysicalMemoryManager;
 
 /**
- * VirtualMemory is responsible for memory management.
+ * VirtualMemory is responsible for KnotOs's memory management.
  * Implemented by memory segmentation.
  *
  * @author Roland
+ * @since 2019.12.10
  */
 public class VirtualMemory {
     private HashMap<Integer, Integer[]> processMap = new HashMap<>();
@@ -27,9 +28,10 @@ public class VirtualMemory {
 
 
     /**
-     * Initialises VirtualMemory with specified parameters.
-      * @param virtualSize size of swap file
-     * @param physicalSize  size of RAM
+     * Initialise VirtualMemory with specified parameters
+     *
+     * @param virtualSize  size of swap file
+     * @param physicalSize size of RAM
      */
     public VirtualMemory(int virtualSize, int physicalSize) {
         this.SWAP_SIZE = virtualSize;
@@ -39,7 +41,7 @@ public class VirtualMemory {
     }
 
     /**
-     * Allocates process in memory
+     * Allocate process in memory
      *
      * @param assemblyCode block of assembly instructions
      * @param PID          process unique ID
@@ -66,8 +68,7 @@ public class VirtualMemory {
     }
 
     /**
-     * Removes program from memory
-     * Clears process swap memory only if segments have highest indexes.
+     * Remove program from memory
      *
      * @param PID process unique ID
      */
@@ -92,7 +93,7 @@ public class VirtualMemory {
     }
 
     /**
-     * Reads memory cell
+     * Read memory cell
      *
      * @param PID    process unique ID
      * @param OFFSET demanded data index
@@ -124,8 +125,7 @@ public class VirtualMemory {
     }
 
     /**
-    /*
-     * * Overwrites memory cell
+     * Edit memory cell
      *
      * @param PID    process id
      * @param OFFSET index to write
@@ -162,7 +162,7 @@ public class VirtualMemory {
     }
 
     /**
-     * Prints memory.
+     * Print memory.
      *
      * @param physical prints RAM
      * @param virtual  prints SWAP
@@ -184,7 +184,7 @@ public class VirtualMemory {
     }
 
     /**
-     * Returns specified process memory
+     * Return specified process memory
      *
      * @param PID process id
      * @return array of bytes
@@ -203,7 +203,7 @@ public class VirtualMemory {
     }
 
     /**
-     * Returns size of free memory
+     * Return size of free memory
      *
      * @param virtual specifies if show swap or RAM left
      */
@@ -239,7 +239,7 @@ public class VirtualMemory {
     }
 
     /**
-     * Moves segment from swap file to RAM
+     * Move segment from swap file to RAM
      */
     private void swapToRam(int ID) {
         int base = segments.getBase(ID);
@@ -248,9 +248,9 @@ public class VirtualMemory {
 
         System.arraycopy(swapFile, base, data, 0, limit);
         try {
-            if (RAM.write(data, ID)){
+            if (RAM.write(data, ID)) {
                 segmentQueue.add(ID);
-            };
+            }
         } catch (IllegalArgumentException page_fault) {
             int index = segmentQueue.remove();
             swapToFile(index);
@@ -260,29 +260,27 @@ public class VirtualMemory {
     }
 
     /**
-     * Moves segment from RAM to swap file
+     * Move segment from RAM to swap file
      */
     private void swapToFile(int ID) {
-
         try {
             byte[] data = readSegment(ID);
             int limit = segments.getLimit(ID);
             swapLeft -= limit;
             int writePointer = SWAP_SIZE - swapLeft;
-            if (swapLeft < limit){
-                throw new NullPointerException("OUT OF MEMORY");
+            if (swapLeft < limit) {
+                throw new IllegalStateException("OUT OF MEMORY");
             }
-            segments.swapToFile(ID);
+            segments.updateToSwap(ID);
             segments.setBase(ID, writePointer);
             System.arraycopy(data, 0, swapFile, writePointer, limit);
-
         } catch (IllegalArgumentException error) {
             System.out.println(error.getMessage());
         }
     }
 
     /**
-     * Loads segment to swap file
+     * Load segment to swap file
      */
     private void loadSegment(byte[] code) {
         int writePointer = SWAP_SIZE - swapLeft;
@@ -293,7 +291,7 @@ public class VirtualMemory {
     }
 
     /**
-     * Reads segment's data from RAM or swap file
+     * Read segment's data from RAM or swap file
      *
      * @param ID segment's ID
      * @return array of bytes
