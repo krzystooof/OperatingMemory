@@ -146,6 +146,7 @@ public class CpuScheduler {
      * @return true if ready list is not empty, otherwise false
      */
     public boolean nextProcess(){
+        runningPCB = null;
         if(readyPCB.isEmpty()){
             return false;
         }

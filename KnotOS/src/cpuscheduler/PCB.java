@@ -17,6 +17,7 @@ public class PCB {
         this.PRIORITY = PRIORITY;
         this.NAME = NAME;
         this.state = state;
+        this.registers = new Registers();
     }
 
 

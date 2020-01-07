@@ -1,5 +1,7 @@
 package interpreter;
+import com.sun.xml.internal.bind.v2.runtime.output.Pcdata;
 import cpuscheduler.*;
+import shell.Process;
 
 import java.io.*;
 import java.util.HashMap;
@@ -20,10 +22,11 @@ public class Interpreter {
     private Vector<String> lines = new Vector<String>();
     private Vector<Byte> data = new Vector<Byte>();
     byte singleByte;
-    PCB PCB;
+    private PCB process;
     File file;
 
-    public Interpreter(File file) {
+    public Interpreter(File file, PCB process) {
+        this.process = process;
         //Added mnemonics with machine codes
         instructionMap.put(1, "ADD"); //4 Bytes - R - L
         instructionMap.put(2, "SUB"); //4 Bytes - R - L
@@ -51,27 +54,31 @@ public class Interpreter {
 
     public PCB getPcb()
     {
-        return PCB;
+        return process;
     }
 
 
     /**
      * The method is responsible for calling the rest of the methods needed.
      */
-    public void runInterpreter(PCB process) {
+    public void runInterpreter() {
         Vector<Byte> Bytes = new Vector<Byte>();
         Bytes = getBytesFromFile(file);
         String instr = "";
         int i = 0;
-        PCB=process;
         while (process.programCounter < Bytes.size()) {
+
             showLine(process, process.programCounter);
             System.out.println("Licznik: " + process.programCounter);
             System.out.println("Limit: " + Bytes.size());
             instr = byteInstructionToMnemonic(process, process.programCounter);
             System.out.println("instr: " + instr);
-            instructionExecute(process, instr, false);
+            instructionExecute(instr, false);
             System.out.println(process.registers.toString());
+
+            if(Process.getStepMode()){
+                break;
+            }
 
         }
         System.out.println("Size: " + Bytes.size());
@@ -732,7 +739,7 @@ public class Interpreter {
         return lines;
     }
 
-    void instructionExecute(PCB process, String instruction, boolean isJump) {
+    void instructionExecute(String instruction, boolean isJump) {
         Registers regs = process.registers;
         int size = 0;
         char space = ' ';
@@ -1151,7 +1158,7 @@ public class Interpreter {
                     }
                     int logicalAddress = Integer.parseInt(value);
                     isJump = true;
-                    instructionExecute(process, byteInstructionToMnemonic(process, logicalAddress), true);
+                    instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                 }
             }
             if (word.equals("JIZ")) {
@@ -1167,7 +1174,7 @@ public class Interpreter {
                         }
                         int logicalAddress = Integer.parseInt(value);
                         isJump = true;
-                        instructionExecute(process, byteInstructionToMnemonic(process, logicalAddress), true);
+                        instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                     }
                 } else
                     throw new IllegalArgumentException("Nie można zrealizować danego warunku!");
@@ -1186,7 +1193,7 @@ public class Interpreter {
                     }
                     int logicalAddress = Integer.parseInt(value);
                     isJump = true;
-                    instructionExecute(process, byteInstructionToMnemonic(process, logicalAddress), true);
+                    instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                 }
             }
             if (word.equals("JINZ")) {
@@ -1201,7 +1208,7 @@ public class Interpreter {
                     }
                     int logicalAddress = Integer.parseInt(value);
                     isJump = true;
-                    instructionExecute(process, byteInstructionToMnemonic(process, logicalAddress), true);
+                    instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                 }
             }
         }
