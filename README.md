@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Konwencje pisania KnotOS'a:
 ## 1. Dbamy o maksymalną jakość kodu. 
 To powinno wystarczyć xD
@@ -13,3 +14,7 @@ To powinno wystarczyć xD
 
 
 [3]: https://www.youtube.com/watch?v=SWYqp7iY_Tc
+=======
+# KnotOS
+## Extremely efficient super advanced java OS.
+>>>>>>> origin/Interpreter

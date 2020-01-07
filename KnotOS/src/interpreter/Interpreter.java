@@ -1,20 +1,32 @@
 package interpreter;
+import com.sun.xml.internal.bind.v2.runtime.output.Pcdata;
+import cpuscheduler.*;
+import shell.Process;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.*;
 import java.lang.String;
 
-import cpuscheduler.*;
-
+/**
+ * <h1>KnotOS Interpreter</h1>
+ *
+ * @author Zbigniew Jaryst
+ * @version 1.0
+ * @since 12.2019
+ * This code is a project for Operating Systems 2019 subject.
+ */
 
 public class Interpreter {
     private HashMap<Integer, String> instructionMap = new HashMap<Integer, String>();
     private Vector<String> lines = new Vector<String>();
     private Vector<Byte> data = new Vector<Byte>();
     byte singleByte;
+    private PCB process;
+    File file;
 
-    public Interpreter(File file) {
+    public Interpreter(File file, PCB process) {
+        this.process = process;
         //Added mnemonics with machine codes
         instructionMap.put(1, "ADD"); //4 Bytes - R - L
         instructionMap.put(2, "SUB"); //4 Bytes - R - L
@@ -37,34 +49,53 @@ public class Interpreter {
         instructionMap.put(16, "BX"); //1 Byte
         instructionMap.put(17, "CX"); //1 Byte
         instructionMap.put(18, "DX"); //1 Byte
+        this.file = file;
     }
 
-    /**
-     * <h1>KnotOS Interpreter</h1>
-     *
-     * @author Zbigniew Jaryst
-     * @version 1.0
-     * @since 12.2019
-     * This code is a project for Operating Systems 2019 subject.
-     *
-     */
+    public PCB getPcb()
+    {
+        return process;
+    }
 
 
     /**
      * The method is responsible for calling the rest of the methods needed.
      */
-    void runInterpreter(PCB process, File file) {
+    public void runInterpreter() {
         Vector<Byte> Bytes = new Vector<Byte>();
         Bytes = getBytesFromFile(file);
+        String instr = "";
+        int i = 0;
+        while (process.programCounter < Bytes.size()) {
 
-        instructionExecute(process, "ADD BX 50");
-        instructionExecute(process, "JMP [0]");
-        instructionExecute(process, "RES");
-        instructionExecute(process, "JIZ [0]");
+            showLine(process, process.programCounter);
+            System.out.println("Licznik: " + process.programCounter);
+            System.out.println("Limit: " + Bytes.size());
+            instr = byteInstructionToMnemonic(process, process.programCounter);
+            System.out.println("instr: " + instr);
+            instructionExecute(instr, false);
+            System.out.println(process.registers.toString());
+
+            if(Process.getStepMode()){
+                break;
+            }
+
+        }
+        System.out.println("Size: " + Bytes.size());
+/*        System.out.println("Bytes: ");
+        for(Byte a : Bytes)
+            System.out.println(a);*/
+        //instructionExecute(process, "JIZ [16]");
+        //instructionExecute(process, "JMP [0]");
+        //instructionExecute(process, "RES");
+        //instructionExecute(process, "JIZ [16]");
 
         byteInstructionToMnemonic(process, 4);
     }
 
+    /**
+     *
+     */
     byte toByte(String instruction) {
         byte variable = 0;
         for (HashMap.Entry<Integer, String> entry : instructionMap.entrySet()) {
@@ -75,10 +106,22 @@ public class Interpreter {
         return variable;
     }
 
+    /**
+     * Method shows current process with specific address
+     *
+     * @param process current process
+     * @param offset  logical address
+     */
     void showLine(PCB process, int offset) {
-        System.out.println(byteInstructionToMnemonic(process, offset));
+        System.out.println("Line: " + byteInstructionToMnemonic(process, offset));
     }
 
+    /**
+     * Method checks if given instruction is single integer
+     *
+     * @param word
+     * @return
+     */
     boolean isInteger(String word) {
         try {
             int number = Integer.parseInt(word);
@@ -88,6 +131,12 @@ public class Interpreter {
         }
     }
 
+    /**
+     * Method translates received instruction to vector bytes
+     *
+     * @param file
+     * @return
+     */
     public Vector<Byte> getBytesFromFile(File file) {
         lines = fileToLines(file);
         char space = ' ';
@@ -297,6 +346,12 @@ public class Interpreter {
         return data;
     }
 
+    /**
+     * Substituted method
+     *
+     * @param offset
+     * @return
+     */
     public byte read(int offset) {
         byte A = 0;
         int i = 0;
@@ -452,6 +507,8 @@ public class Interpreter {
                     trueInstruction += "[" + oneInstruction.get(1) + oneInstruction.get(2) + "]";
                 else if (oneInstruction.get(1) != 0 && oneInstruction.get(2) == 0)
                     trueInstruction += "[" + oneInstruction.get(1) + "00]";
+                else if (oneInstruction.get(1) == 0 && oneInstruction.get(2) == 0)
+                    trueInstruction += "[0]";
             } else if (oneInstruction.get(0) == 10) {
                 trueInstruction += "JAXZ ";
                 if (oneInstruction.get(1) == 0 && oneInstruction.get(2) != 0)
@@ -460,6 +517,10 @@ public class Interpreter {
                     trueInstruction += "[" + oneInstruction.get(1) + oneInstruction.get(2) + "]";
                 else if (oneInstruction.get(1) != 0 && oneInstruction.get(2) == 0)
                     trueInstruction += "[" + oneInstruction.get(1) + "00]";
+                else if (oneInstruction.get(1) == 0 && oneInstruction.get(2) == 0)
+                    trueInstruction += "[0]";
+                else if (oneInstruction.get(1) == 0 && oneInstruction.get(2) == 0)
+                    trueInstruction += "[0]";
             } else if (oneInstruction.get(0) == 11) {
                 trueInstruction += "JIZ ";
                 if (oneInstruction.get(1) == 0 && oneInstruction.get(2) != 0)
@@ -468,6 +529,8 @@ public class Interpreter {
                     trueInstruction += "[" + oneInstruction.get(1) + oneInstruction.get(2) + "]";
                 else if (oneInstruction.get(1) != 0 && oneInstruction.get(2) == 0)
                     trueInstruction += "[" + oneInstruction.get(1) + "00]";
+                else if (oneInstruction.get(1) == 0 && oneInstruction.get(2) == 0)
+                    trueInstruction += "[0]";
             } else if (oneInstruction.get(0) == 12) {
                 trueInstruction += "JINZ ";
                 if (oneInstruction.get(1) == 0 && oneInstruction.get(2) != 0)
@@ -476,6 +539,8 @@ public class Interpreter {
                     trueInstruction += "[" + oneInstruction.get(1) + oneInstruction.get(2) + "]";
                 else if (oneInstruction.get(1) != 0 && oneInstruction.get(2) == 0)
                     trueInstruction += "[" + oneInstruction.get(1) + "00]";
+                else if (oneInstruction.get(1) == 0 && oneInstruction.get(2) == 0)
+                    trueInstruction += "[0]";
             } else if (oneInstruction.get(0) == 13) {
                 trueInstruction += "CP " + oneInstruction.get(1) + " " + oneInstruction.get(2);
             } else if (oneInstruction.get(0) == 14) {
@@ -580,6 +645,8 @@ public class Interpreter {
                     trueInstruction += "[" + oneInstruction.get(2) + oneInstruction.get(3) + "]";
                 else if (oneInstruction.get(2) != 0 && oneInstruction.get(3) == 0)
                     trueInstruction += "[" + oneInstruction.get(2) + "00]";
+                else if (oneInstruction.get(1) == 0 && oneInstruction.get(2) == 0)
+                    trueInstruction += "[0]";
             } else if (oneInstruction.get(0) == 42) {
                 trueInstruction += "SUB ";
                 if (oneInstruction.get(1) == 15)
@@ -597,6 +664,8 @@ public class Interpreter {
                     trueInstruction += "[" + oneInstruction.get(2) + oneInstruction.get(3) + "]";
                 else if (oneInstruction.get(2) != 0 && oneInstruction.get(3) == 0)
                     trueInstruction += "[" + oneInstruction.get(2) + "00]";
+                else if (oneInstruction.get(1) == 0 && oneInstruction.get(2) == 0)
+                    trueInstruction += "[0]";
             } else if (oneInstruction.get(0) == 43) {
                 trueInstruction += "MUL ";
                 if (oneInstruction.get(1) == 15)
@@ -614,6 +683,8 @@ public class Interpreter {
                     trueInstruction += "[" + oneInstruction.get(2) + oneInstruction.get(3) + "]";
                 else if (oneInstruction.get(2) != 0 && oneInstruction.get(3) == 0)
                     trueInstruction += "[" + oneInstruction.get(2) + "00]";
+                else if (oneInstruction.get(1) == 0 && oneInstruction.get(2) == 0)
+                    trueInstruction += "[0]";
             } else if (oneInstruction.get(0) == 44) {
                 trueInstruction += "INC ";
                 {
@@ -623,6 +694,8 @@ public class Interpreter {
                         trueInstruction += "[" + oneInstruction.get(1) + oneInstruction.get(2) + "]";
                     else if (oneInstruction.get(1) != 0 && oneInstruction.get(2) == 0)
                         trueInstruction += "[" + oneInstruction.get(1) + "00]";
+                    else if (oneInstruction.get(1) == 0 && oneInstruction.get(2) == 0)
+                        trueInstruction += "[0]";
                 }
             } else if (oneInstruction.get(0) == 45) {
                 trueInstruction += "DEC ";
@@ -633,6 +706,8 @@ public class Interpreter {
                         trueInstruction += "[" + oneInstruction.get(1) + oneInstruction.get(2) + "]";
                     else if (oneInstruction.get(1) != 0 && oneInstruction.get(2) == 0)
                         trueInstruction += "[" + oneInstruction.get(1) + "00]";
+                    else if (oneInstruction.get(1) == 0 && oneInstruction.get(2) == 0)
+                        trueInstruction += "[0]";
                 }
             }
         }
@@ -664,7 +739,7 @@ public class Interpreter {
         return lines;
     }
 
-    void instructionExecute(PCB process, String instruction) {
+    void instructionExecute(String instruction, boolean isJump) {
         Registers regs = process.registers;
         int size = 0;
         char space = ' ';
@@ -672,62 +747,73 @@ public class Interpreter {
         String firstParameter = "";
         String secondParameter = "";
         instruction = instruction.toUpperCase();
+        if (instruction.charAt(0) == 'R' || instruction.charAt(0) == 'H') {
+            if (word.equals("RES")) {
+                process.programCounter += 1;
+                regs.ax = 0;
+                regs.bx = 0;
+                regs.cx = 0;
+                regs.dx = 0;
+            } else if (word.equals("HLT")) {
+                process.programCounter += 1;
 
-        while (instruction.charAt(size) != space) {
-            word += instruction.charAt(size);
-            size++;
+            }
+        } else {
+            while (instruction.charAt(size) != space) {
+                word += instruction.charAt(size);
+                size++;
+            }
+            System.out.println("Instruction: " + word);
+            //Parameter completion
+            if (word.equals("ADD") || word.equals("SUB") || word.equals("MUL") || word.equals("MOV") || word.equals("MVI")) {
+                int i = 4;
+                while (instruction.charAt(i) != space) {
+                    firstParameter += instruction.charAt(i);
+                    i++;
+                }
+                i = 7;
+                System.out.println("First Parameter: " + firstParameter);
+                while (i < instruction.length()) {
+                    secondParameter += instruction.charAt(i);
+                    i++;
+                }
+                System.out.println("Second Parameter: " + secondParameter);
+            } else if (word.equals("INC") || word.equals("DEC") || word.equals("JMP") || word.equals("JIZ")) {
+                int i = 4;
+                while (i < instruction.length()) {
+                    firstParameter += instruction.charAt(i);
+                    i++;
+                }
+                System.out.println("First Parameter: " + firstParameter);
+            } else if (word.equals("JAXZ") || word.equals("JINZ")) {
+                int i = 5;
+                while (i < instruction.length()) {
+                    firstParameter += instruction.charAt(i);
+                    i++;
+                }
+                System.out.println("First Parameter: " + firstParameter);
+            } else if (word.equals("CP")) {
+                int i = 3;
+                while (instruction.charAt(i) != space) {
+                    firstParameter += instruction.charAt(i);
+                    i++;
+                }
+                i = 5;
+                System.out.println("First Parameter: " + firstParameter);
+                while (i < instruction.length()) {
+                    secondParameter += instruction.charAt(i);
+                    i++;
+                }
+                System.out.println("Second Parameter: " + secondParameter);
+            } else if (word.equals("DP")) {
+                int i = 3;
+                while (i < instruction.length()) {
+                    firstParameter += instruction.charAt(i);
+                    i++;
+                }
+                System.out.println("First Parameter: " + firstParameter);
+            }
         }
-        System.out.println("Instruction: " + word);
-        //Parameter completion
-        if (word.equals("ADD") || word.equals("SUB") || word.equals("MUL") || word.equals("MOV") || word.equals("MVI")) {
-            int i = 4;
-            while (instruction.charAt(i) != space) {
-                firstParameter += instruction.charAt(i);
-                i++;
-            }
-            i = 7;
-            System.out.println("First Parameter: " + firstParameter);
-            while (i < instruction.length()) {
-                secondParameter += instruction.charAt(i);
-                i++;
-            }
-            System.out.println("Second Parameter: " + secondParameter);
-        } else if (word.equals("INC") || word.equals("DEC") || word.equals("JMP") || word.equals("JIZ")) {
-            int i = 4;
-            while (i < instruction.length()) {
-                firstParameter += instruction.charAt(i);
-                i++;
-            }
-            System.out.println("First Parameter: " + firstParameter);
-        } else if (word.equals("JAXZ") || word.equals("JINZ")) {
-            int i = 5;
-            while (i < instruction.length()) {
-                firstParameter += instruction.charAt(i);
-                i++;
-            }
-            System.out.println("First Parameter: " + firstParameter);
-        } else if (word.equals("CP")) {
-            int i = 3;
-            while (instruction.charAt(i) != space) {
-                firstParameter += instruction.charAt(i);
-                i++;
-            }
-            i = 5;
-            System.out.println("First Parameter: " + firstParameter);
-            while (i < instruction.length()) {
-                secondParameter += instruction.charAt(i);
-                i++;
-            }
-            System.out.println("Second Parameter: " + secondParameter);
-        } else if (word.equals("DP")) {
-            int i = 3;
-            while (i < instruction.length()) {
-                firstParameter += instruction.charAt(i);
-                i++;
-            }
-            System.out.println("First Parameter: " + firstParameter);
-        }
-
         //Executing instructions
         if (size == 2) {
             if (word.equals("CP")) {
@@ -738,7 +824,10 @@ public class Interpreter {
             }
         } else if (size == 3) {
             if (word.equals("ADD")) {
-                process.programCounter += 4;
+                if(isJump)
+                    isJump=false;
+                else
+                    process.programCounter += 4;
                 //Checks logical address
                 if (secondParameter.charAt(0) == '[') {
                     String value = "";
@@ -801,7 +890,10 @@ public class Interpreter {
                 }
             }
             if (word.equals("SUB")) {
-                process.programCounter += 4;
+                if(isJump)
+                    isJump=false;
+                else
+                    process.programCounter += 4;
                 if (secondParameter.charAt(0) == '[') {
                     String value = "";
                     int i = 1;
@@ -861,7 +953,11 @@ public class Interpreter {
                 }
             }
             if (word.equals("MUL")) {
-                process.programCounter += 4;
+                if(isJump)
+                    isJump=false;
+                else
+                    process.programCounter += 4;
+
                 if (secondParameter.charAt(0) == '[') {
                     String value = "";
                     int i = 1;
@@ -922,7 +1018,10 @@ public class Interpreter {
             }
             if (word.equals("INC")) {/* DODAC ADRES LOGICZNY*/
                 if (firstParameter.charAt(0) == '[') {
-                    process.programCounter += 3;
+                    if(isJump)
+                        isJump=false;
+                    else
+                        process.programCounter += 3;
                     String value = "";
                     int i = 1;
                     int j = 0;
@@ -939,20 +1038,36 @@ public class Interpreter {
                     }
                 } else if (firstParameter.equals("AX")) {
                     regs.ax++;
-                    process.programCounter += 2;
+                    if(isJump)
+                        isJump=false;
+                    else
+                        process.programCounter += 2;
                 } else if (firstParameter.equals("BX")) {
                     regs.bx++;
-                    process.programCounter += 2;
+                    if(isJump)
+                        isJump=false;
+                    else
+                        process.programCounter += 2;
                 } else if (firstParameter.equals("CX")) {
                     regs.bx++;
-                    process.programCounter += 2;
+                    if(isJump)
+                        isJump=false;
+                    else
+                        process.programCounter += 2;
                 } else if (firstParameter.equals("DX")) {
                     regs.dx++;
-                    process.programCounter += 2;
+                    if(isJump)
+                        isJump=false;
+                    else
+                        process.programCounter += 2;
                 }
             }
             if (word.equals("DEC")) {/* DODAC ADRES LOGICZNY*/
                 if (firstParameter.charAt(0) == '[') {
+                    if(isJump)
+                        isJump=false;
+                    else
+                        process.programCounter += 3;
                     String value = "";
                     int i = 1;
                     int j = 0;
@@ -967,14 +1082,19 @@ public class Interpreter {
                         }
                         j++;
                     }
-                } else if (firstParameter.equals("AX"))
+                } else if (firstParameter.equals("AX")) {
                     regs.ax--;
-                else if (firstParameter.equals("BX"))
+                    process.programCounter += 2;
+                } else if (firstParameter.equals("BX")) {
                     regs.bx--;
-                else if (firstParameter.equals("CX"))
+                    process.programCounter += 2;
+                } else if (firstParameter.equals("CX")) {
                     regs.cx--;
-                else if (firstParameter.equals("DX"))
+                    process.programCounter += 2;
+                } else if (firstParameter.equals("DX")) {
                     regs.dx--;
+                    process.programCounter += 2;
+                }
             }
             if (word.equals("MOV")) {
                 process.programCounter += 4;
@@ -1009,7 +1129,13 @@ public class Interpreter {
                 }
             }
             if (word.equals("MVI")) {
-                process.programCounter += 4;
+                if (isJump)
+                    isJump = false;
+                else
+                    process.programCounter += 4;
+
+                System.out.println("LiczniKK: " + process.programCounter);
+
                 int value = Integer.parseInt(secondParameter);
                 if (firstParameter.equals("AX"))
                     regs.ax = value;
@@ -1020,16 +1146,8 @@ public class Interpreter {
                 if (firstParameter.equals("DX"))
                     regs.dx = value;
             }
-            if (word.equals("RES")) {
-                process.programCounter += 1;
-                regs.ax = 0;
-                regs.bx = 0;
-                regs.cx = 0;
-                regs.dx = 0;
-            }
             if (word.equals("JMP")) {
                 process.programCounter += 3;
-
                 if (firstParameter.charAt(0) == '[') {
                     String value = "";
                     int i = 1;
@@ -1039,13 +1157,12 @@ public class Interpreter {
                         i++;
                     }
                     int logicalAddress = Integer.parseInt(value);
-                    instructionExecute(process, byteInstructionToMnemonic(process, logicalAddress));
-                    process.programCounter = logicalAddress;
+                    isJump = true;
+                    instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                 }
             }
             if (word.equals("JIZ")) {
                 process.programCounter += 3;
-
                 if (regs.ax == 0 && regs.bx == 0 && regs.cx == 0 && regs.dx == 0) {
                     if (firstParameter.charAt(0) == '[') {
                         String value = "";
@@ -1056,28 +1173,45 @@ public class Interpreter {
                             i++;
                         }
                         int logicalAddress = Integer.parseInt(value);
-                        instructionExecute(process, byteInstructionToMnemonic(process, logicalAddress));
-                        process.programCounter = logicalAddress;
+                        isJump = true;
+                        instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                     }
                 } else
                     throw new IllegalArgumentException("Nie można zrealizować danego warunku!");
 
             }
-            if (word.equals("HLT")) {
-                process.programCounter += 1;
-            }
         } else if (size == 4) {
             if (word.equals("JAXZ")) {
                 process.programCounter += 3;
-
+                if (regs.ax == 0) {
+                    String value = "";
+                    int i = 1;
+                    int j = 0;
+                    while (i < firstParameter.length() - 1) {
+                        value += firstParameter.charAt(i);
+                        i++;
+                    }
+                    int logicalAddress = Integer.parseInt(value);
+                    isJump = true;
+                    instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
+                }
             }
             if (word.equals("JINZ")) {
                 process.programCounter += 3;
-
+                if (regs.ax != 0 || regs.bx != 0 || regs.cx != 0 || regs.dx != 0) {
+                    String value = "";
+                    int i = 1;
+                    int j = 0;
+                    while (i < firstParameter.length() - 1) {
+                        value += firstParameter.charAt(i);
+                        i++;
+                    }
+                    int logicalAddress = Integer.parseInt(value);
+                    isJump = true;
+                    instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
+                }
             }
         }
-        // process.saveRegisters(regs);
+        process.saveRegisters(regs);
     }
 }
-
-

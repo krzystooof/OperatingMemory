@@ -1,9 +1,6 @@
 package cpuscheduler;
 import java.util.*;
 
-// TODO:
-// - aging
-
 /**
  * Class CpuScheduler represents a simulator of cpu scheduler
  * based on  preemptive priority algorithm.
@@ -14,7 +11,7 @@ import java.util.*;
  */
 public class CpuScheduler {
 
-    // semaphores.Process in Running state
+    //Process in Running state
     private PCB runningPCB;
 
 
@@ -149,6 +146,7 @@ public class CpuScheduler {
      * @return true if ready list is not empty, otherwise false
      */
     public boolean nextProcess(){
+        runningPCB = null;
         if(readyPCB.isEmpty()){
             return false;
         }

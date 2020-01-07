@@ -17,6 +17,7 @@ public class PCB {
         this.PRIORITY = PRIORITY;
         this.NAME = NAME;
         this.state = state;
+        this.registers = new Registers();
     }
 
 
@@ -30,5 +31,12 @@ public class PCB {
                 ", programCounter=" + programCounter +
                 ", registers=" + registers +
                 '}';
+    }
+
+    public void saveRegisters(Registers registers){
+        this.registers.ax = registers.ax;
+        this.registers.bx = registers.bx;
+        this.registers.cx = registers.cx;
+        this.registers.dx = registers.dx;
     }
 }

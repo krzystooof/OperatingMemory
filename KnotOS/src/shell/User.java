@@ -69,7 +69,7 @@ public class User implements Shell {
                     break;
                 }
                 case "add": {
-                    if (params.size() > 2) params.remove(0);
+                    if (params.size() > 0) params.remove(0);
                     addUser(params);
                     break;
                 }
@@ -123,6 +123,7 @@ public class User implements Shell {
             if (userID != null && correctPass != null) { // checking if read was successful
                 if (correctPass.equals(oldPass)) { // checking if user-provided password was ok
                     Filesystem.store("userID", userID, newPass); // saving new password
+                    Interface.post("Password for current user has changed");
                 }
             } else {
                 Interface.post("Cannot access system storage");
@@ -131,64 +132,71 @@ public class User implements Shell {
     }
 
     private void deleteUser(ArrayList<String> params) {
-        String userCountString = Filesystem.restore("userID", "count");
-        int userCount = Integer.parseInt(userCountString);
-        if (userCount > 1) {
-            String userID = Filesystem.restore("userName", params.get(0));
-            if (userID == null) {
-                Interface.post("Username not found");
-                return;
-            } else {
-                if (params.get(1).equals(Filesystem.restore("userID", userID))) {
-                    Filesystem.removeValue("userID", userID);
-                    Filesystem.removeValue("userName", params.get(0));
-                    Interface.post("User " + params.get(0) + " deleted");
-                    //decrement user count
-                    userCount--;
-                    Filesystem.store("userID","count", Integer.toString(userCount));
+        if (params.size() > 1) {
+            String userCountString = Filesystem.restore("userID", "count");
+            int userCount = Integer.parseInt(userCountString);
+            if (userCount > 1) {
+                String userID = Filesystem.restore("userName", params.get(0));
+                if (params.get(0).equals(currentUser)) {
+                    Interface.post("Cannot delete currently logged user");
                 } else {
-                    Interface.post("Wrong password");
+                    if (userID == null) {
+                        Interface.post("Username not found");
+                        return;
+                    } else {
+                        if (params.get(1).equals(Filesystem.restore("userID", userID))) {
+                            Filesystem.removeValue("userID", userID);
+                            Filesystem.removeValue("userName", params.get(0));
+                            Interface.post("User " + params.get(0) + " deleted");
+                            //decrement user count
+                            userCount--;
+                            Filesystem.store("userID", "count", Integer.toString(userCount));
+                        } else {
+                            Interface.post("Wrong password");
+                        }
+                    }
                 }
+            } else {
+                Interface.post("Cannot delete only user");
             }
-
-        } else {
-            Interface.post("Cannot delete only user");
-        }
+        } else Interface.post("Too few arguments");
     }
 
     private void addUser(ArrayList<String> params) {
-        String user = params.get(0);
-        String password  = params.get(1);
-        //checking if user and password are legal
-        if ( user.contains("\n") ||
-            user.contains(".") ||
-            password.contains("\n") ||
-            password.contains(".")) {
-            Interface.post("Username or password cannot contain \".\" or newline character");
-        } else {
-            //check if username is not taken
-            if (Filesystem.restore("userName", user) == null) {
-                //user and password are legal. Incrementing user count
-                String userCount = Filesystem.restore("userID", "count");
-                String newUserCount = Integer.toString(Integer.parseInt(userCount) + 1);
-                if (Filesystem.store("userID", "count", newUserCount)) {
-                    //check for first userID available
-                    int userNum = 0;
-                    for (int i = 0; i != Integer.parseInt(userCount); i++) {
-                        if (Filesystem.restore("userID", ("user" + Integer.toString(i)))==null) {
-                            userNum = i;
-                            break;
+        if (params.size() > 1) {
+            String user = params.get(0);
+            String password = params.get(1);
+            //checking if user and password are legal
+            if (user.contains("\n") ||
+                    user.contains(".") ||
+                    password.contains("\n") ||
+                    password.contains(".")) {
+                Interface.post("Username or password cannot contain \".\" or newline character");
+            } else {
+                //check if username is not taken
+                if (Filesystem.restore("userName", user) == null) {
+                    //user and password are legal. Incrementing user count
+                    String userCount = Filesystem.restore("userID", "count");
+                    String newUserCount = Integer.toString(Integer.parseInt(userCount) + 1);
+                    if (Filesystem.store("userID", "count", newUserCount)) {
+                        //check for first userID available
+                        int userNum = 0;
+                        for (int i = 0; i != Integer.parseInt(userCount) + 1; i++) {
+                            if (Filesystem.restore("userID", ("user" + Integer.toString(i))) == null) {
+                                userNum = i;
+                                break;
+                            }
                         }
-                    }
-                    String userID = "user" + Integer.toString(userNum);
-                    boolean success = true;
-                    success = success && Filesystem.store("userName", user, userID);
-                    success = success && Filesystem.store("userID", userID, password);
-                    if (success) Interface.post("New user added");
-                    else Interface.post("Cannot access system storage");
-                } else Interface.post("Cannot access system storage");
-            } else Interface.post("Username already taken");
-        }
+                        String userID = "user" + Integer.toString(userNum);
+                        boolean success = true;
+                        success = success && Filesystem.store("userName", user, userID);
+                        success = success && Filesystem.store("userID", userID, password);
+                        if (success) Interface.post("New user added");
+                        else Interface.post("Cannot access system storage");
+                    } else Interface.post("Cannot access system storage");
+                } else Interface.post("Username already taken");
+            }
+        } else Interface.post("Too few arguments");
     }
 
     private void listUsers(ArrayList<String> params) {
