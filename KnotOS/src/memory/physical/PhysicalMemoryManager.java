@@ -145,13 +145,15 @@ public class PhysicalMemoryManager {
         ArrayList<Segment> segmentsInfos = getRamSegments();
         //move first to beginning of ram
         Segment firstSegment = segmentsInfos.get(0);
+        byte[] backup = ram.getByte(firstSegment.BASE, firstSegment.BASE + firstSegment.LIMIT - 1);
         segmentTable.setBase(firstSegment.ID, 0);
+        ram.saveByte(0,backup);
         //move others, no free space between
         for (int i = 0; i < segmentsInfos.size() - 1; i++) {
             Collections.sort(segmentsInfos);
             int nextFreeByte = segmentsInfos.get(i).BASE + segmentsInfos.get(i).LIMIT;
             Segment nextSegment = segmentsInfos.get(i + 1);
-            byte[] backup = ram.getByte(nextSegment.BASE, nextSegment.BASE + nextSegment.LIMIT - 1);
+            backup = ram.getByte(nextSegment.BASE, nextSegment.BASE + nextSegment.LIMIT - 1);
             if (nextFreeByte + backup.length - 1 < ramSize) {
                 segmentTable.setBase(nextSegment.ID, nextFreeByte);
                 ram.saveByte(nextFreeByte, backup);
