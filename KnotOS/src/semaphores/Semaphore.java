@@ -12,24 +12,29 @@ import java.util.Queue;
  */
 
 
-public class Semaphores {
+public class Semaphore {
     //value of Semaphore
     public int value = 0;
 
     //Queue of waiting processes
     Queue<Process> queue = new ArrayDeque<Process>();
 
-    //semaphores.Process object
-    Process Process = new Process();
-
     //Checking if warning happened in system
     SemaphoreChange changes = new SemaphoreChange();
+
+    public Semaphore(){
+        this.value = 0;
+    }
+
+    public Semaphore(int value){
+        this.value = value;
+    }
 
     /**
      * Allocate process in memory
      */
-    private void block() {
-        Process.state = ProcessState.Waiting;
+    private void block(Process process) {
+        process.state = ProcessState.Waiting;
         changes.changes = -1; // process is blocked
 
     }
@@ -37,13 +42,13 @@ public class Semaphores {
     /**
      * Decrease value of semaphore
      *
-     * @param semaphore object
+     * @param value value to decrease
      */
-    public void waitSem(Semaphores semaphore, int value) {
-        semaphore.value -= value;
-        if (semaphore.value < 0) {
-            semaphore.queue.add(Process);
-            block();
+    public void waitSem(Process process, int value) {
+        this.value -= value;
+        if (this.value < 0) {
+            this.queue.add(process);
+            block(process);
         }
 
     }
@@ -62,13 +67,13 @@ public class Semaphores {
     /**
      * Increase value of semaphore
      *
-     * @param semaphore object
+     * @param value to increase
      */
-    public void signalSem(Semaphores semaphore, int value) {
-        semaphore.value += value;
-        if (semaphore.value <= 0) {
-            semaphore.queue.remove(Process);
-            wakeUp(Process);
+    public void signalSem(Process process, int value) {
+        this.value += value;
+        if (this.value <= 0) {
+            this.queue.remove(process);
+            wakeUp(process);
         }
     }
 
