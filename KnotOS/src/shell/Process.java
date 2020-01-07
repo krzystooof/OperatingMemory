@@ -1,10 +1,18 @@
 package shell;
 
+import cpuscheduler.CpuScheduler;
+import cpuscheduler.PCB;
+import cpuscheduler.State;
+import interpreter.Interpreter;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class Process implements Shell {
     private ArrayList<String> shellCommands;
     private static boolean isStepMode;
+    private CpuScheduler cpuScheduler;
+    private List<Interpreter> interpreters;
 
     public Process() {
         shellCommands = new ArrayList<String>();
@@ -16,6 +24,8 @@ public class Process implements Shell {
         shellCommands.add("tasklist");
 
         isStepMode = false;
+        cpuScheduler = new CpuScheduler();
+        interpreters = new ArrayList<>();
     }
 
     @Override
@@ -86,7 +96,20 @@ public class Process implements Shell {
     }
 
     private void create(ArrayList<String> param) {
+        if(param.size() > 2) {
+            String name = param.get(0);
+            String filePath = param.get(1);
+            int pid = Integer.parseInt(param.get(2));
+            int priority = Integer.parseInt(param.get(3));
+            PCB pcb = new PCB(pid, priority, State.NEW, name);
+            cpuScheduler.addProcess(pcb);
+            PCB runningPcb = cpuScheduler.getRunningPCB();
+            
 
+        }
+        else{
+            Interface.post("Too few arguments");
+        }
     }
 
     private void kill(ArrayList<String> param) {
