@@ -220,4 +220,32 @@ class PhysicalMemoryManagerTest {
         segmentTable.inSwapFile.put(3, true);
         assertEquals(128, physicalMemoryManager.bestfit(64));
     }
+    @Test
+    void bestfit7(){
+        SegmentTable segmentTable = new SegmentTable();
+        PhysicalMemoryManager physicalMemoryManager = new PhysicalMemoryManager(256, segmentTable);
+        segmentTable.addSegment(1, 64, 64);
+        segmentTable.inSwapFile.put(1, false);
+        segmentTable.addSegment(4, 126, 64);
+        segmentTable.inSwapFile.put(4, false);
+        segmentTable.addSegment(3, 0, 0);
+        segmentTable.inSwapFile.put(3, true);
+        segmentTable.addSegment(8, 254, 1);
+        segmentTable.inSwapFile.put(8, true);
+        assertEquals(0, physicalMemoryManager.bestfit(64));
+    }
+    @Test
+    void bestfit8(){
+        SegmentTable segmentTable = new SegmentTable();
+        PhysicalMemoryManager physicalMemoryManager = new PhysicalMemoryManager(256, segmentTable);
+        segmentTable.addSegment(1, 60, 65);
+        segmentTable.inSwapFile.put(1, false);
+        segmentTable.addSegment(4, 126, 64);
+        segmentTable.inSwapFile.put(4, false);
+        segmentTable.addSegment(3, 0, 0);
+        segmentTable.inSwapFile.put(3, true);
+        segmentTable.addSegment(8, 245, 1);
+        segmentTable.inSwapFile.put(8, false);
+        assertEquals(190, physicalMemoryManager.bestfit(20));
+    }
 }
