@@ -1,12 +1,18 @@
-package interpreter;
+import cpuscheduler.*;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.*;
 import java.lang.String;
 
-import cpuscheduler.*;
-
+/**
+ * <h1>KnotOS Interpreter</h1>
+ *
+ * @author Zbigniew Jaryst
+ * @version 1.0
+ * @since 12.2019
+ * This code is a project for Operating Systems 2019 subject.
+ */
 
 public class Interpreter {
     private HashMap<Integer, String> instructionMap = new HashMap<Integer, String>();
@@ -39,32 +45,26 @@ public class Interpreter {
         instructionMap.put(18, "DX"); //1 Byte
     }
 
-    /**
-     * <h1>KnotOS Interpreter</h1>
-     *
-     * @author Zbigniew Jaryst
-     * @version 1.0
-     * @since 12.2019
-     * This code is a project for Operating Systems 2019 subject.
-     *
-     */
-
 
     /**
      * The method is responsible for calling the rest of the methods needed.
      */
-    public void runInterpreter(PCB process, File file) {
+    void runInterpreter(Pcb process, File file) {
         Vector<Byte> Bytes = new Vector<Byte>();
         Bytes = getBytesFromFile(file);
 
-        instructionExecute(process, "ADD BX 50");
-        instructionExecute(process, "JMP [0]");
-        instructionExecute(process, "RES");
-        instructionExecute(process, "JIZ [0]");
+        instructionExecute(process, "JIZ [16]");
+        //instructionExecute(process, "JMP [0]");
+        //instructionExecute(process, "RES");
+        //instructionExecute(process, "JIZ [16]");
 
         byteInstructionToMnemonic(process, 4);
     }
 
+    /**
+    *
+    *
+    */
     byte toByte(String instruction) {
         byte variable = 0;
         for (HashMap.Entry<Integer, String> entry : instructionMap.entrySet()) {
@@ -75,10 +75,20 @@ public class Interpreter {
         return variable;
     }
 
-    void showLine(PCB process, int offset) {
+    /**
+     * Method shows current process with specific address
+     * @param process current process
+     * @param offset logical address
+     */
+    void showLine(Pcb process, int offset) {
         System.out.println(byteInstructionToMnemonic(process, offset));
     }
 
+    /**
+     * Method checks if given instruction is single integer
+     * @param word
+     * @return
+     */
     boolean isInteger(String word) {
         try {
             int number = Integer.parseInt(word);
@@ -88,6 +98,11 @@ public class Interpreter {
         }
     }
 
+    /**
+     * Method translates received instruction to vector bytes
+     * @param file
+     * @return
+     */
     public Vector<Byte> getBytesFromFile(File file) {
         lines = fileToLines(file);
         char space = ' ';
@@ -297,6 +312,11 @@ public class Interpreter {
         return data;
     }
 
+    /**
+     * Substituted method 
+     * @param offset
+     * @return
+     */
     public byte read(int offset) {
         byte A = 0;
         int i = 0;
@@ -309,6 +329,7 @@ public class Interpreter {
         }
         return A;
     }
+
 
     Vector<Byte> loadBytesToByteInstruction(int PID, int offset) {
         Vector<Byte> oneInstruction = new Vector<Byte>();
@@ -342,9 +363,9 @@ public class Interpreter {
         return oneInstruction;
     }
 
-    public String byteInstructionToMnemonic(PCB process, int offset) {
+    public String byteInstructionToMnemonic(Pcb process, int offset) {
         Vector<Byte> oneInstruction = new Vector<Byte>();
-        oneInstruction = loadBytesToByteInstruction(process.PID, offset);
+        oneInstruction = loadBytesToByteInstruction(process.pid, offset);
         String trueInstruction = "";
         if (oneInstruction.get(0) <= 20) {
             if (oneInstruction.get(0) == 1) {
@@ -664,7 +685,7 @@ public class Interpreter {
         return lines;
     }
 
-    void instructionExecute(PCB process, String instruction) {
+    void instructionExecute(Pcb process, String instruction) {
         Registers regs = process.registers;
         int size = 0;
         char space = ' ';
@@ -672,62 +693,73 @@ public class Interpreter {
         String firstParameter = "";
         String secondParameter = "";
         instruction = instruction.toUpperCase();
+        if (instruction.charAt(0) == 'R' || instruction.charAt(0) == 'H') {
+            if (word.equals("RES")) {
+                process.programCounter += 1;
+                regs.ax = 0;
+                regs.bx = 0;
+                regs.cx = 0;
+                regs.dx = 0;
+            } else if (word.equals("HLT")) {
+                process.programCounter += 1;
 
-        while (instruction.charAt(size) != space) {
-            word += instruction.charAt(size);
-            size++;
+            }
+        } else {
+            while (instruction.charAt(size) != space) {
+                word += instruction.charAt(size);
+                size++;
+            }
+            System.out.println("Instruction: " + word);
+            //Parameter completion
+            if (word.equals("ADD") || word.equals("SUB") || word.equals("MUL") || word.equals("MOV") || word.equals("MVI")) {
+                int i = 4;
+                while (instruction.charAt(i) != space) {
+                    firstParameter += instruction.charAt(i);
+                    i++;
+                }
+                i = 7;
+                System.out.println("First Parameter: " + firstParameter);
+                while (i < instruction.length()) {
+                    secondParameter += instruction.charAt(i);
+                    i++;
+                }
+                System.out.println("Second Parameter: " + secondParameter);
+            } else if (word.equals("INC") || word.equals("DEC") || word.equals("JMP") || word.equals("JIZ")) {
+                int i = 4;
+                while (i < instruction.length()) {
+                    firstParameter += instruction.charAt(i);
+                    i++;
+                }
+                System.out.println("First Parameter: " + firstParameter);
+            } else if (word.equals("JAXZ") || word.equals("JINZ")) {
+                int i = 5;
+                while (i < instruction.length()) {
+                    firstParameter += instruction.charAt(i);
+                    i++;
+                }
+                System.out.println("First Parameter: " + firstParameter);
+            } else if (word.equals("CP")) {
+                int i = 3;
+                while (instruction.charAt(i) != space) {
+                    firstParameter += instruction.charAt(i);
+                    i++;
+                }
+                i = 5;
+                System.out.println("First Parameter: " + firstParameter);
+                while (i < instruction.length()) {
+                    secondParameter += instruction.charAt(i);
+                    i++;
+                }
+                System.out.println("Second Parameter: " + secondParameter);
+            } else if (word.equals("DP")) {
+                int i = 3;
+                while (i < instruction.length()) {
+                    firstParameter += instruction.charAt(i);
+                    i++;
+                }
+                System.out.println("First Parameter: " + firstParameter);
+            }
         }
-        System.out.println("Instruction: " + word);
-        //Parameter completion
-        if (word.equals("ADD") || word.equals("SUB") || word.equals("MUL") || word.equals("MOV") || word.equals("MVI")) {
-            int i = 4;
-            while (instruction.charAt(i) != space) {
-                firstParameter += instruction.charAt(i);
-                i++;
-            }
-            i = 7;
-            System.out.println("First Parameter: " + firstParameter);
-            while (i < instruction.length()) {
-                secondParameter += instruction.charAt(i);
-                i++;
-            }
-            System.out.println("Second Parameter: " + secondParameter);
-        } else if (word.equals("INC") || word.equals("DEC") || word.equals("JMP") || word.equals("JIZ")) {
-            int i = 4;
-            while (i < instruction.length()) {
-                firstParameter += instruction.charAt(i);
-                i++;
-            }
-            System.out.println("First Parameter: " + firstParameter);
-        } else if (word.equals("JAXZ") || word.equals("JINZ")) {
-            int i = 5;
-            while (i < instruction.length()) {
-                firstParameter += instruction.charAt(i);
-                i++;
-            }
-            System.out.println("First Parameter: " + firstParameter);
-        } else if (word.equals("CP")) {
-            int i = 3;
-            while (instruction.charAt(i) != space) {
-                firstParameter += instruction.charAt(i);
-                i++;
-            }
-            i = 5;
-            System.out.println("First Parameter: " + firstParameter);
-            while (i < instruction.length()) {
-                secondParameter += instruction.charAt(i);
-                i++;
-            }
-            System.out.println("Second Parameter: " + secondParameter);
-        } else if (word.equals("DP")) {
-            int i = 3;
-            while (i < instruction.length()) {
-                firstParameter += instruction.charAt(i);
-                i++;
-            }
-            System.out.println("First Parameter: " + firstParameter);
-        }
-
         //Executing instructions
         if (size == 2) {
             if (word.equals("CP")) {
@@ -1020,13 +1052,6 @@ public class Interpreter {
                 if (firstParameter.equals("DX"))
                     regs.dx = value;
             }
-            if (word.equals("RES")) {
-                process.programCounter += 1;
-                regs.ax = 0;
-                regs.bx = 0;
-                regs.cx = 0;
-                regs.dx = 0;
-            }
             if (word.equals("JMP")) {
                 process.programCounter += 3;
 
@@ -1045,7 +1070,6 @@ public class Interpreter {
             }
             if (word.equals("JIZ")) {
                 process.programCounter += 3;
-
                 if (regs.ax == 0 && regs.bx == 0 && regs.cx == 0 && regs.dx == 0) {
                     if (firstParameter.charAt(0) == '[') {
                         String value = "";
@@ -1063,9 +1087,6 @@ public class Interpreter {
                     throw new IllegalArgumentException("Nie można zrealizować danego warunku!");
 
             }
-            if (word.equals("HLT")) {
-                process.programCounter += 1;
-            }
         } else if (size == 4) {
             if (word.equals("JAXZ")) {
                 process.programCounter += 3;
@@ -1076,8 +1097,6 @@ public class Interpreter {
 
             }
         }
-        // process.saveRegisters(regs);
+        process.saveRegisters(regs);
     }
 }
-
-
