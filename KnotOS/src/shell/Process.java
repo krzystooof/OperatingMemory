@@ -119,7 +119,7 @@ public class Process implements Shell {
 
         for(Interpreter interpreter: interpreters){
             if(interpreter.getPcb().PID == runningPcb.PID){
-                interpreter.runInterpreter(pcb, file);
+                interpreter.runInterpreter(pcb);
                 break;
             }
         }
