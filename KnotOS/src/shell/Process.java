@@ -172,6 +172,9 @@ public class Process implements Shell {
         } catch (IllegalArgumentException exc) {
             Interface.post(exc.getMessage());
         }
+        catch (StringIndexOutOfBoundsException exc){
+            Interface.post("Invalid assembly file");
+        }
 
     }
 
