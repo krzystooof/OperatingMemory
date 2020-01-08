@@ -1,6 +1,10 @@
 userID.count
-1
+2
 userName.admin
 user0
 userID.user0
 password
+userName.rol
+user1
+userID.user1
+rol

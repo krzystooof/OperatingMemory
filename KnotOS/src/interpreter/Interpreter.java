@@ -1,6 +1,7 @@
 package interpreter;
 
 import cpuscheduler.*;
+import jdk.jshell.spi.ExecutionControl;
 import memory.virtual.VirtualMemory;
 import shell.Process;
 
@@ -81,10 +82,16 @@ public class Interpreter {
         int limit = memory.getLimit(process.PID, true);
         while (process.programCounter < limit && isOn == true) {
             showLine(process.programCounter);
-            instr = byteInstructionToMnemonic(process, process.programCounter);
-            instructionExecute(instr, false);
-
-            System.out.println("REGISTERS " + process.registers.toString());
+            System.out.println(process.registers.toString());
+         //   showLine(process.programCounter);
+            try {
+                instr = byteInstructionToMnemonic(process, process.programCounter);
+                instructionExecute(instr, false);
+            } catch (ExecutionControl.StoppedException e)  {
+               process.state = State.TERMINATED;
+               process.registers.ax = 0;
+                break;
+            }
             if (Process.getStepMode()) {
                 break;
             }
@@ -723,7 +730,17 @@ public class Interpreter {
         return lines;
     }
 
-    void instructionExecute(String instruction, boolean isJump) {
+    private void funHLT() throws ExecutionControl.StoppedException {
+        process.programCounter += 1;
+        instructionNumber++;
+        instructionHash.put(instructionNumber, 1);
+        process.state = State.TERMINATED;
+        isOn=false;
+        throw new ExecutionControl.StoppedException();
+    }
+
+    void instructionExecute(String instruction, boolean isJump) throws ExecutionControl.StoppedException {
+
 
 
         Registers regs = process.registers;
@@ -745,18 +762,17 @@ public class Interpreter {
                     regs.cx = 0;
                     regs.dx = 0;
                 } else if (instruction.equals("HLT")) {
-                    process.programCounter += 1;
-                    instructionNumber++;
-                    instructionHash.put(instructionNumber, 1);
-                    process.state = State.TERMINATED;
-                    isOn=false;
+                    try {
+                        funHLT();
+                    } catch (ExecutionControl.StoppedException e) {
+                       throw new ExecutionControl.StoppedException();
+                    }
                 }
             } else {
                 while (instruction.charAt(size) != space) {
                     word += instruction.charAt(size);
                     size++;
                 }
-                System.out.println("Instruction: " + word);
                 //Parameter completion
                 if (word.equals("ADD") || word.equals("SUB") || word.equals("MUL") || word.equals("MOV") || word.equals("MVI")) {
                     int i = 4;
@@ -1237,11 +1253,17 @@ public class Interpreter {
                         }
                         if (memory.read(process.PID, logicalAddress) == 19)
                         {
-                            process.state = State.TERMINATED;
-                            isOn = false;
+                                funHLT();
+                                throw new ExecutionControl.StoppedException();
                         }
                         while (firstNumber <= secondNumber && isOn == true) {
-                            instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
+                            try {
+                                instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
+                            } catch (ExecutionControl.StoppedException e) {
+                                throw new ExecutionControl.StoppedException();
+                            }
+                            showLine(logicalAddress);
+                            System.out.println(process.registers.toString());
                             logicalAddress += instructionHash.get(firstNumber);
                             firstNumber++;
                         }
@@ -1278,8 +1300,7 @@ public class Interpreter {
                             }
                             if (memory.read(process.PID, logicalAddress) == 19)
                             {
-                                process.state = State.TERMINATED;
-                                isOn = false;
+                                funHLT();
                             }
                             while (firstNumber <= secondNumber  && isOn == true) {
                                 instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
@@ -1323,8 +1344,7 @@ public class Interpreter {
                         }
                         if (memory.read(process.PID, logicalAddress) == 19)
                         {
-                            process.state = State.TERMINATED;
-                            isOn = false;
+                            funHLT();
                         }
                         while (firstNumber < secondNumber && isOn == true) {
                             instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
@@ -1364,8 +1384,7 @@ public class Interpreter {
                         }
                         if (memory.read(process.PID, logicalAddress) == 19)
                         {
-                            process.state = State.TERMINATED;
-                            isOn = false;
+                            funHLT();
                         }
                         while (firstNumber <= secondNumber && isOn == true) {
                             instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
