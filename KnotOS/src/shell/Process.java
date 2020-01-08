@@ -82,29 +82,29 @@ public class Process implements Shell {
     }
 
     private void processPass(ArrayList<String> params) {
-        switch (params.get(0)) {
-            case "create": {
-                if (params.size() > 0) params.remove(0);
-                create(params);
-                break;
-            }
-            case "kill": {
-                if (params.size() > 0) params.remove(0);
-                kill(params);
-                break;
-            }
-            case "step": {
-                if (params.size() > 0) params.remove(0);
-                debug(params);
-                break;
+        if (params.size() > 0) {
+            switch (params.get(0)) {
+                case "create": {
+                    if (params.size() > 0) params.remove(0);
+                    create(params);
+                    break;
+                }
+                case "kill": {
+                    if (params.size() > 0) params.remove(0);
+                    kill(params);
+                    break;
+                }
+                case "step": {
+                    if (params.size() > 0) params.remove(0);
+                    debug(params);
+                    break;
+                }
             }
         }
     }
 
     private void create(ArrayList<String> param) {
         try {
-            String name = param.get(0);
-            String filePath = param.get(1);
 
             //Checking if params has inappropriate length
             if (param.size() < 4)
@@ -128,6 +128,9 @@ public class Process implements Shell {
                 }
             }
 
+            String name = param.get(0);
+            String filePath = param.get(1);
+
             PCB pcb = new PCB(pid, priority, State.NEW, name);
             cpuScheduler.addProcess(pcb);
             File file = Filesystem.getFile(filePath);
@@ -147,6 +150,7 @@ public class Process implements Shell {
 
     private void run(){
         try {
+
             PCB runningPcb = cpuScheduler.getRunningPCB();
 
             if (runningPcb.PID == 0)
@@ -171,6 +175,8 @@ public class Process implements Shell {
 
     private void kill(ArrayList<String> param) {
         try{
+            if (param.size() < 1) throw new IllegalArgumentException("Too few arguments");
+
             String name = param.get(0);
             boolean removed = false;
 

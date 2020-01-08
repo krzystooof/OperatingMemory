@@ -52,21 +52,21 @@ public class PhysicalMemoryManager {
      * @return ID of segment storing data
      * @throws IllegalArgumentException RAM_OVERFLOW, when there is no enough space for data
      */
-    public boolean write(byte[] data, int segmentID) {
+    public void write(byte[] data, int segmentID) {
 
         int startIndex = bestfit(data.length);
+
         int address = startIndex;
         if (address == -1) {
             if (checkAvailableSpace() < data.length) throw new IllegalArgumentException("RAM_OVERFLOW");
             else {
                 mergeSegments();
-                return write(data, segmentID);
+                write(data, segmentID);
             }
         } else {
             ram.saveByte(address, data);
             segmentTable.updateToRam(segmentID);
             segmentTable.setBase(segmentID, startIndex);
-            return true;
         }
     }
 
@@ -80,7 +80,7 @@ public class PhysicalMemoryManager {
     public void write(int segmentID, int offset, byte data) {
         int base = segmentTable.getSegment(segmentID).BASE;
         int limit = segmentTable.getSegment(segmentID).LIMIT;
-        if (limit - base < offset) throw new IllegalArgumentException("SEGMENT_OVERFLOW");
+        if (limit < offset) throw new IllegalArgumentException("SEGMENT_OVERFLOW");
         ram.saveByte(base + offset, data);
     }
 
@@ -145,13 +145,15 @@ public class PhysicalMemoryManager {
         ArrayList<Segment> segmentsInfos = getRamSegments();
         //move first to beginning of ram
         Segment firstSegment = segmentsInfos.get(0);
+        byte[] backup = ram.getByte(firstSegment.BASE, firstSegment.BASE + firstSegment.LIMIT - 1);
         segmentTable.setBase(firstSegment.ID, 0);
+        ram.saveByte(0,backup);
         //move others, no free space between
         for (int i = 0; i < segmentsInfos.size() - 1; i++) {
             Collections.sort(segmentsInfos);
             int nextFreeByte = segmentsInfos.get(i).BASE + segmentsInfos.get(i).LIMIT;
             Segment nextSegment = segmentsInfos.get(i + 1);
-            byte[] backup = ram.getByte(nextSegment.BASE, nextSegment.BASE + nextSegment.LIMIT - 1);
+            backup = ram.getByte(nextSegment.BASE, nextSegment.BASE + nextSegment.LIMIT - 1);
             if (nextFreeByte + backup.length - 1 < ramSize) {
                 segmentTable.setBase(nextSegment.ID, nextFreeByte);
                 ram.saveByte(nextFreeByte, backup);
@@ -222,13 +224,13 @@ public class PhysicalMemoryManager {
                 //space between last segment last ram cell
                 int endOfLastSegment = segmentsInfos.get(segmentsInfos.size() - 1).BASE + segmentsInfos.get(segmentsInfos.size() - 1).LIMIT - 1;
                 int spaceAtEndofRam = ramSize - 1 - endOfLastSegment;
-                if (endOfLastSegment != 0) {
+
+                if (spaceAtEndofRam >=requestedSize) {
                     freeSpace.put(endOfLastSegment + 1, spaceAtEndofRam);
                 }
                 //delete entries that are smaller than required space
-                freeSpace.forEach((k, v) -> {
-                    if (v < requestedSize) freeSpace.put(k, ramSize);
-                });
+                freeSpace.entrySet().removeIf(entry -> entry.getValue()<requestedSize);
+
 
                 if (freeSpace.isEmpty()) return -1;
                 else

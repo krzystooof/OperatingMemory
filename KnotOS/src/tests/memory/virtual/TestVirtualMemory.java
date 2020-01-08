@@ -32,37 +32,13 @@ public class TestVirtualMemory {
         IntStream.range(0, 16).forEach(n -> thirdProcess[n] = 2);
         IntStream.range(16, 32).forEach(n -> thirdProcess[n] = 'B');
         memory.load(2, 16, 16, thirdProcess);
-//        byte[] data = new byte[128];
-//        IntStream.range(0, 64).forEach(n -> data[n] = 0);
-//        IntStream.range(64, 128).forEach(n -> data[n] = 1);
-//        memory.load(0, 64, 64, data);
-//        IntStream.range(0, 64).forEach(n -> data[n] = 2);
-//        IntStream.range(64, 128).forEach(n -> data[n] = 3);
-//        memory.load(1, 64, 64, data);
-//        IntStream.range(0, 64).forEach(n -> data[n] = 4);
-//        IntStream.range(64, 128).forEach(n -> data[n] = 5);
-//        memory.load(2, 64, 64, data);
-//        IntStream.range(0, 64).forEach(n -> data[n] = 3);
-//        IntStream.range(64, 128).forEach(n -> data[n] = 4);
-//        memory.load(3, 64, 64, data);
-//        memory.load(4, 64, 64, data);
-//        IntStream.range(0, 64).forEach(n -> data[n] = 5);
-//        IntStream.range(64, 128).forEach(n -> data[n] = 6);
-//        memory.load(5, 64, 64, data);
-//        IntStream.range(0, 32).forEach(n -> data[n] = 7);
-//        IntStream.range(32, 64).forEach(n -> data[n] = 8);
-//        memory.load(6, 32, 32, data);
-//        IntStream.range(0, 10).forEach(n -> data[n] = 9);
-//        memory.load(7, 10, 0, data);
-//        IntStream.range(0, 10).forEach(n -> data[n] = 'A');
-//        memory.load(8, 10, 0, data);
     }
 
     @Test
     public void testLoad() {
         initTest();
-        assertEquals(memory.getSpaceLeft(true, false), 256);
-        assertEquals(memory.getSpaceLeft(false, true), 172);
+        assertEquals(memory.getSpaceLeft(true, false), 64);
+        assertEquals(memory.getSpaceLeft(false, true), 900);
     }
 
     @Test
@@ -82,17 +58,14 @@ public class TestVirtualMemory {
     @Test
     public void testSwapToFile() {
         initTest();
-        assertEquals(memory.getSpaceLeft(false, true), 172);
-
         memory.read(0, 2);
-        memory.read(0, 92);
-        memory.read(3, 2);
-        memory.read(3, 92);
+        memory.read(1, 31);
+        assertEquals(memory.getSpaceLeft(true, false), 4);
+        memory.read(1, 35);
         assertEquals(memory.getSpaceLeft(true, false), 0);
-        assertEquals(memory.getSpaceLeft(false, true), 172);
+        memory.read(1, 1);
+        assertEquals(memory.getSpaceLeft(true, false), 0);
 
-        memory.read(1,1);
-        assertEquals(memory.getSpaceLeft(false, true), 108);
     }
 
     @Test
@@ -124,38 +97,6 @@ public class TestVirtualMemory {
         assertEquals(memory.read(1, 32), 'A');
         assertEquals(memory.read(2, 15), 2);
         assertEquals(memory.read(2, 16), 'B');
-//        assertEquals(memory.read(0, 63), 0);
-//        assertEquals(memory.read(0, 127), 1);
-//        assertEquals(memory.read(1, 0), 2);
-//        assertEquals(memory.read(1, 64), 3);
-//        assertEquals(memory.read(2, 63), 4);
-//        assertEquals(memory.read(2, 64), 5);
-//        assertEquals(memory.read(3, 1), 3);
-//        assertEquals(memory.read(3, 127), 4);
-//        assertEquals(memory.read(4, 0), 3);
-//        assertEquals(memory.read(4, 127), 4);
-//        assertEquals(memory.read(5, 63), 5);
-//        assertEquals(memory.read(5, 127), 6);
-//        assertEquals(memory.read(6, 31), 7);
-//        assertEquals(memory.read(6, 32), 8);
-//        assertEquals(memory.read(7, 2), 9);
-//        assertEquals(memory.read(8, 2), 'A');
-//        assertEquals(memory.read(0, 63), 0);
-//        assertEquals(memory.read(0, 127), 1);
-//        assertEquals(memory.read(1, 0), 2);
-//        assertEquals(memory.read(1, 64), 3);
-//        assertEquals(memory.read(2, 63), 4);
-//        assertEquals(memory.read(2, 64), 5);
-//        assertEquals(memory.read(3, 1), 3);
-//        assertEquals(memory.read(3, 127), 4);
-//        assertEquals(memory.read(4, 0), 3);
-//        assertEquals(memory.read(4, 127), 4);
-//        assertEquals(memory.read(5, 63), 5);
-//        assertEquals(memory.read(5, 127), 6);
-//        assertEquals(memory.read(6, 31), 7);
-//        assertEquals(memory.read(6, 32), 8);
-//        assertEquals(memory.read(7, 2), 9);
-//        assertEquals(memory.read(8, 2), 'A');
     }
 
 
@@ -166,13 +107,13 @@ public class TestVirtualMemory {
         assertThrows(IllegalArgumentException.class, () -> {
             memory.read(0, 10);
         });
-        memory.delete(5);
+        memory.delete(1);
         assertThrows(IllegalArgumentException.class, () -> {
-            memory.read(5, 10);
+            memory.read(1, 10);
         });
-        memory.delete(6);
+        memory.delete(2);
         assertThrows(IllegalArgumentException.class, () -> {
-            memory.read(6, 10);
+            memory.read(2, 10);
         });
     }
 
@@ -190,7 +131,112 @@ public class TestVirtualMemory {
         byte[] code = new byte[1200];
         IntStream.range(0, 1200).forEach(n -> code[n] = 1);
         assertThrows(IllegalStateException.class, () -> {
-            memory.load(6, 400, 100, code);
+            memory.load(4, 1100, 100, code);
         });
+    }
+
+    @Test
+    public void testProcessExecution() {
+        this.memory = new VirtualMemory(1024, 128);
+        // Create and load first process
+        byte[] firstProcess = new byte[30];
+        IntStream.range(0, 30).forEach(n -> firstProcess[n] = 0);
+        memory.load(0, 30, 0, firstProcess);
+        // Create and load second process
+        byte[] secondProcess = new byte[20];
+        IntStream.range(0, 10).forEach(n -> secondProcess[n] = 1);
+        IntStream.range(10, 20).forEach(n -> secondProcess[n] = 2);
+        memory.load(1, 10, 10, secondProcess);
+        // Create and load third process
+        byte[] thirdProcess = new byte[50];
+        IntStream.range(0, 40).forEach(n -> thirdProcess[n] = 3);
+        IntStream.range(40, 50).forEach(n -> thirdProcess[n] = 4);
+        memory.load(2, 40, 10, thirdProcess);
+        // Check if properly loaded to swap
+        assertEquals(memory.getSpaceLeft(false, true), 924);
+        assertEquals(memory.getSpaceLeft(true, false), 128);
+        // Perform execution
+        for (int i = 0; i < 30; i++) {
+            memory.write(0, i, (byte) i);
+        }
+        assertEquals(memory.read(0, 15), (byte) 15);
+        assertEquals(memory.read(0, 29), (byte) 29);
+        assertEquals(memory.getSpaceLeft(true, false), 98);
+        memory.delete(0);
+        // Second process execution
+        for (int i = 0, j = 40; i < 10; i++, j++) {
+            memory.write(1, i, (byte) j);
+        }
+        assertEquals(memory.read(1, 0), (byte) 40);
+        assertEquals(memory.read(1, 9), (byte) 49);
+        assertEquals(memory.getSpaceLeft(true, false), 118);
+        memory.read(1, 11);
+        assertEquals(memory.getSpaceLeft(true, false), 108);
+        memory.delete(1);
+        assertEquals(memory.getSpaceLeft(true, false), 128);
+        // Third process execution
+        for (int i = 40, j = 0; i < 80; i++, j++) {
+            memory.write(2, j, (byte) i);
+
+        }
+        assertEquals(memory.read(2, 0), (byte) 40);
+        assertEquals(memory.read(2, 29), (byte) 69);
+        assertEquals(memory.getSpaceLeft(true, false), 88);
+        memory.delete(2);
+        assertEquals(memory.getSpaceLeft(true, false), 128);
+    }
+
+    @Test
+    public void testProcessExecution2() {
+        this.memory = new VirtualMemory(1024, 128);
+        // Create and load first process
+        byte[] firstProcess = new byte[30];
+        IntStream.range(0, 30).forEach(n -> firstProcess[n] = 0);
+        memory.load(0, 30, 0, firstProcess);
+        // Create and load second process
+        byte[] secondProcess = new byte[20];
+        IntStream.range(0, 10).forEach(n -> secondProcess[n] = 1);
+        IntStream.range(10, 20).forEach(n -> secondProcess[n] = 2);
+        memory.load(1, 10, 10, secondProcess);
+        // Create and load third process
+        byte[] thirdProcess = new byte[160];
+        IntStream.range(0, 40).forEach(n -> thirdProcess[n] = 3);
+        IntStream.range(40, 160).forEach(n -> thirdProcess[n] = 4);
+        memory.load(2, 40, 120, thirdProcess);
+        // Check if properly loaded to swap
+//        assertEquals(memory.getSpaceLeft(false, true), 924);
+        assertEquals(memory.getSpaceLeft(true, false), 128);
+        // Perform execution
+        for (int i = 0; i < 30; i++) {
+            memory.write(0, i, (byte) i);
+        }
+        assertEquals(memory.read(0, 15), (byte) 15);
+        assertEquals(memory.read(0, 29), (byte) 29);
+        assertEquals(memory.getSpaceLeft(true, false), 98);
+        // Second process execution
+        for (int i = 0, j = 40; i < 10; i++, j++) {
+            memory.write(1, i, (byte) j);
+        }
+        assertEquals(memory.read(1, 0), (byte) 40);
+        assertEquals(memory.read(1, 9), (byte) 49);
+        assertEquals(memory.getSpaceLeft(true, false), 88);
+        memory.read(1, 11);
+        assertEquals(memory.getSpaceLeft(true, false), 78);
+        memory.delete(1);
+        assertEquals(memory.getSpaceLeft(true, false), 98);
+        // Third process execution
+        assertEquals(memory.read(2, 50), (byte) 4);
+        memory.write(2, 0, (byte) 9);
+        assertEquals(memory.read(2, 0), (byte) 9);
+        for (int addres = 40, data = 0; addres < 160; addres++, data++) {
+            memory.write(2, addres, (byte) data);
+        }
+        memory.write(2, 159, (byte) 8);
+        assertEquals(memory.getSpaceLeft(true, false), 8);
+        assertEquals(memory.read(2, 159), (byte) 8);
+        memory.write(0, 0, (byte) 8);
+        assertEquals(memory.read(0, 0), (byte) 8);
+        assertEquals(memory.getSpaceLeft(true, false), 98);
+
     }
 }

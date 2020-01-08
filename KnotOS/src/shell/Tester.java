@@ -49,6 +49,84 @@ public class Tester implements Shell {
                     "Aenean ornare, urna eleifend iaculis auctor, erat mi venenatis leo, quis iaculis nibh ante in purus. " +
                     "Aliquam hendrerit semper ultricies.", "Printed header");
 
+            //TESTS FOR TOO FEW ARGUMENTS
+            printTestHeader("Interface", "cd testing for too few arguments", "Too few arguments");
+            Interface.pass("cd");
+            Interface.pass("cd      ");
+            Interface.pass("      cd");
+
+            printTestHeader("Interface", "dir testing for too few arguments", "Too few arguments");
+            Interface.pass("dir");
+            Interface.pass("dir      ");
+            Interface.pass("      dir");
+
+            printTestHeader("Interface", "mkdir testing for too few arguments", "Too few arguments");
+            Interface.pass("mkdir");
+            Interface.pass("mkdir      ");
+            Interface.pass("      mkdir");
+
+            printTestHeader("Interface", "rmdir testing for too few arguments", "Too few arguments");
+            Interface.pass("rmdir");
+            Interface.pass("rmdir      ");
+            Interface.pass("      rmdir");
+
+            printTestHeader("Interface", "rm testing for too few arguments", "Too few arguments");
+            Interface.pass("rm");
+            Interface.pass("rm      ");
+            Interface.pass("      rm");
+
+            printTestHeader("Interface", "start testing for too few arguments", "Too few arguments");
+            Interface.pass("start");
+            Interface.pass("start      ");
+            Interface.pass("      start");
+
+            printTestHeader("Interface", "process testing for too few arguments", "Too few arguments");
+            Interface.pass("process");
+            Interface.pass("process      ");
+            Interface.pass("      process");
+
+            printTestHeader("Interface", "process create testing for too few arguments", "Too few arguments");
+            Interface.pass("process create");
+            Interface.pass("process create      ");
+            Interface.pass("      process create");
+            //Interface.pass(" process        create"); TODO java.lang.StringIndexOutOfBoundsException: begin 0, end 1, length 0
+
+            printTestHeader("Interface", "process kill testing for too few arguments", "Too few arguments");
+            Interface.pass("process kill");
+            Interface.pass("process kill      ");
+            Interface.pass("      process kill");
+            //Interface.pass(" process        kill"); TODO same here
+
+            printTestHeader("Interface", "tasklist testing for too few arguments", "Too few arguments");
+            Interface.pass("tasklist");
+            Interface.pass("tasklist      ");
+            Interface.pass("      tasklist");
+
+            printTestHeader("Interface", "password testing for too few arguments", "Too few arguments");
+            Interface.pass("password");
+            Interface.pass("password      ");
+            Interface.pass("      password");
+
+            printTestHeader("Interface", "user testing for too few arguments", "Too few arguments");
+            Interface.pass("user");
+            Interface.pass("user      ");
+            Interface.pass("      user");
+
+            printTestHeader("Interface", "user add testing for too few arguments", "Too few arguments");
+            Interface.pass("user add      ");
+            //Interface.pass("user      add"); TODO same here
+            Interface.pass("      user add");
+
+            printTestHeader("Interface", "user delete testing for too few arguments", "Too few arguments");
+            Interface.pass("user delete      ");
+            //Interface.pass("user      delete"); TODO same here
+            Interface.pass("      user delete");
+
+            printTestHeader("Interface", "user list testing for too few arguments", "Too few arguments");
+            Interface.pass("user list      ");
+            //Interface.pass("user      list"); TODO same here
+            Interface.pass("      list delete");
+
             //INTERFACE
             printTestHeader("Interface", "Testing posting", "Hello world!");
             Interface.post("Hello world!");
