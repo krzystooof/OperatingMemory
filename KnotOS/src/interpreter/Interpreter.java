@@ -1,6 +1,7 @@
 package interpreter;
 
 import cpuscheduler.*;
+import memory.virtual.VirtualMemory;
 import shell.Process;
 
 import java.io.*;
@@ -21,12 +22,15 @@ public class Interpreter {
     private HashMap<Integer, String> instructionMap = new HashMap<Integer, String>();
     private Vector<String> lines = new Vector<String>();
     private Vector<Byte> data = new Vector<Byte>();
+    private VirtualMemory memory;
     byte singleByte;
     private PCB process;
     File file;
+    byte[] arrayByte;
 
-    public Interpreter(File file, PCB process) {
+    public Interpreter(File file, PCB process, VirtualMemory memory) {
         this.process = process;
+        this.memory = memory;
         //Added mnemonics with machine codes
         instructionMap.put(1, "ADD"); //4 Bytes - R - L
         instructionMap.put(2, "SUB"); //4 Bytes - R - L
@@ -63,13 +67,17 @@ public class Interpreter {
     public void runInterpreter() {
         Vector<Byte> Bytes = new Vector<Byte>();
         Bytes = getBytesFromFile(file);
+        arrayByte=new byte[Bytes.size()];
+        for(int i=0; i<Bytes.size();i++)
+        {
+            arrayByte[i] = Bytes.get(i);
+        }
+        this.memory.load(process.PID,arrayByte.length,0,arrayByte);
         String instr = "";
         int i = 0;
-        while (process.programCounter < Bytes.size()) {
-
+        int limit = memory.getLimit(process.PID,true);
+        while (process.programCounter < limit) {
             showLine(process.programCounter);
-            System.out.println("Licznik: " + process.programCounter);
-            System.out.println("Limit: " + Bytes.size());
             instr = byteInstructionToMnemonic(process, process.programCounter);
             System.out.println("instr: " + instr);
             instructionExecute(instr, false);
@@ -344,47 +352,31 @@ public class Interpreter {
         return data;
     }
 
-    /**
-     * Substituted method
-     *
-     * @param offset
-     * @return
-     */
-    public byte read(int offset) {
-        byte A = 0;
-        int i = 0;
 
-        for (byte b : data) {
-            if (i == offset) {
-                A = b;
-            }
-            i++;
-        }
-        return A;
-    }
 
     Vector<Byte> loadBytesToByteInstruction(int PID, int offset) {
         Vector<Byte> oneInstruction = new Vector<Byte>();
-        byte oneByte = read(offset);
+
+        byte oneByte = memory.read(process.PID,offset);
         //Read 4 bytes
         if (oneByte == 1 || oneByte == 2 || oneByte == 3 || oneByte == 26 || oneByte == 7 || oneByte == 21 || oneByte == 22 || oneByte == 23 || oneByte == 41 || oneByte == 42 || oneByte == 43) {
             oneInstruction.add(oneByte);
             for (int i = offset + 1; i < offset + 4; i++) {
-                oneByte = read(i);
+                oneByte = memory.read(process.PID,i);
                 oneInstruction.add(oneByte);
             }
         }//Read 3 bytes
         else if (oneByte == 44 || oneByte == 45 || oneByte == 9 || oneByte == 10 || oneByte == 11 || oneByte == 12 || oneByte == 13) {
             oneInstruction.add(oneByte);
             for (int i = offset + 1; i < offset + 3; i++) {
-                oneByte = read(i);
+                oneByte = memory.read(process.PID,i);
                 oneInstruction.add(oneByte);
             }
         }//Read 2 bytes
         else if (oneByte == 4 || oneByte == 5 || oneByte == 14 || oneByte == 20) {
             oneInstruction.add(oneByte);
             for (int i = offset + 1; i < offset + 2; i++) {
-                oneByte = read(i);
+                oneByte = memory.read(process.PID,i);
                 oneInstruction.add(oneByte);
             }
         }//Read 1 byte

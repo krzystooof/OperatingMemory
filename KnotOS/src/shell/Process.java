@@ -4,6 +4,7 @@ import cpuscheduler.CpuScheduler;
 import cpuscheduler.PCB;
 import cpuscheduler.State;
 import interpreter.Interpreter;
+import memory.virtual.VirtualMemory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -140,7 +141,7 @@ public class Process implements Shell {
             if (file == null)
                 throw new IllegalArgumentException("File not found");
 
-            Interpreter interpreter = new Interpreter(file, pcb);
+            Interpreter interpreter = new Interpreter(file, pcb, new VirtualMemory(1024,10));
             interpreters.add(interpreter);
             run();
 
