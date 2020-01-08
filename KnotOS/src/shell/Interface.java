@@ -114,7 +114,9 @@ public class Interface {
         displayLogo(60);
         memory  = new VirtualMemory(1024, 256);
         displayLogo(70);
+        loadModule(new Script());
         displayLogo(80);
+        loadModule(new Notepad());
         displayLogo(90);
 
         displayLogo(100);
