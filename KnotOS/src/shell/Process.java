@@ -5,6 +5,7 @@ import cpuscheduler.PCB;
 import cpuscheduler.State;
 import interpreter.Interpreter;
 import memory.virtual.VirtualMemory;
+import semaphores.Semaphore;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ public class Process implements Shell {
     private static boolean isStepMode;
     private CpuScheduler cpuScheduler;
     private List<Interpreter> interpreters;
+    private Semaphore semaphore;
 
     public Process() {
         shellCommands = new ArrayList<String>();
@@ -29,6 +31,7 @@ public class Process implements Shell {
         isStepMode = false;
         cpuScheduler = new CpuScheduler();
         interpreters = new ArrayList<>();
+        semaphore = new Semaphore(cpuScheduler);
     }
 
     @Override
@@ -160,7 +163,13 @@ public class Process implements Shell {
 
             for (Interpreter interpreter : interpreters) {
                 if (interpreter.getPcb().PID == runningPcb.PID) {
-                    interpreter.runInterpreter();
+                    try {
+                        interpreter.runInterpreter();
+                    }catch (IllegalStateException exc){
+                        Interface.post(exc.getMessage());
+                        cpuScheduler.removeProcess(runningPcb.NAME);
+                        semaphore(runningPcb);
+                    }
                     if(interpreter.getPcb().state == State.TERMINATED){
                         cpuScheduler.removeProcess(interpreter.getPcb().NAME);
                         interpreters.remove(interpreter);
@@ -186,13 +195,23 @@ public class Process implements Shell {
             boolean removed = false;
 
             if(cpuScheduler.getRunningPCB().NAME.equals(name)) {
+                boolean deleteMemory = Interface.getMemory().delete(cpuScheduler.getRunningPCB().PID);
+                if(deleteMemory){
+                    semaphoreSignal();
+                }
                 cpuScheduler.removeProcess(cpuScheduler.getRunningPCB().NAME);
                 removed = true;
                 run();
             }
 
-            for(Interpreter interpreter:interpreters){
-                if(interpreter.getPcb().NAME.equals(name)){
+            for (Interpreter interpreter : interpreters) {
+                if (interpreter.getPcb().NAME.equals(name)) {
+                    if (removed != true) {
+                        boolean deleteMemory = Interface.getMemory().delete(cpuScheduler.getRunningPCB().PID);
+                        if (deleteMemory) {
+                            semaphoreSignal();
+                        }
+                    }
                     interpreters.remove(interpreter);
                     removed = true;
                     break;
@@ -202,8 +221,14 @@ public class Process implements Shell {
             if(cpuScheduler.getReadyPCB()==null)
                 throw new IllegalArgumentException("Process with specified name doesn't exist");
 
-            for(PCB pcb:cpuScheduler.getReadyPCB()){
-                if(pcb.NAME.equals(name)){
+            for (PCB pcb : cpuScheduler.getReadyPCB()) {
+                if (pcb.NAME.equals(name)) {
+                    if (removed != true) {
+                        boolean deleteMemory = Interface.getMemory().delete(cpuScheduler.getRunningPCB().PID);
+                        if (deleteMemory) {
+                            semaphoreSignal();
+                        }
+                    }
                     cpuScheduler.removeProcess(name);
                     removed = true;
                     break;
@@ -224,6 +249,7 @@ public class Process implements Shell {
     }
 
     private void debug(ArrayList<String> param) {
+
         if (isStepMode) {
             isStepMode = false;
             Interface.post("Step mode deactivated");
@@ -234,6 +260,14 @@ public class Process implements Shell {
         }
     }
 
+    private void semaphore(PCB pcb){
+        semaphore.waitSem(pcb);
+
+    }
+
+    private void semaphoreSignal(){
+        //TODO
+    }
     /*
     * Displays help */
     private void help() {

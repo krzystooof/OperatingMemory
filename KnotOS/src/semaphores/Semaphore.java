@@ -1,8 +1,10 @@
 package semaphores;
 
+import cpuscheduler.CpuScheduler;
 import cpuscheduler.State;
 import cpuscheduler.PCB;
 
+import javax.swing.undo.CannotUndoException;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -18,6 +20,7 @@ import java.util.Queue;
 public class Semaphore {
     //value of Semaphore
     public int value = 0;
+    private CpuScheduler cpuScheduler;
 
     //Queue of waiting processes
     Queue<PCB> queue = new ArrayDeque<PCB>();
@@ -25,11 +28,11 @@ public class Semaphore {
     //Checking if warning happened in system
     SemaphoreChange changes = new SemaphoreChange();
 
-    public Semaphore(){
+    public Semaphore(CpuScheduler cpuScheduler){
         this.value = 0;
     }
 
-    public Semaphore(int value){
+    public Semaphore(CpuScheduler cpuScheduler, int value){
         this.value = value;
     }
 

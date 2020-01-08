@@ -58,6 +58,7 @@ public class TaskList {
             }
             i++;
         }
+        System.out.println();
     }
 
     private void display() {
