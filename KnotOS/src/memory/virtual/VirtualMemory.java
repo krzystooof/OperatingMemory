@@ -1,9 +1,6 @@
 package memory.virtual;
 
-import java.util.Arrays;
-import java.util.Queue;
-import java.util.LinkedList;
-import java.util.HashMap;
+import java.util.*;
 
 import memory.SegmentTable;
 import memory.physical.PhysicalMemoryManager;
@@ -72,13 +69,15 @@ public class VirtualMemory {
      *
      * @param PID process unique ID
      */
-    public void delete(int PID) {
+    public boolean delete(int PID) {
         int textSegmentId = processMap.get(PID)[0];
         int dataSegmentId = processMap.get(PID)[1];
+        boolean released = false;
 
         if (dataSegmentId > 0) {
             if (segments.hasHighestBase(dataSegmentId)) {
                 swapLeft += segments.getLimit(dataSegmentId);
+                released=true;
             }
             segments.delete(dataSegmentId);
             segmentQueue.remove(dataSegmentId);
@@ -88,6 +87,7 @@ public class VirtualMemory {
         }
         segments.delete(textSegmentId);
         segmentQueue.remove(textSegmentId);
+        return released;
     }
 
     /**
