@@ -1,5 +1,8 @@
 package semaphores;
 
+import cpuscheduler.State;
+import cpuscheduler.PCB;
+
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -17,7 +20,7 @@ public class Semaphore {
     public int value = 0;
 
     //Queue of waiting processes
-    Queue<Process> queue = new ArrayDeque<Process>();
+    Queue<PCB> queue = new ArrayDeque<PCB>();
 
     //Checking if warning happened in system
     SemaphoreChange changes = new SemaphoreChange();
@@ -33,8 +36,8 @@ public class Semaphore {
     /**
      * Allocate process in memory
      */
-    private void block(Process process) {
-        process.state = ProcessState.Waiting;
+    private void block(PCB process) {
+        process.state = State.WAITING;
         changes.changes = -1; // process is blocked
 
     }
@@ -44,7 +47,7 @@ public class Semaphore {
      *
      * @param process object
      */
-    public void waitSem(Process process) {
+    public void waitSem(PCB process) {
         value--;
         if (value < 0) {
             queue.add(process);
@@ -58,10 +61,8 @@ public class Semaphore {
      *
      * @param process object
      */
-    private void wakeUp(Process process) {
-        process.state = ProcessState.Ready;
-
-
+    private void wakeUp(PCB process) {
+        process.state = State.READY;
     }
 
     /**
@@ -69,7 +70,7 @@ public class Semaphore {
      *
      * @param process object
      */
-    public void signalSem(Process process) {
+    public void signalSem(PCB process) {
          value++;
         if (value <= 0) {
             queue.remove(process);
