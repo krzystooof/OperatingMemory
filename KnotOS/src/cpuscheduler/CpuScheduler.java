@@ -155,6 +155,16 @@ public class CpuScheduler {
         runProcess(findNextProccess());
         return true;
     }
+
+    /**
+     * Method add processes with waiting state to waiting queue.
+     */
+    public void addWaitingProcess(PCB pcb){
+        waitingPCB.add(pcb);
+    }
+
+
+
 }
 
 /**
