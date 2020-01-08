@@ -78,9 +78,9 @@ public class Interpreter {
         while (process.programCounter < limit) {
             showLine(process.programCounter);
             instr = byteInstructionToMnemonic(process, process.programCounter);
-            System.out.println("instr: " + instr);
             instructionExecute(instr, false);
             System.out.println(process.registers.toString());
+
 
             if (Process.getStepMode()) {
                 break;
@@ -343,7 +343,6 @@ public class Interpreter {
         }
         return data;
     }
-
 
     Vector<Byte> loadBytesToByteInstruction(int PID, int offset) {
         Vector<Byte> oneInstruction = new Vector<Byte>();
@@ -1019,14 +1018,10 @@ public class Interpreter {
                             i++;
                         }
                         int logicalAddress = Integer.parseInt(value) + 1;
-                        System.out.println("LOGICAL ADRES" + logicalAddress);
                         byte singleByte = memory.read(process.PID, logicalAddress);
-                        System.out.println("SINGLE BYTE" + singleByte);
                         int temp = (int) singleByte;
-                        System.out.println("TEMP" + temp);
                         temp++;
                         singleByte = (byte) temp;
-
                         memory.write(process.PID, logicalAddress, singleByte);
 
                     } else if (firstParameter.equals("AX")) {
@@ -1055,7 +1050,7 @@ public class Interpreter {
                             process.programCounter += 2;
                     }
                 }
-                if (word.equals("DEC")) {/* DODAC ADRES LOGICZNY*/
+                if (word.equals("DEC")) {
                     if (firstParameter.charAt(0) == '[') {
                         if (isJump)
                             isJump = false;
@@ -1068,13 +1063,15 @@ public class Interpreter {
                             value += firstParameter.charAt(i);
                             i++;
                         }
-                        int logicalAddress = Integer.parseInt(value);
-                        for (Byte a : data) {
-                            if (j == logicalAddress) {
-                                int k = Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress)) - 1;
-                            }
-                            j++;
-                        }
+                        int logicalAddress = Integer.parseInt(value) + 1;
+                        byte singleByte = memory.read(process.PID, logicalAddress);
+                        int temp = (int) singleByte;
+                        System.out.println("TEMP" + temp);
+                        temp--;
+                        singleByte = (byte) temp;
+
+                        memory.write(process.PID, logicalAddress, singleByte);
+
                     } else if (firstParameter.equals("AX")) {
                         regs.ax--;
                         process.programCounter += 2;
@@ -1151,7 +1148,12 @@ public class Interpreter {
                         }
                         int logicalAddress = Integer.parseInt(value);
                         isJump = true;
-                        instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
+
+                        while(logicalAddress < process.programCounter)
+                        {
+                            instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
+
+                        }
                     }
                 }
                 if (word.equals("JIZ")) {
@@ -1170,7 +1172,7 @@ public class Interpreter {
                             instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                         }
                     } else
-                        throw new IllegalArgumentException("Nie można zrealizować danego warunku!");
+                        throw new IllegalArgumentException("Can't realize this condition");
 
                 }
             } else if (size == 4) {
