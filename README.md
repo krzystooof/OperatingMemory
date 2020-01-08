@@ -7,10 +7,15 @@
 [2]: https://www.tutorialspoint.com/java/java_documentation.htm " określony sposób,"
 #### 5. Ko-op; ktoś czegoś nie wie - jest grupa (ktoś wie, niech odpowie).
 #### 6. Keep it stupid simple, najprostsze rozwiązania są najlepsze.
+#### 7. Na developie commita do remota robimy tak:
+###### 1) git pull
+###### 2) git add \*.java
+###### 3) git commit -m "Tutaj twoja reklama"
+###### 3) git push
 #### Referencje:
-###### 1. [Tutorial gita][3]
-###### 2. [Komentarze][2]
-###### 3. [Nazewnictwo w Java][1]
+###### 1) [Tutorial gita][3]
+###### 2) [Komentarze][2]
+###### 3) [Nazewnictwo w Java][1]
 [3]: https://www.youtube.com/watch?v=SWYqp7iY_Tc
 
 # KnotOS

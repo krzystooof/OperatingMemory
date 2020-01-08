@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.PriorityQueue;
 
 public class TaskList {
-    CpuScheduler cpuScheduler; // TODO make constructor take scheduler as argument
+    CpuScheduler cpuScheduler;
     VirtualMemory memory;
     ArrayList<PCB> PCBs;
 
