@@ -33,7 +33,7 @@ public class PCB {
                 '}';
     }
 
-    public void saveRegisters(Registers registers){
+    public void saveRegisters(Registers registers) {
         this.registers.ax = registers.ax;
         this.registers.bx = registers.bx;
         this.registers.cx = registers.cx;

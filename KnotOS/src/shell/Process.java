@@ -111,7 +111,7 @@ public class Process implements Shell {
                 throw new IllegalArgumentException("Too few arguments");
 
             // Checking if pid and priority are not integers
-            if(!isInteger(param.get(2)) || !isInteger(param.get(3)))
+            if (!isInteger(param.get(2)) || !isInteger(param.get(3)))
                 throw new IllegalArgumentException("Pid and Priority should be integers");
 
             int pid = Integer.parseInt(param.get(2));
@@ -124,7 +124,7 @@ public class Process implements Shell {
             // Checking if pcb with given id exists
             for (Interpreter interpreter : interpreters) {
                 if (interpreter.getPcb().PID == pid) {
-                    throw new IllegalArgumentException("Give pid is already used");
+                    throw new IllegalArgumentException("Given pid is already used");
                 }
             }
 
@@ -142,13 +142,12 @@ public class Process implements Shell {
             interpreters.add(interpreter);
             run();
 
-        }
-        catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             Interface.post(e.getMessage());
         }
     }
 
-    private void run(){
+    private void run() {
         try {
 
             PCB runningPcb = cpuScheduler.getRunningPCB();
@@ -159,7 +158,7 @@ public class Process implements Shell {
             for (Interpreter interpreter : interpreters) {
                 if (interpreter.getPcb().PID == runningPcb.PID) {
                     interpreter.runInterpreter();
-                    if(!isStepMode) {
+                    if (!isStepMode) {
                         cpuScheduler.removeProcess(interpreter.getPcb().NAME);
                         interpreters.remove(interpreter);
                     }
@@ -167,7 +166,7 @@ public class Process implements Shell {
                 }
 
             }
-        }catch (IllegalArgumentException exc){
+        } catch (IllegalArgumentException exc) {
             Interface.post(exc.getMessage());
         }
 
