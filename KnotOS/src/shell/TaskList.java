@@ -2,18 +2,20 @@ package shell;
 
 import cpuscheduler.CpuScheduler;
 import cpuscheduler.PCB;
+import memory.virtual.VirtualMemory;
 
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
 public class TaskList {
     CpuScheduler cpuScheduler; // TODO make constructor take scheduler as argument
-    //TODO Instance of virtual memory needed here
+    VirtualMemory memory;
     ArrayList<PCB> PCBs;
 
-    public TaskList() {
+    public TaskList(CpuScheduler scheduler) {
         PCBs = new ArrayList<PCB>();
-        cpuScheduler = new CpuScheduler();
+        cpuScheduler = scheduler;
+        memory = Interface.getMemory();
         PriorityQueue<PCB> queue= cpuScheduler.getReadyPCB();
         for (PCB single : queue) {
             PCBs.add(single);
@@ -26,6 +28,7 @@ public class TaskList {
     private void display() {
         printHeader();
         for (PCB current : PCBs) {
+            byte[] memUsage = memory.showProcessData(current.PID);
             printFill(current.NAME, 25);
             System.out.print(" ");
             printFill(Integer.toString(current.PID), 8);
@@ -34,7 +37,7 @@ public class TaskList {
             System.out.print(" ");
             printFill(Integer.toString(current.PRIORITY), 11);
             System.out.print(" ");
-            printFill("Unknown", 12);
+            printFill(Integer.toString(memUsage.length) + "B", 12);
         }
     }
 
