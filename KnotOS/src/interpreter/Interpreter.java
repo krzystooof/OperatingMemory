@@ -87,6 +87,9 @@ public class Interpreter {
                 break;
             }
 
+            if(process.state == State.TERMINATED) {
+                break;
+            }
         }
         System.out.println("Size: " + Bytes.size());
 /*        System.out.println("Bytes: ");
@@ -738,15 +741,16 @@ public class Interpreter {
         instruction = instruction.toUpperCase();
         if (!isInteger(instruction)) {
             if (instruction.charAt(0) == 'R' || instruction.charAt(0) == 'H') {
-                if (word.equals("RES")) {
+                if (instruction.equals("RES")) {
                     process.programCounter += 1;
                     regs.ax = 0;
                     regs.bx = 0;
                     regs.cx = 0;
                     regs.dx = 0;
-                } else if (word.equals("HLT")) {
+                } else if (instruction.equals("HLT")) {
                     process.programCounter += 1;
                     process.state = State.TERMINATED;
+
                 }
             } else {
                 while (instruction.charAt(size) != space) {
