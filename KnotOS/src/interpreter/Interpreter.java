@@ -1235,7 +1235,11 @@ public class Interpreter {
                                 break;
                             }
                         }
-                        if (memory.read(process.PID, logicalAddress) == 19) isOn = false;
+                        if (memory.read(process.PID, logicalAddress) == 19)
+                        {
+                            process.state = State.TERMINATED;
+                            isOn = false;
+                        }
                         while (firstNumber <= secondNumber && isOn == true) {
                             instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                             logicalAddress += instructionHash.get(firstNumber);
@@ -1272,7 +1276,11 @@ public class Interpreter {
                                     break;
                                 }
                             }
-                            if (memory.read(process.PID, logicalAddress) == 19) isOn = false;
+                            if (memory.read(process.PID, logicalAddress) == 19)
+                            {
+                                process.state = State.TERMINATED;
+                                isOn = false;
+                            }
                             while (firstNumber <= secondNumber  && isOn == true) {
                                 instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                                 logicalAddress += instructionHash.get(firstNumber);
@@ -1313,7 +1321,11 @@ public class Interpreter {
                                 break;
                             }
                         }
-                        if (memory.read(process.PID, logicalAddress) == 19) isOn = false;
+                        if (memory.read(process.PID, logicalAddress) == 19)
+                        {
+                            process.state = State.TERMINATED;
+                            isOn = false;
+                        }
                         while (firstNumber < secondNumber && isOn == true) {
                             instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                             logicalAddress += instructionHash.get(firstNumber);
@@ -1350,7 +1362,11 @@ public class Interpreter {
                                 break;
                             }
                         }
-                        if (memory.read(process.PID, logicalAddress) == 19) isOn = false;
+                        if (memory.read(process.PID, logicalAddress) == 19)
+                        {
+                            process.state = State.TERMINATED;
+                            isOn = false;
+                        }
                         while (firstNumber <= secondNumber && isOn == true) {
                             instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                             logicalAddress += instructionHash.get(firstNumber);
