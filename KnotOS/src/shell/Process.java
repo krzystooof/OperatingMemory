@@ -195,10 +195,7 @@ public class Process implements Shell {
             boolean removed = false;
 
             if(cpuScheduler.getRunningPCB().NAME.equals(name)) {
-                boolean deleteMemory = Interface.getMemory().delete(cpuScheduler.getRunningPCB().PID);
-                if(deleteMemory){
-                    semaphoreSignal();
-                }
+                Interface.getMemory().delete(cpuScheduler.getRunningPCB().PID);
                 cpuScheduler.removeProcess(cpuScheduler.getRunningPCB().NAME);
                 removed = true;
                 run();
@@ -207,10 +204,7 @@ public class Process implements Shell {
             for (Interpreter interpreter : interpreters) {
                 if (interpreter.getPcb().NAME.equals(name)) {
                     if (removed != true) {
-                        boolean deleteMemory = Interface.getMemory().delete(cpuScheduler.getRunningPCB().PID);
-                        if (deleteMemory) {
-                            semaphoreSignal();
-                        }
+                        Interface.getMemory().delete(cpuScheduler.getRunningPCB().PID);
                     }
                     interpreters.remove(interpreter);
                     removed = true;
@@ -224,10 +218,8 @@ public class Process implements Shell {
             for (PCB pcb : cpuScheduler.getReadyPCB()) {
                 if (pcb.NAME.equals(name)) {
                     if (removed != true) {
-                        boolean deleteMemory = Interface.getMemory().delete(cpuScheduler.getRunningPCB().PID);
-                        if (deleteMemory) {
-                            semaphoreSignal();
-                        }
+                        Interface.getMemory().delete(cpuScheduler.getRunningPCB().PID);
+
                     }
                     cpuScheduler.removeProcess(name);
                     removed = true;
@@ -261,13 +253,11 @@ public class Process implements Shell {
     }
 
     private void semaphore(PCB pcb){
-        semaphore.waitSem(pcb);
+        pcb.state = State.WAITING;
+        cpuScheduler.addWaitingProcess(pcb);
 
     }
 
-    private void semaphoreSignal(){
-        //TODO
-    }
     /*
     * Displays help */
     private void help() {
