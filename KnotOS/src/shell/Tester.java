@@ -89,13 +89,13 @@ public class Tester implements Shell {
             Interface.pass("process create");
             Interface.pass("process create      ");
             Interface.pass("      process create");
-            //Interface.pass(" process        create"); TODO java.lang.StringIndexOutOfBoundsException: begin 0, end 1, length 0
+            Interface.pass(" process        create");
 
             printTestHeader("Interface", "process kill testing for too few arguments", "Too few arguments");
             Interface.pass("process kill");
             Interface.pass("process kill      ");
             Interface.pass("      process kill");
-            //Interface.pass(" process        kill"); TODO same here
+            Interface.pass(" process        kill");
 
             printTestHeader("Interface", "tasklist testing for too few arguments", "Too few arguments");
             Interface.pass("tasklist");
@@ -114,17 +114,17 @@ public class Tester implements Shell {
 
             printTestHeader("Interface", "user add testing for too few arguments", "Too few arguments");
             Interface.pass("user add      ");
-            //Interface.pass("user      add"); TODO same here
+            Interface.pass("user      add");
             Interface.pass("      user add");
 
             printTestHeader("Interface", "user delete testing for too few arguments", "Too few arguments");
             Interface.pass("user delete      ");
-            //Interface.pass("user      delete"); TODO same here
+            Interface.pass("user      delete");
             Interface.pass("      user delete");
 
             printTestHeader("Interface", "user list testing for too few arguments", "Too few arguments");
             Interface.pass("user list      ");
-            //Interface.pass("user      list"); TODO same here
+            Interface.pass("user      list");
             Interface.pass("      list delete");
 
             //INTERFACE
