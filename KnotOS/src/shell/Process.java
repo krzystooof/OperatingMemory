@@ -158,8 +158,12 @@ public class Process implements Shell {
 
             PCB runningPcb = cpuScheduler.getRunningPCB();
 
-            if (runningPcb.PID == 0)
+            if (runningPcb.PID == 0) {
+                for(PCB pcb:cpuScheduler.getWaitingPCB()){
+                    cpuScheduler.addProcess(pcb);
+                }
                 throw new IllegalArgumentException("There is only Idle Process");
+            }
 
             for (Interpreter interpreter : interpreters) {
                 if (interpreter.getPcb().PID == runningPcb.PID) {
