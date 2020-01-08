@@ -1,6 +1,8 @@
 package shell;
 
 
+import memory.virtual.VirtualMemory;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -22,6 +24,7 @@ public class Interface {
     private static Shell[] modules = new Shell[MAX_MODULES];
     private static ArrayList<String> post;
     private static boolean asciiDisplayed = false;
+    private static VirtualMemory memory;
 
     /**
      * This is main method of this class.
@@ -109,6 +112,7 @@ public class Interface {
         displayLogo(50);
         loadModule(new Tester());
         displayLogo(60);
+        memory  = new VirtualMemory(1024, 256);
         displayLogo(70);
         displayLogo(80);
         displayLogo(90);
@@ -290,5 +294,9 @@ public class Interface {
             else modules[foundModuleID].pass(userInput);
         }
         makePost();
+    }
+
+    public static VirtualMemory getMemory() {
+        return memory;
     }
 }

@@ -70,7 +70,7 @@ public class Process implements Shell {
                 break;
             }
             case "tasklist": {
-                TaskList taskList = new TaskList();
+                TaskList taskList = new TaskList(cpuScheduler);
                 break;
             }
             case "next":{
