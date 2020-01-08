@@ -77,20 +77,19 @@ public class Interpreter {
      * The method is responsible for calling the rest of the methods needed.
      */
     public void runInterpreter() {
-
         String instr = "";
         int i = 0;
         int limit = memory.getLimit(process.PID, true);
         while (process.programCounter < limit && isOn == true) {
             showLine(process.programCounter);
             if (Process.getStepMode()) System.out.println(process.registers.toString());
-         //   showLine(process.programCounter);
+            //   showLine(process.programCounter);
             try {
                 instr = byteInstructionToMnemonic(process, process.programCounter);
                 instructionExecute(instr, false);
-            } catch (ExecutionControl.StoppedException e)  {
-               process.state = State.TERMINATED;
-               process.registers.ax = 0;
+            } catch (ExecutionControl.StoppedException e) {
+                process.state = State.TERMINATED;
+                process.registers.ax = 0;
                 break;
             }
             if (Process.getStepMode()) {
@@ -101,8 +100,9 @@ public class Interpreter {
                 break;
             }
         }
-        System.out.println(process.registers.toString());
-        byteInstructionToMnemonic(process, 4);
+        if (!Process.getStepMode())
+            System.out.println(process.registers.toString());
+
     }
 
     /**
@@ -124,7 +124,8 @@ public class Interpreter {
      * @param offset logical address
      */
     void showLine(int offset) {
-        if (Process.getStepMode()) System.out.println(process.programCounter + ": " + byteInstructionToMnemonic(process, offset));
+        if (Process.getStepMode())
+            System.out.println(process.programCounter + ": " + byteInstructionToMnemonic(process, offset));
     }
 
     /**
@@ -737,12 +738,11 @@ public class Interpreter {
         instructionNumber++;
         instructionHash.put(instructionNumber, 1);
         process.state = State.TERMINATED;
-        isOn=false;
+        isOn = false;
         throw new ExecutionControl.StoppedException();
     }
 
     void instructionExecute(String instruction, boolean isJump) throws ExecutionControl.StoppedException {
-
 
 
         Registers regs = process.registers;
@@ -767,7 +767,7 @@ public class Interpreter {
                     try {
                         funHLT();
                     } catch (ExecutionControl.StoppedException e) {
-                       throw new ExecutionControl.StoppedException();
+                        throw new ExecutionControl.StoppedException();
                     }
                 }
             } else {
@@ -1244,7 +1244,7 @@ public class Interpreter {
                         int logicalAddress = Integer.parseInt(value);
                         isJump = true;
                         int key = 0, sum = 0;
-                        int firstNumber = 0, secondNumber=instructionNumber;
+                        int firstNumber = 0, secondNumber = instructionNumber;
                         for (Map.Entry<Integer, Integer> entry : instructionHash.entrySet()) {
                             key++;
                             sum += instructionHash.get(key);
@@ -1253,10 +1253,9 @@ public class Interpreter {
                                 break;
                             }
                         }
-                        if (memory.read(process.PID, logicalAddress) == 19)
-                        {
-                                funHLT();
-                                throw new ExecutionControl.StoppedException();
+                        if (memory.read(process.PID, logicalAddress) == 19) {
+                            funHLT();
+                            throw new ExecutionControl.StoppedException();
                         }
                         while (firstNumber <= secondNumber && isOn == true) {
                             try {
@@ -1291,7 +1290,7 @@ public class Interpreter {
                             int logicalAddress = Integer.parseInt(value);
                             isJump = true;
                             int k = 0, sum = 0;
-                            int firstNumber = 0, secondNumber=instructionNumber;
+                            int firstNumber = 0, secondNumber = instructionNumber;
                             for (Map.Entry<Integer, Integer> entry : instructionHash.entrySet()) {
                                 k++;
                                 sum += instructionHash.get(k);
@@ -1300,11 +1299,10 @@ public class Interpreter {
                                     break;
                                 }
                             }
-                            if (memory.read(process.PID, logicalAddress) == 19)
-                            {
+                            if (memory.read(process.PID, logicalAddress) == 19) {
                                 funHLT();
                             }
-                            while (firstNumber <= secondNumber  && isOn == true) {
+                            while (firstNumber <= secondNumber && isOn == true) {
                                 instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                                 logicalAddress += instructionHash.get(firstNumber);
                                 firstNumber++;
@@ -1335,7 +1333,7 @@ public class Interpreter {
                         int logicalAddress = Integer.parseInt(value);
                         isJump = true;
                         int k = 0, sum = 0;
-                        int firstNumber = 0, secondNumber=instructionNumber;
+                        int firstNumber = 0, secondNumber = instructionNumber;
                         for (Map.Entry<Integer, Integer> entry : instructionHash.entrySet()) {
                             k++;
                             sum += instructionHash.get(k);
@@ -1344,8 +1342,7 @@ public class Interpreter {
                                 break;
                             }
                         }
-                        if (memory.read(process.PID, logicalAddress) == 19)
-                        {
+                        if (memory.read(process.PID, logicalAddress) == 19) {
                             funHLT();
                         }
                         while (firstNumber < secondNumber && isOn == true) {
@@ -1375,7 +1372,7 @@ public class Interpreter {
                         int logicalAddress = Integer.parseInt(value);
                         isJump = true;
                         int k = 0, sum = 0;
-                        int firstNumber = 0, secondNumber=instructionNumber;
+                        int firstNumber = 0, secondNumber = instructionNumber;
                         for (Map.Entry<Integer, Integer> entry : instructionHash.entrySet()) {
                             k++;
                             sum += instructionHash.get(k);
@@ -1384,8 +1381,7 @@ public class Interpreter {
                                 break;
                             }
                         }
-                        if (memory.read(process.PID, logicalAddress) == 19)
-                        {
+                        if (memory.read(process.PID, logicalAddress) == 19) {
                             funHLT();
                         }
                         while (firstNumber <= secondNumber && isOn == true) {
