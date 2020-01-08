@@ -258,9 +258,8 @@ public class VirtualMemory {
 
         System.arraycopy(swapFile, base, data, 0, limit);
         try {
-            if (RAM.write(data, ID)) {
-                segmentQueue.add(ID);
-            }
+            RAM.write(data, ID);
+            segmentQueue.add(ID);
         } catch (IllegalArgumentException page_fault) {
             int index = segmentQueue.remove();
             swapToFile(index);

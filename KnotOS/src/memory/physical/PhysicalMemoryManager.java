@@ -52,7 +52,7 @@ public class PhysicalMemoryManager {
      * @return ID of segment storing data
      * @throws IllegalArgumentException RAM_OVERFLOW, when there is no enough space for data
      */
-    public boolean write(byte[] data, int segmentID) {
+    public void write(byte[] data, int segmentID) {
 
         int startIndex = bestfit(data.length);
 
@@ -61,13 +61,12 @@ public class PhysicalMemoryManager {
             if (checkAvailableSpace() < data.length) throw new IllegalArgumentException("RAM_OVERFLOW");
             else {
                 mergeSegments();
-                return write(data, segmentID);
+                write(data, segmentID);
             }
         } else {
             ram.saveByte(address, data);
             segmentTable.updateToRam(segmentID);
             segmentTable.setBase(segmentID, startIndex);
-            return true;
         }
     }
 
