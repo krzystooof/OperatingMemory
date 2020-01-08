@@ -18,6 +18,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class CpuSchedulerTest {
 
     @Test
+    public void testConstructor(){
+        CpuScheduler cpuScheduler = new CpuScheduler();
+        PCB idleProcess = new PCB(0, 0, State.RUNNING, "idle thread");
+        assertEquals(idleProcess.toString(), cpuScheduler.getRunningPCB().toString());
+    }
+
+    @Test
     public void testReadyList() {
         CpuScheduler cpuScheduler = new CpuScheduler();
         PCB first = new PCB(1, 1, State.NEW, "First");
