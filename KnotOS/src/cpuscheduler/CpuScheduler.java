@@ -39,6 +39,8 @@ public class CpuScheduler {
      */
     private PCB findNextProccess(){
         PCB pcb = readyPCB.poll();
+        if(pcb==null)
+            return new PCB(0, 0, State.NEW, "idle thread");
         return pcb;
     }
 
