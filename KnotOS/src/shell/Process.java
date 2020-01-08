@@ -112,6 +112,8 @@ public class Process implements Shell {
                 throw new IllegalArgumentException("Too few arguments");
 
             // Checking if pid and priority are not integers
+            if (!isInteger(param.get(2)) || !isInteger(param.get(3)))
+                throw new IllegalArgumentException("Pid and Priority should be integers");
             if(!isInteger(param.get(2)) || !isInteger(param.get(3)))
                 throw new IllegalArgumentException("Illegal Pid or Priority");
 
@@ -136,20 +138,19 @@ public class Process implements Shell {
             cpuScheduler.addProcess(pcb);
             File file = Filesystem.getFile(filePath);
 
-            if (file == null)
-                throw new IllegalArgumentException("File not found");
+            if(file != null) {
 
-            Interpreter interpreter = new Interpreter(file, pcb, new VirtualMemory(1024,10));
-            interpreters.add(interpreter);
-            run();
+                Interpreter interpreter = new Interpreter(file, pcb, Interface.getMemory());
+                interpreters.add(interpreter);
+                run();
+            }
 
-        }
-        catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             Interface.post(e.getMessage());
         }
     }
 
-    private void run(){
+    private void run() {
         try {
 
             PCB runningPcb = cpuScheduler.getRunningPCB();
@@ -160,7 +161,7 @@ public class Process implements Shell {
             for (Interpreter interpreter : interpreters) {
                 if (interpreter.getPcb().PID == runningPcb.PID) {
                     interpreter.runInterpreter();
-                    if(!isStepMode) {
+                    if(interpreter.getPcb().state == State.TERMINATED){
                         cpuScheduler.removeProcess(interpreter.getPcb().NAME);
                         interpreters.remove(interpreter);
                     }
@@ -168,7 +169,7 @@ public class Process implements Shell {
                 }
 
             }
-        }catch (IllegalArgumentException exc){
+        } catch (IllegalArgumentException exc) {
             Interface.post(exc.getMessage());
         }
 

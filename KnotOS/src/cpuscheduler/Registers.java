@@ -16,7 +16,7 @@ public class Registers{
     public String toString() {
         return "Registers{" +
                 "ax=" + ax +
-                ", bc=" + bx +
+                ", bx=" + bx +
                 ", cx=" + cx +
                 ", dx=" + dx +
                 '}';

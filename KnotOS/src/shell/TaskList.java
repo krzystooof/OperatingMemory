@@ -33,14 +33,30 @@ public class TaskList {
             try {
                 String PID = Interface.askUser("Enter PID");
                 byte[] processMemory = memory.showProcessData(Integer.parseInt(PID));
-                for (byte single : processMemory) {
-                    System.out.println(single);
-                }
+                displayByteArray(processMemory);
             } catch (NullPointerException e) {
                 Interface.post("Process not found in memory");
             } catch (NumberFormatException e) {
                 Interface.post("Incorrect PID");
             }
+        }
+    }
+
+    private void displayByteArray(byte[] processMemory) {
+        int i = 0;
+        for (byte singleByte : processMemory) {
+            System.out.print(singleByte);
+            if (i < 9) {
+                if (singleByte < 10) System.out.print("      ");
+                else {
+                    if (singleByte < 100) System.out.print("     ");
+                    else System.out.print("    ");
+                }
+            } else {
+                System.out.print("\n");
+                i = 0;
+            }
+            i++;
         }
     }
 

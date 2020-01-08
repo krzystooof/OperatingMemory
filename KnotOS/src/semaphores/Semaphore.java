@@ -42,12 +42,12 @@ public class Semaphore {
     /**
      * Decrease value of semaphore
      *
-     * @param value value to decrease
+     * @param process object
      */
-    public void waitSem(Process process, int value) {
-        this.value -= value;
-        if (this.value < 0) {
-            this.queue.add(process);
+    public void waitSem(Process process) {
+        value--;
+        if (value < 0) {
+            queue.add(process);
             block(process);
         }
 
@@ -56,23 +56,23 @@ public class Semaphore {
     /**
      * Change semaphores.ProcessState to Ready from Waiting
      *
-     * @param Process object
+     * @param process object
      */
-    private void wakeUp(Process Process) {
-        Process.state = ProcessState.Ready;
-        changes.changes = 1;
+    private void wakeUp(Process process) {
+        process.state = ProcessState.Ready;
+
 
     }
 
     /**
      * Increase value of semaphore
      *
-     * @param value to increase
+     * @param process object
      */
-    public void signalSem(Process process, int value) {
-        this.value += value;
-        if (this.value <= 0) {
-            this.queue.remove(process);
+    public void signalSem(Process process) {
+         value++;
+        if (value <= 0) {
+            queue.remove(process);
             wakeUp(process);
         }
     }
