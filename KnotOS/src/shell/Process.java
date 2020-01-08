@@ -155,8 +155,10 @@ public class Process implements Shell {
             for (Interpreter interpreter : interpreters) {
                 if (interpreter.getPcb().PID == runningPcb.PID) {
                     interpreter.runInterpreter();
-                    cpuScheduler.removeProcess(interpreter.getPcb().NAME);
-                    interpreters.remove(interpreter);
+                    if(!isStepMode) {
+                        cpuScheduler.removeProcess(interpreter.getPcb().NAME);
+                        interpreters.remove(interpreter);
+                    }
                     break;
                 }
 
