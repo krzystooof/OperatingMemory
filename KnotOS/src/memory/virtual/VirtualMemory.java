@@ -120,7 +120,7 @@ public class VirtualMemory {
             }
         } else if (OFFSET >= textLimit && OFFSET < textLimit + dataLimit) {
             if (segments.inSwapFile(dataSegmentId) == Boolean.FALSE) {
-                int index = OFFSET - segments.getLimit(dataSegmentId);
+                int index = OFFSET - segments.getLimit(textSegmentId);
                 return RAM.read(dataSegmentId, index);
             } else {
                 swapToRam(dataSegmentId);
@@ -158,10 +158,11 @@ public class VirtualMemory {
                 swapToRam(textSegmentId);
                 write(PID, OFFSET, data);
             }
-        } else if (OFFSET >= textLimit && OFFSET < textLimit + dataLimit)
+        } else if (OFFSET >= textLimit && OFFSET < textLimit + dataLimit){
+            int dataOffset = OFFSET - textLimit;
             if (segments.inSwapFile(dataSegmentId) == Boolean.FALSE) {
                 try {
-                    RAM.write(dataSegmentId, OFFSET, data);
+                    RAM.write(dataSegmentId, dataOffset, data);
                 } catch (IllegalArgumentException error) {
                     System.out.println(error.getMessage());
                 }
@@ -169,6 +170,7 @@ public class VirtualMemory {
                 swapToRam(dataSegmentId);
                 write(PID, OFFSET, data);
             }
+        }
     }
 
     /**

@@ -80,7 +80,7 @@ public class PhysicalMemoryManager {
     public void write(int segmentID, int offset, byte data) {
         int base = segmentTable.getSegment(segmentID).BASE;
         int limit = segmentTable.getSegment(segmentID).LIMIT;
-        if (limit - base < offset) throw new IllegalArgumentException("SEGMENT_OVERFLOW");
+        if (limit < offset) throw new IllegalArgumentException("SEGMENT_OVERFLOW");
         ram.saveByte(base + offset, data);
     }
 

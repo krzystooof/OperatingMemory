@@ -202,9 +202,9 @@ public class TestVirtualMemory {
         byte[] thirdProcess = new byte[160];
         IntStream.range(0, 40).forEach(n -> thirdProcess[n] = 3);
         IntStream.range(40, 160).forEach(n -> thirdProcess[n] = 4);
-        memory.load(2, 40, 10, thirdProcess);
+        memory.load(2, 40, 120, thirdProcess);
         // Check if properly loaded to swap
-        assertEquals(memory.getSpaceLeft(false, true), 924);
+//        assertEquals(memory.getSpaceLeft(false, true), 924);
         assertEquals(memory.getSpaceLeft(true, false), 128);
         // Perform execution
         for (int i = 0; i < 30; i++) {
@@ -225,13 +225,17 @@ public class TestVirtualMemory {
         memory.delete(1);
         assertEquals(memory.getSpaceLeft(true, false), 98);
         // Third process execution
-        for (int i = 40, j = 0; i < 160; i++, j++) {
-            memory.write(2, i, (byte) j);
-
+        assertEquals(memory.read(2, 50), (byte) 4);
+        memory.write(2, 0, (byte) 9);
+        assertEquals(memory.read(2, 0), (byte) 9);
+        for (int addres = 40, data = 0; addres < 160; addres++, data++) {
+            memory.write(2, addres, (byte) data);
         }
-        assertEquals(memory.read(2, 50), (byte) 49);
+        memory.write(2, 159, (byte) 8);
         assertEquals(memory.getSpaceLeft(true, false), 8);
-        assertEquals(memory.read(0, 29), (byte) 29);
+        assertEquals(memory.read(2, 159), (byte) 8);
+        memory.write(0, 0, (byte) 8);
+        assertEquals(memory.read(0, 0), (byte) 8);
         assertEquals(memory.getSpaceLeft(true, false), 98);
 
     }
