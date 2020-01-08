@@ -70,7 +70,7 @@ public class Process implements Shell {
                 break;
             }
             case "tasklist": {
-                TaskList taskList = new TaskList();
+                TaskList taskList = new TaskList(cpuScheduler);
                 break;
             }
             case "next":{
@@ -106,16 +106,16 @@ public class Process implements Shell {
             String name = param.get(0);
             String filePath = param.get(1);
 
+            //Checking if params has inappropriate length
+            if (param.size() < 4)
+                throw new IllegalArgumentException("Too few arguments");
+
             // Checking if pid and priority are not integers
             if(!isInteger(param.get(2)) || !isInteger(param.get(3)))
                 throw new IllegalArgumentException("Pid and Priority should be integers");
 
             int pid = Integer.parseInt(param.get(2));
             int priority = Integer.parseInt(param.get(3));
-
-            //Checking if
-            if (param.size() < 2)
-                throw new IllegalArgumentException("Too few arguments");
 
             // Checking if given pid is different than 0
             if (pid == 0)
@@ -155,6 +155,8 @@ public class Process implements Shell {
             for (Interpreter interpreter : interpreters) {
                 if (interpreter.getPcb().PID == runningPcb.PID) {
                     interpreter.runInterpreter();
+                    cpuScheduler.removeProcess(interpreter.getPcb().NAME);
+                    interpreters.remove(interpreter);
                     break;
                 }
 
