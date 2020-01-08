@@ -138,12 +138,12 @@ public class Process implements Shell {
             cpuScheduler.addProcess(pcb);
             File file = Filesystem.getFile(filePath);
 
-            if (file == null)
-                throw new IllegalArgumentException("File not found");
+            if(file != null) {
 
-            Interpreter interpreter = new Interpreter(file, pcb, Interface.getMemory());
-            interpreters.add(interpreter);
-            run();
+                Interpreter interpreter = new Interpreter(file, pcb, Interface.getMemory());
+                interpreters.add(interpreter);
+                run();
+            }
 
         } catch (IllegalArgumentException e) {
             Interface.post(e.getMessage());
@@ -162,7 +162,6 @@ public class Process implements Shell {
                 if (interpreter.getPcb().PID == runningPcb.PID) {
                     interpreter.runInterpreter();
                     if(interpreter.getPcb().state == State.TERMINATED){
-                        System.out.println("\n End of the processs \n");
                         cpuScheduler.removeProcess(interpreter.getPcb().NAME);
                         interpreters.remove(interpreter);
                     }
