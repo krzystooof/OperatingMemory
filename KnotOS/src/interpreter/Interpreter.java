@@ -59,6 +59,13 @@ public class Interpreter {
         instructionMap.put(17, "CX"); //1 Byte
         instructionMap.put(18, "DX"); //1 Byte
         this.file = file;
+        Vector<Byte> Bytes = new Vector<Byte>();
+        Bytes = getBytesFromFile(file);
+        arrayByte = new byte[Bytes.size()];
+        for (int i = 0; i < Bytes.size(); i++) {
+            arrayByte[i] = Bytes.get(i);
+        }
+        this.memory.load(process.PID, arrayByte.length, 0, arrayByte);
     }
 
     public PCB getPcb() {
@@ -70,19 +77,13 @@ public class Interpreter {
      * The method is responsible for calling the rest of the methods needed.
      */
     public void runInterpreter() {
-        Vector<Byte> Bytes = new Vector<Byte>();
-        Bytes = getBytesFromFile(file);
-        arrayByte = new byte[Bytes.size()];
-        for (int i = 0; i < Bytes.size(); i++) {
-            arrayByte[i] = Bytes.get(i);
-        }
-        this.memory.load(process.PID, arrayByte.length, 0, arrayByte);
+
         String instr = "";
         int i = 0;
         int limit = memory.getLimit(process.PID, true);
         while (process.programCounter < limit && isOn == true) {
             showLine(process.programCounter);
-            System.out.println(process.registers.toString());
+            if (Process.getStepMode()) System.out.println(process.registers.toString());
          //   showLine(process.programCounter);
             try {
                 instr = byteInstructionToMnemonic(process, process.programCounter);
@@ -100,6 +101,7 @@ public class Interpreter {
                 break;
             }
         }
+        System.out.println(process.registers.toString());
         byteInstructionToMnemonic(process, 4);
     }
 
@@ -122,7 +124,7 @@ public class Interpreter {
      * @param offset logical address
      */
     void showLine(int offset) {
-        System.out.println(process.programCounter + ": " + byteInstructionToMnemonic(process, offset));
+        if (Process.getStepMode()) System.out.println(process.programCounter + ": " + byteInstructionToMnemonic(process, offset));
     }
 
     /**
@@ -337,7 +339,7 @@ public class Interpreter {
 
                         firstParameter = "";
                     } else {
-                        System.out.println("NUMBER: " + instruction);
+                        if (Process.getStepMode()) System.out.println("NUMBER: " + instruction);
                     }
                     for (byte a : byteInstruction)
                         data.add(a);
@@ -753,7 +755,7 @@ public class Interpreter {
         if (!isInteger(instruction)) {
             if (instruction.charAt(0) == 'R' || instruction.charAt(0) == 'H') {
                 if (instruction.equals("RES")) {
-                    System.out.println("Instruction: " + instruction);
+                    if (Process.getStepMode()) System.out.println("Instruction: " + instruction);
                     instructionNumber++;
                     process.programCounter += 1;
                     instructionHash.put(instructionNumber, 1);
@@ -1263,7 +1265,7 @@ public class Interpreter {
                                 throw new ExecutionControl.StoppedException();
                             }
                             showLine(logicalAddress);
-                            System.out.println(process.registers.toString());
+                            if (Process.getStepMode()) System.out.println(process.registers.toString());
                             logicalAddress += instructionHash.get(firstNumber);
                             firstNumber++;
                         }
