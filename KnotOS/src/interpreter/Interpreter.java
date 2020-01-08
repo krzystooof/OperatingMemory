@@ -1,4 +1,5 @@
 package interpreter;
+
 import cpuscheduler.*;
 import shell.Process;
 
@@ -51,8 +52,7 @@ public class Interpreter {
         this.file = file;
     }
 
-    public PCB getPcb()
-    {
+    public PCB getPcb() {
         return process;
     }
 
@@ -67,7 +67,7 @@ public class Interpreter {
         int i = 0;
         while (process.programCounter < Bytes.size()) {
 
-            showLine(process, process.programCounter);
+            showLine(process.programCounter);
             System.out.println("Licznik: " + process.programCounter);
             System.out.println("Limit: " + Bytes.size());
             instr = byteInstructionToMnemonic(process, process.programCounter);
@@ -75,7 +75,7 @@ public class Interpreter {
             instructionExecute(instr, false);
             System.out.println(process.registers.toString());
 
-            if(Process.getStepMode()){
+            if (Process.getStepMode()) {
                 break;
             }
 
@@ -108,11 +108,10 @@ public class Interpreter {
     /**
      * Method shows current process with specific address
      *
-     * @param process current process
      * @param offset  logical address
      */
-    void showLine(PCB process, int offset) {
-        System.out.println("Line: " + byteInstructionToMnemonic(process, offset));
+    void showLine(int offset) {
+        System.out.println(process.programCounter+ ": " + byteInstructionToMnemonic(process, offset));
     }
 
     /**
@@ -199,7 +198,7 @@ public class Interpreter {
                                 byteInstruction.add((byte) Integer.parseInt(number.substring(1, 3)));
                             }
                             if (number.length() == 4) {
-                                throw new IllegalArgumentException("Nie ma określonego adresu logicznego!");
+                                throw new IllegalArgumentException("No specified logical address!");
                             }
                         }
                         //CHECKS IF SECOND PARAMETER = REGISTER
@@ -392,7 +391,6 @@ public class Interpreter {
         else if (oneByte == 8 || oneByte == 19) {
             oneInstruction.add(oneByte);
         }
-
         return oneInstruction;
     }
 
@@ -746,423 +744,408 @@ public class Interpreter {
         String firstParameter = "";
         String secondParameter = "";
         instruction = instruction.toUpperCase();
-        if (instruction.charAt(0) == 'R' || instruction.charAt(0) == 'H') {
-            if (word.equals("RES")) {
-                process.programCounter += 1;
-                regs.ax = 0;
-                regs.bx = 0;
-                regs.cx = 0;
-                regs.dx = 0;
-            } else if (word.equals("HLT")) {
-                process.programCounter += 1;
+        if (!isInteger(instruction)) {
+            if (instruction.charAt(0) == 'R' || instruction.charAt(0) == 'H') {
+                if (word.equals("RES")) {
+                    process.programCounter += 1;
+                    regs.ax = 0;
+                    regs.bx = 0;
+                    regs.cx = 0;
+                    regs.dx = 0;
+                } else if (word.equals("HLT")) {
+                    process.programCounter += 1;
 
-            }
-        } else {
-            while (instruction.charAt(size) != space) {
-                word += instruction.charAt(size);
-                size++;
-            }
-            System.out.println("Instruction: " + word);
-            //Parameter completion
-            if (word.equals("ADD") || word.equals("SUB") || word.equals("MUL") || word.equals("MOV") || word.equals("MVI")) {
-                int i = 4;
-                while (instruction.charAt(i) != space) {
-                    firstParameter += instruction.charAt(i);
-                    i++;
                 }
-                i = 7;
-                System.out.println("First Parameter: " + firstParameter);
-                while (i < instruction.length()) {
-                    secondParameter += instruction.charAt(i);
-                    i++;
+            } else {
+                while (instruction.charAt(size) != space) {
+                    word += instruction.charAt(size);
+                    size++;
                 }
-                System.out.println("Second Parameter: " + secondParameter);
-            } else if (word.equals("INC") || word.equals("DEC") || word.equals("JMP") || word.equals("JIZ")) {
-                int i = 4;
-                while (i < instruction.length()) {
-                    firstParameter += instruction.charAt(i);
-                    i++;
-                }
-                System.out.println("First Parameter: " + firstParameter);
-            } else if (word.equals("JAXZ") || word.equals("JINZ")) {
-                int i = 5;
-                while (i < instruction.length()) {
-                    firstParameter += instruction.charAt(i);
-                    i++;
-                }
-                System.out.println("First Parameter: " + firstParameter);
-            } else if (word.equals("CP")) {
-                int i = 3;
-                while (instruction.charAt(i) != space) {
-                    firstParameter += instruction.charAt(i);
-                    i++;
-                }
-                i = 5;
-                System.out.println("First Parameter: " + firstParameter);
-                while (i < instruction.length()) {
-                    secondParameter += instruction.charAt(i);
-                    i++;
-                }
-                System.out.println("Second Parameter: " + secondParameter);
-            } else if (word.equals("DP")) {
-                int i = 3;
-                while (i < instruction.length()) {
-                    firstParameter += instruction.charAt(i);
-                    i++;
-                }
-                System.out.println("First Parameter: " + firstParameter);
-            }
-        }
-        //Executing instructions
-        if (size == 2) {
-            if (word.equals("CP")) {
-                //create process
-            }
-            if (word.equals("DP")) {
-                //delete process
-            }
-        } else if (size == 3) {
-            if (word.equals("ADD")) {
-                if(isJump)
-                    isJump=false;
-                else
-                    process.programCounter += 4;
-                //Checks logical address
-                if (secondParameter.charAt(0) == '[') {
-                    String value = "";
-                    int i = 1;
-                    while (i < secondParameter.length() - 1) {
-                        value += secondParameter.charAt(i);
+                System.out.println("Instruction: " + word);
+                //Parameter completion
+                if (word.equals("ADD") || word.equals("SUB") || word.equals("MUL") || word.equals("MOV") || word.equals("MVI")) {
+                    int i = 4;
+                    while (instruction.charAt(i) != space) {
+                        firstParameter += instruction.charAt(i);
                         i++;
                     }
-                    int logicalAddress = Integer.parseInt(value);
-                    if (firstParameter.equals("AX")) {
-                        regs.ax += Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
-                    } else if (firstParameter.equals("BX")) {
-                        regs.bx += Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
-                    } else if (firstParameter.equals("CX")) {
-                        regs.cx += Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
-                    } else if (firstParameter.equals("DX")) {
-                        regs.dx += Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
-                    }
-                    //Checks Registers
-                } else if (secondParameter.charAt(0) == 'A' || secondParameter.charAt(0) == 'B' || secondParameter.charAt(0) == 'C' || secondParameter.charAt(0) == 'D') {
-                    if (firstParameter.equals("AX") && secondParameter.equals("BX"))
-                        regs.ax += regs.bx;
-                    else if (firstParameter.equals("AX") && secondParameter.equals("CX"))
-                        regs.ax += regs.cx;
-                    else if (firstParameter.equals("AX") && secondParameter.equals("DX"))
-                        regs.ax += regs.dx;
-
-                    if (firstParameter.equals("BX") && secondParameter.equals("AX"))
-                        regs.bx += regs.ax;
-                    else if (firstParameter.equals("BX") && secondParameter.equals("CX"))
-                        regs.bx += regs.cx;
-                    else if (firstParameter.equals("BX") && secondParameter.equals("DX"))
-                        regs.bx += regs.dx;
-
-                    if (firstParameter.equals("CX") && secondParameter.equals("AX"))
-                        regs.cx += regs.ax;
-                    else if (firstParameter.equals("CX") && secondParameter.equals("BX"))
-                        regs.cx += regs.bx;
-                    else if (firstParameter.equals("CX") && secondParameter.equals("DX"))
-                        regs.cx += regs.dx;
-
-                    if (firstParameter.equals("DX") && secondParameter.equals("AX"))
-                        regs.dx += regs.ax;
-                    else if (firstParameter.equals("DX") && secondParameter.equals("BX"))
-                        regs.dx += regs.bx;
-                    else if (firstParameter.equals("DX") && secondParameter.equals("CX"))
-                        regs.dx += regs.cx;
-                }
-                //Checks values
-                else {
-                    int value = Integer.parseInt(secondParameter);
-                    if (firstParameter.equals("AX"))
-                        regs.ax += value;
-                    if (firstParameter.equals("BX"))
-                        regs.bx += value;
-                    if (firstParameter.equals("CX"))
-                        regs.cx += value;
-                    if (firstParameter.equals("DX"))
-                        regs.dx += value;
-                }
-            }
-            if (word.equals("SUB")) {
-                if(isJump)
-                    isJump=false;
-                else
-                    process.programCounter += 4;
-                if (secondParameter.charAt(0) == '[') {
-                    String value = "";
-                    int i = 1;
-                    while (i < secondParameter.length() - 1) {
-                        value += secondParameter.charAt(i);
+                    i = 7;
+                    System.out.println("First Parameter: " + firstParameter);
+                    while (i < instruction.length()) {
+                        secondParameter += instruction.charAt(i);
                         i++;
                     }
-                    int logicalAddress = Integer.parseInt(value);
-                    if (firstParameter.equals("AX")) {
-                        regs.ax -= Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
-                    } else if (firstParameter.equals("BX")) {
-                        regs.bx -= Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
-                    } else if (firstParameter.equals("CX")) {
-                        regs.cx -= Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
-                    } else if (firstParameter.equals("DX")) {
-                        regs.dx -= Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
-                    }
-
-                } else if (secondParameter.charAt(0) == 'A' || secondParameter.charAt(0) == 'B' || secondParameter.charAt(0) == 'C' || secondParameter.charAt(0) == 'D') {
-                    if (firstParameter.equals("AX") && secondParameter.equals("BX"))
-                        regs.ax -= regs.bx;
-                    else if (firstParameter.equals("AX") && secondParameter.equals("CX"))
-                        regs.ax -= regs.cx;
-                    else if (firstParameter.equals("AX") && secondParameter.equals("DX"))
-                        regs.ax -= regs.dx;
-
-                    if (firstParameter.equals("BX") && secondParameter.equals("AX"))
-                        regs.bx -= regs.ax;
-                    else if (firstParameter.equals("BX") && secondParameter.equals("CX"))
-                        regs.bx -= regs.cx;
-                    else if (firstParameter.equals("BX") && secondParameter.equals("DX"))
-                        regs.bx -= regs.dx;
-
-                    if (firstParameter.equals("CX") && secondParameter.equals("AX"))
-                        regs.cx -= regs.ax;
-                    else if (firstParameter.equals("CX") && secondParameter.equals("BX"))
-                        regs.cx -= regs.bx;
-                    else if (firstParameter.equals("CX") && secondParameter.equals("DX"))
-                        regs.cx -= regs.dx;
-
-                    if (firstParameter.equals("DX") && secondParameter.equals("AX"))
-                        regs.dx -= regs.ax;
-                    else if (firstParameter.equals("DX") && secondParameter.equals("BX"))
-                        regs.dx -= regs.bx;
-                    else if (firstParameter.equals("DX") && secondParameter.equals("CX"))
-                        regs.dx -= regs.cx;
-                } else {
-                    int value = Integer.parseInt(secondParameter);
-                    if (firstParameter.equals("AX"))
-                        regs.ax -= value;
-                    if (firstParameter.equals("BX"))
-                        regs.bx -= value;
-                    if (firstParameter.equals("CX"))
-                        regs.cx -= value;
-                    if (firstParameter.equals("DX"))
-                        regs.dx -= value;
-                }
-            }
-            if (word.equals("MUL")) {
-                if(isJump)
-                    isJump=false;
-                else
-                    process.programCounter += 4;
-
-                if (secondParameter.charAt(0) == '[') {
-                    String value = "";
-                    int i = 1;
-                    while (i < secondParameter.length() - 1) {
-                        value += secondParameter.charAt(i);
+                    System.out.println("Second Parameter: " + secondParameter);
+                } else if (word.equals("INC") || word.equals("DEC") || word.equals("JMP") || word.equals("JIZ")) {
+                    int i = 4;
+                    while (i < instruction.length()) {
+                        firstParameter += instruction.charAt(i);
                         i++;
                     }
-                    int logicalAddress = Integer.parseInt(value);
-                    if (firstParameter.equals("AX")) {
-                        regs.ax *= Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
-                    } else if (firstParameter.equals("BX")) {
-                        regs.bx *= Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
-                    } else if (firstParameter.equals("CX")) {
-                        regs.cx *= Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
-                    } else if (firstParameter.equals("DX")) {
-                        regs.dx *= Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
+                    System.out.println("First Parameter: " + firstParameter);
+                } else if (word.equals("JAXZ") || word.equals("JINZ")) {
+                    int i = 5;
+                    while (i < instruction.length()) {
+                        firstParameter += instruction.charAt(i);
+                        i++;
                     }
-
-                } else if (secondParameter.charAt(0) == 'A' || secondParameter.charAt(0) == 'B' || secondParameter.charAt(0) == 'C' || secondParameter.charAt(0) == 'D') {
-                    if (firstParameter.equals("AX") && secondParameter.equals("BX"))
-                        regs.ax *= regs.bx;
-                    else if (firstParameter.equals("AX") && secondParameter.equals("CX"))
-                        regs.ax *= regs.cx;
-                    else if (firstParameter.equals("AX") && secondParameter.equals("DX"))
-                        regs.ax *= regs.dx;
-
-                    if (firstParameter.equals("BX") && secondParameter.equals("AX"))
-                        regs.bx *= regs.ax;
-                    else if (firstParameter.equals("BX") && secondParameter.equals("CX"))
-                        regs.bx *= regs.cx;
-                    else if (firstParameter.equals("BX") && secondParameter.equals("DX"))
-                        regs.bx *= regs.dx;
-
-                    if (firstParameter.equals("CX") && secondParameter.equals("AX"))
-                        regs.cx *= regs.ax;
-                    else if (firstParameter.equals("CX") && secondParameter.equals("BX"))
-                        regs.cx *= regs.bx;
-                    else if (firstParameter.equals("CX") && secondParameter.equals("DX"))
-                        regs.cx *= regs.dx;
-
-                    if (firstParameter.equals("DX") && secondParameter.equals("AX"))
-                        regs.dx *= regs.ax;
-                    else if (firstParameter.equals("DX") && secondParameter.equals("BX"))
-                        regs.dx *= regs.bx;
-                    else if (firstParameter.equals("DX") && secondParameter.equals("CX"))
-                        regs.dx *= regs.cx;
-                } else {
-                    int value = Integer.parseInt(secondParameter);
-                    if (firstParameter.equals("AX"))
-                        regs.ax *= value;
-                    if (firstParameter.equals("BX"))
-                        regs.bx *= value;
-                    if (firstParameter.equals("CX"))
-                        regs.cx *= value;
-                    if (firstParameter.equals("DX"))
-                        regs.dx *= value;
+                    System.out.println("First Parameter: " + firstParameter);
+                } else if (word.equals("CP")) {
+                    int i = 3;
+                    while (instruction.charAt(i) != space) {
+                        firstParameter += instruction.charAt(i);
+                        i++;
+                    }
+                    i = 5;
+                    System.out.println("First Parameter: " + firstParameter);
+                    while (i < instruction.length()) {
+                        secondParameter += instruction.charAt(i);
+                        i++;
+                    }
+                    System.out.println("Second Parameter: " + secondParameter);
+                } else if (word.equals("DP")) {
+                    int i = 3;
+                    while (i < instruction.length()) {
+                        firstParameter += instruction.charAt(i);
+                        i++;
+                    }
+                    System.out.println("First Parameter: " + firstParameter);
                 }
             }
-            if (word.equals("INC")) {/* DODAC ADRES LOGICZNY*/
-                if (firstParameter.charAt(0) == '[') {
-                    if(isJump)
-                        isJump=false;
+            //Executing instructions
+            if (size == 2) {
+                if (word.equals("CP")) {
+                    //create process
+                }
+                if (word.equals("DP")) {
+                    //delete process
+                }
+            } else if (size == 3) {
+                if (word.equals("ADD")) {
+                    if (isJump)
+                        isJump = false;
                     else
-                        process.programCounter += 3;
-                    String value = "";
-                    int i = 1;
-                    int j = 0;
-                    while (i < firstParameter.length() - 1) {
-                        value += firstParameter.charAt(i);
-                        i++;
-                    }
-                    int logicalAddress = Integer.parseInt(value);
-                    for (Byte a : data) {
-                        if (j == logicalAddress) {
-                            int k = Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress)) + 1;
+                        process.programCounter += 4;
+                    //Checks logical address
+                    if (secondParameter.charAt(0) == '[') {
+                        String value = "";
+                        int i = 1;
+                        while (i < secondParameter.length() - 1) {
+                            value += secondParameter.charAt(i);
+                            i++;
                         }
-                        j++;
-                    }
-                } else if (firstParameter.equals("AX")) {
-                    regs.ax++;
-                    if(isJump)
-                        isJump=false;
-                    else
-                        process.programCounter += 2;
-                } else if (firstParameter.equals("BX")) {
-                    regs.bx++;
-                    if(isJump)
-                        isJump=false;
-                    else
-                        process.programCounter += 2;
-                } else if (firstParameter.equals("CX")) {
-                    regs.bx++;
-                    if(isJump)
-                        isJump=false;
-                    else
-                        process.programCounter += 2;
-                } else if (firstParameter.equals("DX")) {
-                    regs.dx++;
-                    if(isJump)
-                        isJump=false;
-                    else
-                        process.programCounter += 2;
-                }
-            }
-            if (word.equals("DEC")) {/* DODAC ADRES LOGICZNY*/
-                if (firstParameter.charAt(0) == '[') {
-                    if(isJump)
-                        isJump=false;
-                    else
-                        process.programCounter += 3;
-                    String value = "";
-                    int i = 1;
-                    int j = 0;
-                    while (i < firstParameter.length() - 1) {
-                        value += firstParameter.charAt(i);
-                        i++;
-                    }
-                    int logicalAddress = Integer.parseInt(value);
-                    for (Byte a : data) {
-                        if (j == logicalAddress) {
-                            int k = Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress)) - 1;
+                        int logicalAddress = Integer.parseInt(value);
+                        if (firstParameter.equals("AX")) {
+                            regs.ax += Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
+                        } else if (firstParameter.equals("BX")) {
+                            regs.bx += Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
+                        } else if (firstParameter.equals("CX")) {
+                            regs.cx += Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
+                        } else if (firstParameter.equals("DX")) {
+                            regs.dx += Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
                         }
-                        j++;
+                        //Checks Registers
+                    } else if (secondParameter.charAt(0) == 'A' || secondParameter.charAt(0) == 'B' || secondParameter.charAt(0) == 'C' || secondParameter.charAt(0) == 'D') {
+                        if (firstParameter.equals("AX") && secondParameter.equals("BX"))
+                            regs.ax += regs.bx;
+                        else if (firstParameter.equals("AX") && secondParameter.equals("CX"))
+                            regs.ax += regs.cx;
+                        else if (firstParameter.equals("AX") && secondParameter.equals("DX"))
+                            regs.ax += regs.dx;
+
+                        if (firstParameter.equals("BX") && secondParameter.equals("AX"))
+                            regs.bx += regs.ax;
+                        else if (firstParameter.equals("BX") && secondParameter.equals("CX"))
+                            regs.bx += regs.cx;
+                        else if (firstParameter.equals("BX") && secondParameter.equals("DX"))
+                            regs.bx += regs.dx;
+
+                        if (firstParameter.equals("CX") && secondParameter.equals("AX"))
+                            regs.cx += regs.ax;
+                        else if (firstParameter.equals("CX") && secondParameter.equals("BX"))
+                            regs.cx += regs.bx;
+                        else if (firstParameter.equals("CX") && secondParameter.equals("DX"))
+                            regs.cx += regs.dx;
+
+                        if (firstParameter.equals("DX") && secondParameter.equals("AX"))
+                            regs.dx += regs.ax;
+                        else if (firstParameter.equals("DX") && secondParameter.equals("BX"))
+                            regs.dx += regs.bx;
+                        else if (firstParameter.equals("DX") && secondParameter.equals("CX"))
+                            regs.dx += regs.cx;
                     }
-                } else if (firstParameter.equals("AX")) {
-                    regs.ax--;
-                    process.programCounter += 2;
-                } else if (firstParameter.equals("BX")) {
-                    regs.bx--;
-                    process.programCounter += 2;
-                } else if (firstParameter.equals("CX")) {
-                    regs.cx--;
-                    process.programCounter += 2;
-                } else if (firstParameter.equals("DX")) {
-                    regs.dx--;
-                    process.programCounter += 2;
+                    //Checks values
+                    else {
+                        int value = Integer.parseInt(secondParameter);
+                        if (firstParameter.equals("AX"))
+                            regs.ax += value;
+                        if (firstParameter.equals("BX"))
+                            regs.bx += value;
+                        if (firstParameter.equals("CX"))
+                            regs.cx += value;
+                        if (firstParameter.equals("DX"))
+                            regs.dx += value;
+                    }
                 }
-            }
-            if (word.equals("MOV")) {
-                process.programCounter += 4;
-                if (secondParameter.charAt(0) == 'A' || secondParameter.charAt(0) == 'B' || secondParameter.charAt(0) == 'C' || secondParameter.charAt(0) == 'D') {
-                    if (firstParameter.equals("AX") && secondParameter.equals("BX"))
-                        regs.ax = regs.bx;
-                    else if (firstParameter.equals("AX") && secondParameter.equals("CX"))
-                        regs.ax = regs.cx;
-                    else if (firstParameter.equals("AX") && secondParameter.equals("DX"))
-                        regs.ax = regs.dx;
+                if (word.equals("SUB")) {
+                    if (isJump)
+                        isJump = false;
+                    else
+                        process.programCounter += 4;
+                    if (secondParameter.charAt(0) == '[') {
+                        String value = "";
+                        int i = 1;
+                        while (i < secondParameter.length() - 1) {
+                            value += secondParameter.charAt(i);
+                            i++;
+                        }
+                        int logicalAddress = Integer.parseInt(value);
+                        if (firstParameter.equals("AX")) {
+                            regs.ax -= Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
+                        } else if (firstParameter.equals("BX")) {
+                            regs.bx -= Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
+                        } else if (firstParameter.equals("CX")) {
+                            regs.cx -= Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
+                        } else if (firstParameter.equals("DX")) {
+                            regs.dx -= Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
+                        }
 
-                    if (firstParameter.equals("BX") && secondParameter.equals("AX"))
-                        regs.bx = regs.ax;
-                    else if (firstParameter.equals("BX") && secondParameter.equals("CX"))
-                        regs.bx = regs.cx;
-                    else if (firstParameter.equals("BX") && secondParameter.equals("DX"))
-                        regs.bx = regs.dx;
+                    } else if (secondParameter.charAt(0) == 'A' || secondParameter.charAt(0) == 'B' || secondParameter.charAt(0) == 'C' || secondParameter.charAt(0) == 'D') {
+                        if (firstParameter.equals("AX") && secondParameter.equals("BX"))
+                            regs.ax -= regs.bx;
+                        else if (firstParameter.equals("AX") && secondParameter.equals("CX"))
+                            regs.ax -= regs.cx;
+                        else if (firstParameter.equals("AX") && secondParameter.equals("DX"))
+                            regs.ax -= regs.dx;
 
-                    if (firstParameter.equals("CX") && secondParameter.equals("AX"))
-                        regs.cx = regs.ax;
-                    else if (firstParameter.equals("CX") && secondParameter.equals("BX"))
-                        regs.cx = regs.bx;
-                    else if (firstParameter.equals("CX") && secondParameter.equals("DX"))
-                        regs.cx = regs.dx;
+                        if (firstParameter.equals("BX") && secondParameter.equals("AX"))
+                            regs.bx -= regs.ax;
+                        else if (firstParameter.equals("BX") && secondParameter.equals("CX"))
+                            regs.bx -= regs.cx;
+                        else if (firstParameter.equals("BX") && secondParameter.equals("DX"))
+                            regs.bx -= regs.dx;
 
-                    if (firstParameter.equals("DX") && secondParameter.equals("AX"))
-                        regs.dx = regs.ax;
-                    else if (firstParameter.equals("DX") && secondParameter.equals("BX"))
-                        regs.dx = regs.bx;
-                    else if (firstParameter.equals("DX") && secondParameter.equals("CX"))
-                        regs.dx = regs.cx;
+                        if (firstParameter.equals("CX") && secondParameter.equals("AX"))
+                            regs.cx -= regs.ax;
+                        else if (firstParameter.equals("CX") && secondParameter.equals("BX"))
+                            regs.cx -= regs.bx;
+                        else if (firstParameter.equals("CX") && secondParameter.equals("DX"))
+                            regs.cx -= regs.dx;
+
+                        if (firstParameter.equals("DX") && secondParameter.equals("AX"))
+                            regs.dx -= regs.ax;
+                        else if (firstParameter.equals("DX") && secondParameter.equals("BX"))
+                            regs.dx -= regs.bx;
+                        else if (firstParameter.equals("DX") && secondParameter.equals("CX"))
+                            regs.dx -= regs.cx;
+                    } else {
+                        int value = Integer.parseInt(secondParameter);
+                        if (firstParameter.equals("AX"))
+                            regs.ax -= value;
+                        if (firstParameter.equals("BX"))
+                            regs.bx -= value;
+                        if (firstParameter.equals("CX"))
+                            regs.cx -= value;
+                        if (firstParameter.equals("DX"))
+                            regs.dx -= value;
+                    }
                 }
-            }
-            if (word.equals("MVI")) {
-                if (isJump)
-                    isJump = false;
-                else
+                if (word.equals("MUL")) {
+                    if (isJump)
+                        isJump = false;
+                    else
+                        process.programCounter += 4;
+
+                    if (secondParameter.charAt(0) == '[') {
+                        String value = "";
+                        int i = 1;
+                        while (i < secondParameter.length() - 1) {
+                            value += secondParameter.charAt(i);
+                            i++;
+                        }
+                        int logicalAddress = Integer.parseInt(value);
+                        if (firstParameter.equals("AX")) {
+                            regs.ax *= Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
+                        } else if (firstParameter.equals("BX")) {
+                            regs.bx *= Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
+                        } else if (firstParameter.equals("CX")) {
+                            regs.cx *= Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
+                        } else if (firstParameter.equals("DX")) {
+                            regs.dx *= Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress));
+                        }
+
+                    } else if (secondParameter.charAt(0) == 'A' || secondParameter.charAt(0) == 'B' || secondParameter.charAt(0) == 'C' || secondParameter.charAt(0) == 'D') {
+                        if (firstParameter.equals("AX") && secondParameter.equals("BX"))
+                            regs.ax *= regs.bx;
+                        else if (firstParameter.equals("AX") && secondParameter.equals("CX"))
+                            regs.ax *= regs.cx;
+                        else if (firstParameter.equals("AX") && secondParameter.equals("DX"))
+                            regs.ax *= regs.dx;
+
+                        if (firstParameter.equals("BX") && secondParameter.equals("AX"))
+                            regs.bx *= regs.ax;
+                        else if (firstParameter.equals("BX") && secondParameter.equals("CX"))
+                            regs.bx *= regs.cx;
+                        else if (firstParameter.equals("BX") && secondParameter.equals("DX"))
+                            regs.bx *= regs.dx;
+
+                        if (firstParameter.equals("CX") && secondParameter.equals("AX"))
+                            regs.cx *= regs.ax;
+                        else if (firstParameter.equals("CX") && secondParameter.equals("BX"))
+                            regs.cx *= regs.bx;
+                        else if (firstParameter.equals("CX") && secondParameter.equals("DX"))
+                            regs.cx *= regs.dx;
+
+                        if (firstParameter.equals("DX") && secondParameter.equals("AX"))
+                            regs.dx *= regs.ax;
+                        else if (firstParameter.equals("DX") && secondParameter.equals("BX"))
+                            regs.dx *= regs.bx;
+                        else if (firstParameter.equals("DX") && secondParameter.equals("CX"))
+                            regs.dx *= regs.cx;
+                    } else {
+                        int value = Integer.parseInt(secondParameter);
+                        if (firstParameter.equals("AX"))
+                            regs.ax *= value;
+                        if (firstParameter.equals("BX"))
+                            regs.bx *= value;
+                        if (firstParameter.equals("CX"))
+                            regs.cx *= value;
+                        if (firstParameter.equals("DX"))
+                            regs.dx *= value;
+                    }
+                }
+                if (word.equals("INC")) {/* DODAC ADRES LOGICZNY*/
+                    if (firstParameter.charAt(0) == '[') {
+                        if (isJump)
+                            isJump = false;
+                        else
+                            process.programCounter += 3;
+                        String value = "";
+                        int i = 1;
+                        int j = 0;
+                        while (i < firstParameter.length() - 1) {
+                            value += firstParameter.charAt(i);
+                            i++;
+                        }
+                        int logicalAddress = Integer.parseInt(value);
+                        for (Byte a : data) {
+                            if (j == logicalAddress) {
+                                int k = Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress)) + 1;
+                            }
+                            j++;
+                        }
+                    } else if (firstParameter.equals("AX")) {
+                        regs.ax++;
+                        if (isJump)
+                            isJump = false;
+                        else
+                            process.programCounter += 2;
+                    } else if (firstParameter.equals("BX")) {
+                        regs.bx++;
+                        if (isJump)
+                            isJump = false;
+                        else
+                            process.programCounter += 2;
+                    } else if (firstParameter.equals("CX")) {
+                        regs.bx++;
+                        if (isJump)
+                            isJump = false;
+                        else
+                            process.programCounter += 2;
+                    } else if (firstParameter.equals("DX")) {
+                        regs.dx++;
+                        if (isJump)
+                            isJump = false;
+                        else
+                            process.programCounter += 2;
+                    }
+                }
+                if (word.equals("DEC")) {/* DODAC ADRES LOGICZNY*/
+                    if (firstParameter.charAt(0) == '[') {
+                        if (isJump)
+                            isJump = false;
+                        else
+                            process.programCounter += 3;
+                        String value = "";
+                        int i = 1;
+                        int j = 0;
+                        while (i < firstParameter.length() - 1) {
+                            value += firstParameter.charAt(i);
+                            i++;
+                        }
+                        int logicalAddress = Integer.parseInt(value);
+                        for (Byte a : data) {
+                            if (j == logicalAddress) {
+                                int k = Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress)) - 1;
+                            }
+                            j++;
+                        }
+                    } else if (firstParameter.equals("AX")) {
+                        regs.ax--;
+                        process.programCounter += 2;
+                    } else if (firstParameter.equals("BX")) {
+                        regs.bx--;
+                        process.programCounter += 2;
+                    } else if (firstParameter.equals("CX")) {
+                        regs.cx--;
+                        process.programCounter += 2;
+                    } else if (firstParameter.equals("DX")) {
+                        regs.dx--;
+                        process.programCounter += 2;
+                    }
+                }
+                if (word.equals("MOV")) {
                     process.programCounter += 4;
+                    if (secondParameter.charAt(0) == 'A' || secondParameter.charAt(0) == 'B' || secondParameter.charAt(0) == 'C' || secondParameter.charAt(0) == 'D') {
+                        if (firstParameter.equals("AX") && secondParameter.equals("BX"))
+                            regs.ax = regs.bx;
+                        else if (firstParameter.equals("AX") && secondParameter.equals("CX"))
+                            regs.ax = regs.cx;
+                        else if (firstParameter.equals("AX") && secondParameter.equals("DX"))
+                            regs.ax = regs.dx;
 
-                System.out.println("LiczniKK: " + process.programCounter);
+                        if (firstParameter.equals("BX") && secondParameter.equals("AX"))
+                            regs.bx = regs.ax;
+                        else if (firstParameter.equals("BX") && secondParameter.equals("CX"))
+                            regs.bx = regs.cx;
+                        else if (firstParameter.equals("BX") && secondParameter.equals("DX"))
+                            regs.bx = regs.dx;
 
-                int value = Integer.parseInt(secondParameter);
-                if (firstParameter.equals("AX"))
-                    regs.ax = value;
-                if (firstParameter.equals("BX"))
-                    regs.bx = value;
-                if (firstParameter.equals("CX"))
-                    regs.cx = value;
-                if (firstParameter.equals("DX"))
-                    regs.dx = value;
-            }
-            if (word.equals("JMP")) {
-                process.programCounter += 3;
-                if (firstParameter.charAt(0) == '[') {
-                    String value = "";
-                    int i = 1;
-                    int j = 0;
-                    while (i < firstParameter.length() - 1) {
-                        value += firstParameter.charAt(i);
-                        i++;
+                        if (firstParameter.equals("CX") && secondParameter.equals("AX"))
+                            regs.cx = regs.ax;
+                        else if (firstParameter.equals("CX") && secondParameter.equals("BX"))
+                            regs.cx = regs.bx;
+                        else if (firstParameter.equals("CX") && secondParameter.equals("DX"))
+                            regs.cx = regs.dx;
+
+                        if (firstParameter.equals("DX") && secondParameter.equals("AX"))
+                            regs.dx = regs.ax;
+                        else if (firstParameter.equals("DX") && secondParameter.equals("BX"))
+                            regs.dx = regs.bx;
+                        else if (firstParameter.equals("DX") && secondParameter.equals("CX"))
+                            regs.dx = regs.cx;
                     }
-                    int logicalAddress = Integer.parseInt(value);
-                    isJump = true;
-                    instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                 }
-            }
-            if (word.equals("JIZ")) {
-                process.programCounter += 3;
-                if (regs.ax == 0 && regs.bx == 0 && regs.cx == 0 && regs.dx == 0) {
+                if (word.equals("MVI")) {
+                    if (isJump)
+                        isJump = false;
+                    else
+                        process.programCounter += 4;
+
+                    System.out.println("LiczniKK: " + process.programCounter);
+
+                    int value = Integer.parseInt(secondParameter);
+                    if (firstParameter.equals("AX"))
+                        regs.ax = value;
+                    if (firstParameter.equals("BX"))
+                        regs.bx = value;
+                    if (firstParameter.equals("CX"))
+                        regs.cx = value;
+                    if (firstParameter.equals("DX"))
+                        regs.dx = value;
+                }
+                if (word.equals("JMP")) {
+                    process.programCounter += 3;
                     if (firstParameter.charAt(0) == '[') {
                         String value = "";
                         int i = 1;
@@ -1175,41 +1158,60 @@ public class Interpreter {
                         isJump = true;
                         instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                     }
-                } else
-                    throw new IllegalArgumentException("Nie można zrealizować danego warunku!");
+                }
+                if (word.equals("JIZ")) {
+                    process.programCounter += 3;
+                    if (regs.ax == 0 && regs.bx == 0 && regs.cx == 0 && regs.dx == 0) {
+                        if (firstParameter.charAt(0) == '[') {
+                            String value = "";
+                            int i = 1;
+                            int j = 0;
+                            while (i < firstParameter.length() - 1) {
+                                value += firstParameter.charAt(i);
+                                i++;
+                            }
+                            int logicalAddress = Integer.parseInt(value);
+                            isJump = true;
+                            instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
+                        }
+                    } else
+                        throw new IllegalArgumentException("Nie można zrealizować danego warunku!");
 
-            }
-        } else if (size == 4) {
-            if (word.equals("JAXZ")) {
-                process.programCounter += 3;
-                if (regs.ax == 0) {
-                    String value = "";
-                    int i = 1;
-                    int j = 0;
-                    while (i < firstParameter.length() - 1) {
-                        value += firstParameter.charAt(i);
-                        i++;
+                }
+            } else if (size == 4) {
+                if (word.equals("JAXZ")) {
+                    process.programCounter += 3;
+                    if (regs.ax == 0) {
+                        String value = "";
+                        int i = 1;
+                        int j = 0;
+                        while (i < firstParameter.length() - 1) {
+                            value += firstParameter.charAt(i);
+                            i++;
+                        }
+                        int logicalAddress = Integer.parseInt(value);
+                        isJump = true;
+                        instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                     }
-                    int logicalAddress = Integer.parseInt(value);
-                    isJump = true;
-                    instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
+                }
+                if (word.equals("JINZ")) {
+                    process.programCounter += 3;
+                    if (regs.ax != 0 || regs.bx != 0 || regs.cx != 0 || regs.dx != 0) {
+                        String value = "";
+                        int i = 1;
+                        int j = 0;
+                        while (i < firstParameter.length() - 1) {
+                            value += firstParameter.charAt(i);
+                            i++;
+                        }
+                        int logicalAddress = Integer.parseInt(value);
+                        isJump = true;
+                        instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
+                    }
                 }
             }
-            if (word.equals("JINZ")) {
-                process.programCounter += 3;
-                if (regs.ax != 0 || regs.bx != 0 || regs.cx != 0 || regs.dx != 0) {
-                    String value = "";
-                    int i = 1;
-                    int j = 0;
-                    while (i < firstParameter.length() - 1) {
-                        value += firstParameter.charAt(i);
-                        i++;
-                    }
-                    int logicalAddress = Integer.parseInt(value);
-                    isJump = true;
-                    instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
-                }
-            }
+        } else {
+            process.programCounter +=2;
         }
         process.saveRegisters(regs);
     }
