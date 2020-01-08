@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.PriorityQueue;
 
 public class TaskList {
-    CpuScheduler cpuScheduler; // TODO make constructor take scheduler as argument
+    CpuScheduler cpuScheduler;
     VirtualMemory memory;
     ArrayList<PCB> PCBs;
 
@@ -29,6 +29,19 @@ public class TaskList {
         display();
         System.out.print("\n");
         System.out.print("\n");
+        if (Interface.askUserYN("Do you want to display memory for a single process?")) {
+            try {
+                String PID = Interface.askUser("Enter PID");
+                byte[] processMemory = memory.showProcessData(Integer.parseInt(PID));
+                for (byte single : processMemory) {
+                    System.out.println(single);
+                }
+            } catch (NullPointerException e) {
+                Interface.post("Process not found in memory");
+            } catch (NumberFormatException e) {
+                Interface.post("Incorrect PID");
+            }
+        }
     }
 
     private void display() {
