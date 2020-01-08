@@ -27,6 +27,8 @@ public class TaskList {
         PCB first = cpuScheduler.getRunningPCB();
         PCBs.add(0,first);
         display();
+        System.out.print("\n");
+        System.out.print("\n");
     }
 
     private void display() {

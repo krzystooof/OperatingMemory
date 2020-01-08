@@ -134,14 +134,14 @@ public class Interface {
         String trimmed = userInput.trim();
         String[] inputArray = trimmed.split(" ");
         ArrayList<String> toReturn = new ArrayList<String>(Arrays.asList(inputArray));
+        //delete null fields (double space prevention)
+        toReturn.remove(null);
         //deletes dashes
         for (int i = 1; i != toReturn.size(); i++) {
             if (toReturn.get(i).substring(0, 1).equals("-")) {
                 toReturn.set(i, toReturn.get(i).substring(1));
             }
         }
-        //delete null fields (double space prevention)
-        toReturn.remove(null);
         return toReturn;
     }
 
@@ -262,6 +262,8 @@ public class Interface {
         String trimmed = cmd.trim();
         String[] inputArray = trimmed.split(" ");
         ArrayList<String> userInput = new ArrayList<String>(Arrays.asList(inputArray));
+        //delete null fields (double space prevention)
+        userInput.remove(null);
         for (int i = 1; i != userInput.size(); i++) {
             if (userInput.get(i).substring(0, 1) == "-") {
                 userInput.set(i, userInput.get(i).substring(1));

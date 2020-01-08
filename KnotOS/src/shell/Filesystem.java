@@ -115,14 +115,16 @@ public class Filesystem implements Shell {
     }
 
     private void rm(ArrayList<String> params) {
-        ArrayList<String> path = new ArrayList<String>();
-        for (String dir : userLocationPathname) path.add(dir);
-        path.add(params.get(0));
-        String stringPath = makeStringPath(path);
-        File toRemove = new File(stringPath);
-        if (toRemove.exists() && toRemove.isFile()) {
-            remove(params.get(0));
-        } else Interface.post("File does not exist");
+        if (params.size() > 0) {
+            ArrayList<String> path = new ArrayList<String>();
+            for (String dir : userLocationPathname) path.add(dir);
+            path.add(params.get(0));
+            String stringPath = makeStringPath(path);
+            File toRemove = new File(stringPath);
+            if (toRemove.exists() && toRemove.isFile()) {
+                remove(params.get(0));
+            } else Interface.post("File does not exist");
+        } else  Interface.post("Too few arguments");
     }
 
     private void remove(String filename) {
