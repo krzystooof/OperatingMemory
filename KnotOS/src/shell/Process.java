@@ -112,19 +112,19 @@ public class Process implements Shell {
 
             // Checking if pid and priority are not integers
             if(!isInteger(param.get(2)) || !isInteger(param.get(3)))
-                throw new IllegalArgumentException("Pid and Priority should be integers");
+                throw new IllegalArgumentException("Illegal Pid or Priority");
 
             int pid = Integer.parseInt(param.get(2));
             int priority = Integer.parseInt(param.get(3));
 
             // Checking if given pid is different than 0
             if (pid == 0)
-                throw new IllegalArgumentException("pid should be greater than 0");
+                throw new IllegalArgumentException("PID cannot be 0");
 
             // Checking if pcb with given id exists
             for (Interpreter interpreter : interpreters) {
                 if (interpreter.getPcb().PID == pid) {
-                    throw new IllegalArgumentException("Give pid is already used");
+                    throw new IllegalArgumentException("PID is already in use");
                 }
             }
 
@@ -136,7 +136,7 @@ public class Process implements Shell {
             File file = Filesystem.getFile(filePath);
 
             if (file == null)
-                throw new IllegalArgumentException("Can not found file");
+                throw new IllegalArgumentException("File not found");
 
             Interpreter interpreter = new Interpreter(file, pcb);
             interpreters.add(interpreter);
