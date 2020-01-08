@@ -27,6 +27,9 @@ public class Interpreter {
     private PCB process;
     File file;
     byte[] arrayByte;
+    int instructionNumber = 0;
+    //liczba rozkazow, ilosc bajtow
+    private HashMap<Integer, Integer> instructionHash = new HashMap<Integer, Integer>();
 
     public Interpreter(File file, PCB process, VirtualMemory memory) {
         this.process = process;
@@ -86,11 +89,10 @@ public class Interpreter {
                 break;
             }
 
-            if(process.state == State.TERMINATED) {
+            if (process.state == State.TERMINATED) {
                 break;
             }
         }
-        System.out.println("Size: " + Bytes.size());
         byteInstructionToMnemonic(process, 4);
         System.out.println(memory.read(process.PID, 9));
     }
@@ -156,7 +158,6 @@ public class Interpreter {
                 if (singleLine.equals("RES") || singleLine.equals("HLT")) {
                     singleByte = toByte(singleLine);
                     data.add(singleByte);
-                    //System.out.println("Machine code: " + singleByte);
                 } else if (!singleLine.equals("HLT") || !singleLine.equals("RES")) {
                     //Receiving a single command
                     while (singleLine.charAt(i) != space) {
@@ -418,8 +419,7 @@ public class Interpreter {
                     trueInstruction += Byte.toString(oneInstruction.get(2)) + "00";
                 } else if (oneInstruction.get(2) == 0 && oneInstruction.get(3) != 0) {
                     trueInstruction += Byte.toString(oneInstruction.get(3));
-                }
-                else if (oneInstruction.get(2) == 0 && oneInstruction.get(3) == 0) {
+                } else if (oneInstruction.get(2) == 0 && oneInstruction.get(3) == 0) {
                     trueInstruction += Byte.toString(oneInstruction.get(3));
                 }
             } else if (oneInstruction.get(0) == 3) {
@@ -439,8 +439,7 @@ public class Interpreter {
                     trueInstruction += Byte.toString(oneInstruction.get(2)) + "00";
                 } else if (oneInstruction.get(2) == 0 && oneInstruction.get(3) != 0) {
                     trueInstruction += Byte.toString(oneInstruction.get(3));
-                }
-                else if (oneInstruction.get(2) == 0 && oneInstruction.get(3) == 0) {
+                } else if (oneInstruction.get(2) == 0 && oneInstruction.get(3) == 0) {
                     trueInstruction += Byte.toString(oneInstruction.get(3));
                 }
             } else if (oneInstruction.get(0) == 4) {
@@ -736,13 +735,18 @@ public class Interpreter {
         if (!isInteger(instruction)) {
             if (instruction.charAt(0) == 'R' || instruction.charAt(0) == 'H') {
                 if (instruction.equals("RES")) {
+                    System.out.println("Instruction: " + instruction);
+                    instructionNumber++;
                     process.programCounter += 1;
+                    instructionHash.put(instructionNumber, 1);
                     regs.ax = 0;
                     regs.bx = 0;
                     regs.cx = 0;
                     regs.dx = 0;
                 } else if (instruction.equals("HLT")) {
                     process.programCounter += 1;
+                    instructionNumber++;
+                    instructionHash.put(instructionNumber, 1);
                     process.state = State.TERMINATED;
 
                 }
@@ -760,26 +764,26 @@ public class Interpreter {
                         i++;
                     }
                     i = 7;
-                    System.out.println("First Parameter: " + firstParameter);
+
                     while (i < instruction.length()) {
                         secondParameter += instruction.charAt(i);
                         i++;
                     }
-                    System.out.println("Second Parameter: " + secondParameter);
+
                 } else if (word.equals("INC") || word.equals("DEC") || word.equals("JMP") || word.equals("JIZ")) {
                     int i = 4;
                     while (i < instruction.length()) {
                         firstParameter += instruction.charAt(i);
                         i++;
                     }
-                    System.out.println("First Parameter: " + firstParameter);
+
                 } else if (word.equals("JAXZ") || word.equals("JINZ")) {
                     int i = 5;
                     while (i < instruction.length()) {
                         firstParameter += instruction.charAt(i);
                         i++;
                     }
-                    System.out.println("First Parameter: " + firstParameter);
+
                 } else if (word.equals("CP")) {
                     int i = 3;
                     while (instruction.charAt(i) != space) {
@@ -787,35 +791,43 @@ public class Interpreter {
                         i++;
                     }
                     i = 5;
-                    System.out.println("First Parameter: " + firstParameter);
+
                     while (i < instruction.length()) {
                         secondParameter += instruction.charAt(i);
                         i++;
                     }
-                    System.out.println("Second Parameter: " + secondParameter);
+
                 } else if (word.equals("DP")) {
                     int i = 3;
                     while (i < instruction.length()) {
                         firstParameter += instruction.charAt(i);
                         i++;
                     }
-                    System.out.println("First Parameter: " + firstParameter);
+
                 }
             }
             //Executing instructions
             if (size == 2) {
                 if (word.equals("CP")) {
+                    instructionNumber++;
+                    instructionHash.put(instructionNumber, 2);
                     //create process
                 }
                 if (word.equals("DP")) {
+                    instructionNumber++;
+                    instructionHash.put(instructionNumber, 2);
                     //delete process
                 }
             } else if (size == 3) {
                 if (word.equals("ADD")) {
-                    if (isJump)
+                    if (isJump) {
                         isJump = false;
-                    else
+                    } else {
+                        instructionNumber++;
+                        instructionHash.put(instructionNumber, 4);
                         process.programCounter += 4;
+                    }
+
                     //Checks logical address
                     if (secondParameter.charAt(0) == '[') {
                         String value = "";
@@ -878,10 +890,13 @@ public class Interpreter {
                     }
                 }
                 if (word.equals("SUB")) {
-                    if (isJump)
+                    if (isJump) {
                         isJump = false;
-                    else
+                    } else {
+                        instructionNumber++;
+                        instructionHash.put(instructionNumber, 4);
                         process.programCounter += 4;
+                    }
                     if (secondParameter.charAt(0) == '[') {
                         String value = "";
                         int i = 1;
@@ -941,10 +956,13 @@ public class Interpreter {
                     }
                 }
                 if (word.equals("MUL")) {
-                    if (isJump)
+                    if (isJump) {
                         isJump = false;
-                    else
+                    } else {
+                        instructionNumber++;
+                        instructionHash.put(instructionNumber, 4);
                         process.programCounter += 4;
+                    }
 
                     if (secondParameter.charAt(0) == '[') {
                         String value = "";
@@ -1006,10 +1024,13 @@ public class Interpreter {
                 }
                 if (word.equals("INC")) {
                     if (firstParameter.charAt(0) == '[') {
-                        if (isJump)
+                        if (isJump) {
                             isJump = false;
-                        else
+                        } else {
+                            instructionNumber++;
+                            instructionHash.put(instructionNumber, 3);
                             process.programCounter += 3;
+                        }
                         String value = "";
                         int i = 1;
                         int j = 0;
@@ -1026,36 +1047,51 @@ public class Interpreter {
 
                     } else if (firstParameter.equals("AX")) {
                         regs.ax++;
-                        if (isJump)
+                        if (isJump) {
                             isJump = false;
-                        else
+                        } else {
+                            instructionNumber++;
+                            instructionHash.put(instructionNumber, 2);
                             process.programCounter += 2;
+                        }
                     } else if (firstParameter.equals("BX")) {
                         regs.bx++;
-                        if (isJump)
+                        if (isJump) {
                             isJump = false;
-                        else
+                        } else {
+                            instructionNumber++;
+                            instructionHash.put(instructionNumber, 2);
                             process.programCounter += 2;
+                        }
                     } else if (firstParameter.equals("CX")) {
                         regs.bx++;
-                        if (isJump)
+                        if (isJump) {
                             isJump = false;
-                        else
+                        } else {
+                            instructionNumber++;
+                            instructionHash.put(instructionNumber, 2);
                             process.programCounter += 2;
+                        }
                     } else if (firstParameter.equals("DX")) {
                         regs.dx++;
-                        if (isJump)
+                        if (isJump) {
                             isJump = false;
-                        else
+                        } else {
+                            instructionNumber++;
+                            instructionHash.put(instructionNumber, 2);
                             process.programCounter += 2;
+                        }
                     }
                 }
                 if (word.equals("DEC")) {
                     if (firstParameter.charAt(0) == '[') {
-                        if (isJump)
+                        if (isJump) {
                             isJump = false;
-                        else
+                        } else {
+                            instructionNumber++;
+                            instructionHash.put(instructionNumber, 3);
                             process.programCounter += 3;
+                        }
                         String value = "";
                         int i = 1;
                         int j = 0;
@@ -1066,7 +1102,7 @@ public class Interpreter {
                         int logicalAddress = Integer.parseInt(value) + 1;
                         byte singleByte = memory.read(process.PID, logicalAddress);
                         int temp = (int) singleByte;
-                        System.out.println("TEMP" + temp);
+
                         temp--;
                         singleByte = (byte) temp;
 
@@ -1074,20 +1110,50 @@ public class Interpreter {
 
                     } else if (firstParameter.equals("AX")) {
                         regs.ax--;
-                        process.programCounter += 2;
+                        if (isJump) {
+                            isJump = false;
+                        } else {
+                            instructionNumber++;
+                            instructionHash.put(instructionNumber, 2);
+                            process.programCounter += 2;
+                        }
                     } else if (firstParameter.equals("BX")) {
                         regs.bx--;
-                        process.programCounter += 2;
+                        if (isJump) {
+                            isJump = false;
+                        } else {
+                            instructionNumber++;
+                            instructionHash.put(instructionNumber, 2);
+                            process.programCounter += 2;
+                        }
                     } else if (firstParameter.equals("CX")) {
                         regs.cx--;
-                        process.programCounter += 2;
+                        if (isJump) {
+                            isJump = false;
+                        } else {
+                            instructionNumber++;
+                            instructionHash.put(instructionNumber, 2);
+                            process.programCounter += 2;
+                        }
                     } else if (firstParameter.equals("DX")) {
                         regs.dx--;
-                        process.programCounter += 2;
+                        if (isJump) {
+                            isJump = false;
+                        } else {
+                            instructionNumber++;
+                            instructionHash.put(instructionNumber, 2);
+                            process.programCounter += 2;
+                        }
                     }
                 }
                 if (word.equals("MOV")) {
-                    process.programCounter += 4;
+                    if (isJump) {
+                        isJump = false;
+                    } else {
+                        instructionNumber++;
+                        instructionHash.put(instructionNumber, 4);
+                        process.programCounter += 4;
+                    }
                     if (secondParameter.charAt(0) == 'A' || secondParameter.charAt(0) == 'B' || secondParameter.charAt(0) == 'C' || secondParameter.charAt(0) == 'D') {
                         if (firstParameter.equals("AX") && secondParameter.equals("BX"))
                             regs.ax = regs.bx;
@@ -1119,12 +1185,14 @@ public class Interpreter {
                     }
                 }
                 if (word.equals("MVI")) {
-                    if (isJump)
+                    if (isJump) {
                         isJump = false;
-                    else
+                    } else {
+                        instructionNumber++;
+                        instructionHash.put(instructionNumber, 4);
                         process.programCounter += 4;
+                    }
 
-                    System.out.println("LiczniKK: " + process.programCounter);
 
                     int value = Integer.parseInt(secondParameter);
                     if (firstParameter.equals("AX"))
@@ -1138,6 +1206,10 @@ public class Interpreter {
                 }
                 if (word.equals("JMP")) {
                     process.programCounter += 3;
+                    instructionNumber++;
+                    instructionHash.put(instructionNumber, 3);
+
+
                     if (firstParameter.charAt(0) == '[') {
                         String value = "";
                         int i = 1;
@@ -1148,16 +1220,28 @@ public class Interpreter {
                         }
                         int logicalAddress = Integer.parseInt(value);
                         isJump = true;
-
-                        while(logicalAddress < process.programCounter)
-                        {
+                        int k = 0, sum = 0;
+                        int firstNumber = 0, secondNumber=instructionNumber;
+                        for (Map.Entry<Integer, Integer> entry : instructionHash.entrySet()) {
+                            k++;
+                            sum += instructionHash.get(k);
+                            if (sum == logicalAddress) {
+                                firstNumber = entry.getKey() + 1;
+                                break;
+                            }
+                        }
+                        while (firstNumber <= secondNumber) {
                             instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
-
+                            logicalAddress += instructionHash.get(firstNumber);
+                            firstNumber++;
                         }
                     }
                 }
                 if (word.equals("JIZ")) {
                     process.programCounter += 3;
+                    instructionNumber++;
+                    instructionHash.put(instructionNumber, 3);
+
                     if (regs.ax == 0 && regs.bx == 0 && regs.cx == 0 && regs.dx == 0) {
                         if (firstParameter.charAt(0) == '[') {
                             String value = "";
@@ -1169,7 +1253,21 @@ public class Interpreter {
                             }
                             int logicalAddress = Integer.parseInt(value);
                             isJump = true;
-                            instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
+                            int k = 0, sum = 0;
+                            int firstNumber = 0, secondNumber=instructionNumber;
+                            for (Map.Entry<Integer, Integer> entry : instructionHash.entrySet()) {
+                                k++;
+                                sum += instructionHash.get(k);
+                                if (sum == logicalAddress) {
+                                    firstNumber = entry.getKey() + 1;
+                                    break;
+                                }
+                            }
+                            while (firstNumber <= secondNumber) {
+                                instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
+                                logicalAddress += instructionHash.get(firstNumber);
+                                firstNumber++;
+                            }
                         }
                     } else
                         throw new IllegalArgumentException("Can't realize this condition");
@@ -1178,6 +1276,9 @@ public class Interpreter {
             } else if (size == 4) {
                 if (word.equals("JAXZ")) {
                     process.programCounter += 3;
+                    instructionNumber++;
+                    instructionHash.put(instructionNumber, 3);
+
                     if (regs.ax == 0) {
                         String value = "";
                         int i = 1;
@@ -1188,11 +1289,28 @@ public class Interpreter {
                         }
                         int logicalAddress = Integer.parseInt(value);
                         isJump = true;
-                        instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
+                        int k = 0, sum = 0;
+                        int firstNumber = 0, secondNumber=instructionNumber;
+                        for (Map.Entry<Integer, Integer> entry : instructionHash.entrySet()) {
+                            k++;
+                            sum += instructionHash.get(k);
+                            if (sum == logicalAddress) {
+                                firstNumber = entry.getKey() + 1;
+                                break;
+                            }
+                        }
+                        while (firstNumber <= secondNumber) {
+                            instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
+                            logicalAddress += instructionHash.get(firstNumber);
+                            firstNumber++;
+                        }
                     }
                 }
                 if (word.equals("JINZ")) {
                     process.programCounter += 3;
+                    instructionNumber++;
+                    instructionHash.put(instructionNumber, 3);
+
                     if (regs.ax != 0 || regs.bx != 0 || regs.cx != 0 || regs.dx != 0) {
                         String value = "";
                         int i = 1;
@@ -1203,12 +1321,28 @@ public class Interpreter {
                         }
                         int logicalAddress = Integer.parseInt(value);
                         isJump = true;
-                        instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
+                        int k = 0, sum = 0;
+                        int firstNumber = 0, secondNumber=instructionNumber;
+                        for (Map.Entry<Integer, Integer> entry : instructionHash.entrySet()) {
+                            k++;
+                            sum += instructionHash.get(k);
+                            if (sum == logicalAddress) {
+                                firstNumber = entry.getKey() + 1;
+                                break;
+                            }
+                        }
+                        while (firstNumber <= secondNumber) {
+                            instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
+                            logicalAddress += instructionHash.get(firstNumber);
+                            firstNumber++;
+                        }
                     }
                 }
             }
         } else {
             process.programCounter += 2;
+            instructionNumber++;
+            instructionHash.put(instructionNumber, 2);
         }
         process.saveRegisters(regs);
     }
