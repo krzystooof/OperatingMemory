@@ -746,7 +746,7 @@ public class Interpreter {
                     regs.dx = 0;
                 } else if (word.equals("HLT")) {
                     process.programCounter += 1;
-
+                    process.state = State.TERMINATED;
                 }
             } else {
                 while (instruction.charAt(size) != space) {
