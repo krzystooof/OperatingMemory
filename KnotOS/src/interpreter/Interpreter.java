@@ -67,15 +67,14 @@ public class Interpreter {
     public void runInterpreter() {
         Vector<Byte> Bytes = new Vector<Byte>();
         Bytes = getBytesFromFile(file);
-        arrayByte=new byte[Bytes.size()];
-        for(int i=0; i<Bytes.size();i++)
-        {
+        arrayByte = new byte[Bytes.size()];
+        for (int i = 0; i < Bytes.size(); i++) {
             arrayByte[i] = Bytes.get(i);
         }
-        this.memory.load(process.PID,arrayByte.length,0,arrayByte);
+        this.memory.load(process.PID, arrayByte.length, 0, arrayByte);
         String instr = "";
         int i = 0;
-        int limit = memory.getLimit(process.PID,true);
+        int limit = memory.getLimit(process.PID, true);
         while (process.programCounter < limit) {
             showLine(process.programCounter);
             instr = byteInstructionToMnemonic(process, process.programCounter);
@@ -92,15 +91,8 @@ public class Interpreter {
             }
         }
         System.out.println("Size: " + Bytes.size());
-/*        System.out.println("Bytes: ");
-        for(Byte a : Bytes)
-            System.out.println(a);*/
-        //instructionExecute(process, "JIZ [16]");
-        //instructionExecute(process, "JMP [0]");
-        //instructionExecute(process, "RES");
-        //instructionExecute(process, "JIZ [16]");
-
         byteInstructionToMnemonic(process, 4);
+        System.out.println(memory.read(process.PID, 9));
     }
 
     /**
@@ -119,10 +111,10 @@ public class Interpreter {
     /**
      * Method shows current process with specific address
      *
-     * @param offset  logical address
+     * @param offset logical address
      */
     void showLine(int offset) {
-        System.out.println(process.programCounter+ ": " + byteInstructionToMnemonic(process, offset));
+        System.out.println(process.programCounter + ": " + byteInstructionToMnemonic(process, offset));
     }
 
     /**
@@ -175,7 +167,6 @@ public class Interpreter {
                         singleByte = toByte(instruction);
                         byteInstruction.add(singleByte);
 
-                        //Receiving first parameter
                         i = 4;
                         while (singleLine.charAt(i) != space) {
                             firstParameter += singleLine.charAt(i);
@@ -184,12 +175,10 @@ public class Interpreter {
                         singleByte = toByte(firstParameter);
                         byteInstruction.add(singleByte);
                         i = 7;
-                        //Receiving second parameter
                         while (i < singleLine.length()) {
                             second_parameter += singleLine.charAt(i);
                             i++;
                         }
-                        //CHECKS LOGICAL ADDRESS
                         if (second_parameter.charAt(0) == '[') {
                             String number = "";
                             String number2 = "";
@@ -356,30 +345,29 @@ public class Interpreter {
     }
 
 
-
     Vector<Byte> loadBytesToByteInstruction(int PID, int offset) {
         Vector<Byte> oneInstruction = new Vector<Byte>();
 
-        byte oneByte = memory.read(process.PID,offset);
+        byte oneByte = memory.read(process.PID, offset);
         //Read 4 bytes
         if (oneByte == 1 || oneByte == 2 || oneByte == 3 || oneByte == 26 || oneByte == 7 || oneByte == 21 || oneByte == 22 || oneByte == 23 || oneByte == 41 || oneByte == 42 || oneByte == 43) {
             oneInstruction.add(oneByte);
             for (int i = offset + 1; i < offset + 4; i++) {
-                oneByte = memory.read(process.PID,i);
+                oneByte = memory.read(process.PID, i);
                 oneInstruction.add(oneByte);
             }
         }//Read 3 bytes
         else if (oneByte == 44 || oneByte == 45 || oneByte == 9 || oneByte == 10 || oneByte == 11 || oneByte == 12 || oneByte == 13) {
             oneInstruction.add(oneByte);
             for (int i = offset + 1; i < offset + 3; i++) {
-                oneByte = memory.read(process.PID,i);
+                oneByte = memory.read(process.PID, i);
                 oneInstruction.add(oneByte);
             }
         }//Read 2 bytes
         else if (oneByte == 4 || oneByte == 5 || oneByte == 14 || oneByte == 20) {
             oneInstruction.add(oneByte);
             for (int i = offset + 1; i < offset + 2; i++) {
-                oneByte = memory.read(process.PID,i);
+                oneByte = memory.read(process.PID, i);
                 oneInstruction.add(oneByte);
             }
         }//Read 1 byte
@@ -411,6 +399,8 @@ public class Interpreter {
                     trueInstruction += Byte.toString(oneInstruction.get(2)) + "00";
                 } else if (oneInstruction.get(2) == 0 && oneInstruction.get(3) != 0) {
                     trueInstruction += Byte.toString(oneInstruction.get(3));
+                } else if (oneInstruction.get(2) == 0 && oneInstruction.get(3) == 0) {
+                    trueInstruction += Byte.toString(oneInstruction.get(3));
                 }
             } else if (oneInstruction.get(0) == 2) {
                 trueInstruction += "SUB ";
@@ -430,7 +420,9 @@ public class Interpreter {
                 } else if (oneInstruction.get(2) == 0 && oneInstruction.get(3) != 0) {
                     trueInstruction += Byte.toString(oneInstruction.get(3));
                 }
-
+                else if (oneInstruction.get(2) == 0 && oneInstruction.get(3) == 0) {
+                    trueInstruction += Byte.toString(oneInstruction.get(3));
+                }
             } else if (oneInstruction.get(0) == 3) {
                 trueInstruction += "MUL ";
                 if (oneInstruction.get(1) == 15) {
@@ -447,6 +439,9 @@ public class Interpreter {
                 } else if (oneInstruction.get(2) != 0 && oneInstruction.get(3) == 0) {
                     trueInstruction += Byte.toString(oneInstruction.get(2)) + "00";
                 } else if (oneInstruction.get(2) == 0 && oneInstruction.get(3) != 0) {
+                    trueInstruction += Byte.toString(oneInstruction.get(3));
+                }
+                else if (oneInstruction.get(2) == 0 && oneInstruction.get(3) == 0) {
                     trueInstruction += Byte.toString(oneInstruction.get(3));
                 }
             } else if (oneInstruction.get(0) == 4) {
@@ -1010,7 +1005,7 @@ public class Interpreter {
                             regs.dx *= value;
                     }
                 }
-                if (word.equals("INC")) {/* DODAC ADRES LOGICZNY*/
+                if (word.equals("INC")) {
                     if (firstParameter.charAt(0) == '[') {
                         if (isJump)
                             isJump = false;
@@ -1023,13 +1018,17 @@ public class Interpreter {
                             value += firstParameter.charAt(i);
                             i++;
                         }
-                        int logicalAddress = Integer.parseInt(value);
-                        for (Byte a : data) {
-                            if (j == logicalAddress) {
-                                int k = Integer.parseInt(byteInstructionToMnemonic(process, logicalAddress)) + 1;
-                            }
-                            j++;
-                        }
+                        int logicalAddress = Integer.parseInt(value) + 1;
+                        System.out.println("LOGICAL ADRES" + logicalAddress);
+                        byte singleByte = memory.read(process.PID, logicalAddress);
+                        System.out.println("SINGLE BYTE" + singleByte);
+                        int temp = (int) singleByte;
+                        System.out.println("TEMP" + temp);
+                        temp++;
+                        singleByte = (byte) temp;
+
+                        memory.write(process.PID, logicalAddress, singleByte);
+
                     } else if (firstParameter.equals("AX")) {
                         regs.ax++;
                         if (isJump)
@@ -1207,7 +1206,7 @@ public class Interpreter {
                 }
             }
         } else {
-            process.programCounter +=2;
+            process.programCounter += 2;
         }
         process.saveRegisters(regs);
     }
