@@ -161,7 +161,8 @@ public class Process implements Shell {
             for (Interpreter interpreter : interpreters) {
                 if (interpreter.getPcb().PID == runningPcb.PID) {
                     interpreter.runInterpreter();
-                    if (!isStepMode) {
+                    if(interpreter.getPcb().state == State.TERMINATED){
+                        System.out.println("\n End of the processs \n");
                         cpuScheduler.removeProcess(interpreter.getPcb().NAME);
                         interpreters.remove(interpreter);
                     }
