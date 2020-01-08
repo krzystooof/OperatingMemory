@@ -17,9 +17,19 @@ public class TaskList {
         cpuScheduler = scheduler;
         memory = Interface.getMemory();
         PriorityQueue<PCB> queue = cpuScheduler.getReadyPCB();
+        PriorityQueue<PCB> waitingQueue = cpuScheduler.getWaitingPCB();
+
         if (queue != null) {
             if (queue.size() != 0) {
                 for (PCB single : queue) {
+                    PCBs.add(single);
+                }
+            }
+        }
+
+        if(waitingQueue != null){
+            if (waitingQueue.size() != 0) {
+                for (PCB single : waitingQueue) {
                     PCBs.add(single);
                 }
             }
@@ -58,6 +68,7 @@ public class TaskList {
             }
             i++;
         }
+        System.out.println();
     }
 
     private void display() {

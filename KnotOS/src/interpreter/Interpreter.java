@@ -1,6 +1,7 @@
 package interpreter;
 
 import cpuscheduler.*;
+import jdk.jshell.spi.ExecutionControl;
 import memory.virtual.VirtualMemory;
 import shell.Process;
 
@@ -28,6 +29,7 @@ public class Interpreter {
     File file;
     byte[] arrayByte;
     int instructionNumber = 0;
+    boolean isOn = true;
     //liczba rozkazow, ilosc bajtow
     private HashMap<Integer, Integer> instructionHash = new HashMap<Integer, Integer>();
 
@@ -57,6 +59,13 @@ public class Interpreter {
         instructionMap.put(17, "CX"); //1 Byte
         instructionMap.put(18, "DX"); //1 Byte
         this.file = file;
+        Vector<Byte> Bytes = new Vector<Byte>();
+        Bytes = getBytesFromFile(file);
+        arrayByte = new byte[Bytes.size()];
+        for (int i = 0; i < Bytes.size(); i++) {
+            arrayByte[i] = Bytes.get(i);
+        }
+        this.memory.load(process.PID, arrayByte.length, 0, arrayByte);
     }
 
     public PCB getPcb() {
@@ -68,23 +77,21 @@ public class Interpreter {
      * The method is responsible for calling the rest of the methods needed.
      */
     public void runInterpreter() {
-        Vector<Byte> Bytes = new Vector<Byte>();
-        Bytes = getBytesFromFile(file);
-        arrayByte = new byte[Bytes.size()];
-        for (int i = 0; i < Bytes.size(); i++) {
-            arrayByte[i] = Bytes.get(i);
-        }
-        this.memory.load(process.PID, arrayByte.length, 0, arrayByte);
         String instr = "";
         int i = 0;
         int limit = memory.getLimit(process.PID, true);
-        while (process.programCounter < limit) {
+        while (process.programCounter < limit && isOn == true) {
             showLine(process.programCounter);
-            instr = byteInstructionToMnemonic(process, process.programCounter);
-            instructionExecute(instr, false);
-            System.out.println(process.registers.toString());
-
-
+            if (Process.getStepMode()) System.out.println(process.registers.toString());
+            //   showLine(process.programCounter);
+            try {
+                instr = byteInstructionToMnemonic(process, process.programCounter);
+                instructionExecute(instr, false);
+            } catch (ExecutionControl.StoppedException e) {
+                process.state = State.TERMINATED;
+                process.registers.ax = 0;
+                break;
+            }
             if (Process.getStepMode()) {
                 break;
             }
@@ -93,8 +100,9 @@ public class Interpreter {
                 break;
             }
         }
-        byteInstructionToMnemonic(process, 4);
-        System.out.println(memory.read(process.PID, 9));
+        if (!Process.getStepMode())
+            System.out.println(process.registers.toString());
+
     }
 
     /**
@@ -116,7 +124,8 @@ public class Interpreter {
      * @param offset logical address
      */
     void showLine(int offset) {
-        System.out.println(process.programCounter + ": " + byteInstructionToMnemonic(process, offset));
+        if (Process.getStepMode())
+            System.out.println(process.programCounter + ": " + byteInstructionToMnemonic(process, offset));
     }
 
     /**
@@ -331,7 +340,7 @@ public class Interpreter {
 
                         firstParameter = "";
                     } else {
-                        System.out.println("NUMBER: " + instruction);
+                        if (Process.getStepMode()) System.out.println("NUMBER: " + instruction);
                     }
                     for (byte a : byteInstruction)
                         data.add(a);
@@ -724,7 +733,18 @@ public class Interpreter {
         return lines;
     }
 
-    void instructionExecute(String instruction, boolean isJump) {
+    private void funHLT() throws ExecutionControl.StoppedException {
+        process.programCounter += 1;
+        instructionNumber++;
+        instructionHash.put(instructionNumber, 1);
+        process.state = State.TERMINATED;
+        isOn = false;
+        throw new ExecutionControl.StoppedException();
+    }
+
+    void instructionExecute(String instruction, boolean isJump) throws ExecutionControl.StoppedException {
+
+
         Registers regs = process.registers;
         int size = 0;
         char space = ' ';
@@ -735,7 +755,7 @@ public class Interpreter {
         if (!isInteger(instruction)) {
             if (instruction.charAt(0) == 'R' || instruction.charAt(0) == 'H') {
                 if (instruction.equals("RES")) {
-                    System.out.println("Instruction: " + instruction);
+                    if (Process.getStepMode()) System.out.println("Instruction: " + instruction);
                     instructionNumber++;
                     process.programCounter += 1;
                     instructionHash.put(instructionNumber, 1);
@@ -744,18 +764,17 @@ public class Interpreter {
                     regs.cx = 0;
                     regs.dx = 0;
                 } else if (instruction.equals("HLT")) {
-                    process.programCounter += 1;
-                    instructionNumber++;
-                    instructionHash.put(instructionNumber, 1);
-                    process.state = State.TERMINATED;
-
+                    try {
+                        funHLT();
+                    } catch (ExecutionControl.StoppedException e) {
+                        throw new ExecutionControl.StoppedException();
+                    }
                 }
             } else {
                 while (instruction.charAt(size) != space) {
                     word += instruction.charAt(size);
                     size++;
                 }
-                System.out.println("Instruction: " + word);
                 //Parameter completion
                 if (word.equals("ADD") || word.equals("SUB") || word.equals("MUL") || word.equals("MOV") || word.equals("MVI")) {
                     int i = 4;
@@ -1205,9 +1224,13 @@ public class Interpreter {
                         regs.dx = value;
                 }
                 if (word.equals("JMP")) {
-                    process.programCounter += 3;
-                    instructionNumber++;
-                    instructionHash.put(instructionNumber, 3);
+                    if (isJump) {
+                        isJump = false;
+                    } else {
+                        instructionNumber++;
+                        instructionHash.put(instructionNumber, 3);
+                        process.programCounter += 3;
+                    }
 
 
                     if (firstParameter.charAt(0) == '[') {
@@ -1220,28 +1243,41 @@ public class Interpreter {
                         }
                         int logicalAddress = Integer.parseInt(value);
                         isJump = true;
-                        int k = 0, sum = 0;
-                        int firstNumber = 0, secondNumber=instructionNumber;
+                        int key = 0, sum = 0;
+                        int firstNumber = 0, secondNumber = instructionNumber;
                         for (Map.Entry<Integer, Integer> entry : instructionHash.entrySet()) {
-                            k++;
-                            sum += instructionHash.get(k);
+                            key++;
+                            sum += instructionHash.get(key);
                             if (sum == logicalAddress) {
                                 firstNumber = entry.getKey() + 1;
                                 break;
                             }
                         }
-                        while (firstNumber <= secondNumber) {
-                            instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
+                        if (memory.read(process.PID, logicalAddress) == 19) {
+                            funHLT();
+                            throw new ExecutionControl.StoppedException();
+                        }
+                        while (firstNumber <= secondNumber && isOn == true) {
+                            try {
+                                instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
+                            } catch (ExecutionControl.StoppedException e) {
+                                throw new ExecutionControl.StoppedException();
+                            }
+                            showLine(logicalAddress);
+                            if (Process.getStepMode()) System.out.println(process.registers.toString());
                             logicalAddress += instructionHash.get(firstNumber);
                             firstNumber++;
                         }
                     }
                 }
                 if (word.equals("JIZ")) {
-                    process.programCounter += 3;
-                    instructionNumber++;
-                    instructionHash.put(instructionNumber, 3);
-
+                    if (isJump) {
+                        isJump = false;
+                    } else {
+                        instructionNumber++;
+                        instructionHash.put(instructionNumber, 3);
+                        process.programCounter += 3;
+                    }
                     if (regs.ax == 0 && regs.bx == 0 && regs.cx == 0 && regs.dx == 0) {
                         if (firstParameter.charAt(0) == '[') {
                             String value = "";
@@ -1254,7 +1290,7 @@ public class Interpreter {
                             int logicalAddress = Integer.parseInt(value);
                             isJump = true;
                             int k = 0, sum = 0;
-                            int firstNumber = 0, secondNumber=instructionNumber;
+                            int firstNumber = 0, secondNumber = instructionNumber;
                             for (Map.Entry<Integer, Integer> entry : instructionHash.entrySet()) {
                                 k++;
                                 sum += instructionHash.get(k);
@@ -1263,7 +1299,10 @@ public class Interpreter {
                                     break;
                                 }
                             }
-                            while (firstNumber <= secondNumber) {
+                            if (memory.read(process.PID, logicalAddress) == 19) {
+                                funHLT();
+                            }
+                            while (firstNumber <= secondNumber && isOn == true) {
                                 instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                                 logicalAddress += instructionHash.get(firstNumber);
                                 firstNumber++;
@@ -1275,9 +1314,13 @@ public class Interpreter {
                 }
             } else if (size == 4) {
                 if (word.equals("JAXZ")) {
-                    process.programCounter += 3;
-                    instructionNumber++;
-                    instructionHash.put(instructionNumber, 3);
+                    if (isJump) {
+                        isJump = false;
+                    } else {
+                        instructionNumber++;
+                        instructionHash.put(instructionNumber, 3);
+                        process.programCounter += 3;
+                    }
 
                     if (regs.ax == 0) {
                         String value = "";
@@ -1290,7 +1333,7 @@ public class Interpreter {
                         int logicalAddress = Integer.parseInt(value);
                         isJump = true;
                         int k = 0, sum = 0;
-                        int firstNumber = 0, secondNumber=instructionNumber;
+                        int firstNumber = 0, secondNumber = instructionNumber;
                         for (Map.Entry<Integer, Integer> entry : instructionHash.entrySet()) {
                             k++;
                             sum += instructionHash.get(k);
@@ -1299,7 +1342,10 @@ public class Interpreter {
                                 break;
                             }
                         }
-                        while (firstNumber <= secondNumber) {
+                        if (memory.read(process.PID, logicalAddress) == 19) {
+                            funHLT();
+                        }
+                        while (firstNumber < secondNumber && isOn == true) {
                             instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                             logicalAddress += instructionHash.get(firstNumber);
                             firstNumber++;
@@ -1307,9 +1353,13 @@ public class Interpreter {
                     }
                 }
                 if (word.equals("JINZ")) {
-                    process.programCounter += 3;
-                    instructionNumber++;
-                    instructionHash.put(instructionNumber, 3);
+                    if (isJump) {
+                        isJump = false;
+                    } else {
+                        instructionNumber++;
+                        instructionHash.put(instructionNumber, 3);
+                        process.programCounter += 3;
+                    }
 
                     if (regs.ax != 0 || regs.bx != 0 || regs.cx != 0 || regs.dx != 0) {
                         String value = "";
@@ -1322,7 +1372,7 @@ public class Interpreter {
                         int logicalAddress = Integer.parseInt(value);
                         isJump = true;
                         int k = 0, sum = 0;
-                        int firstNumber = 0, secondNumber=instructionNumber;
+                        int firstNumber = 0, secondNumber = instructionNumber;
                         for (Map.Entry<Integer, Integer> entry : instructionHash.entrySet()) {
                             k++;
                             sum += instructionHash.get(k);
@@ -1331,7 +1381,10 @@ public class Interpreter {
                                 break;
                             }
                         }
-                        while (firstNumber <= secondNumber) {
+                        if (memory.read(process.PID, logicalAddress) == 19) {
+                            funHLT();
+                        }
+                        while (firstNumber <= secondNumber && isOn == true) {
                             instructionExecute(byteInstructionToMnemonic(process, logicalAddress), true);
                             logicalAddress += instructionHash.get(firstNumber);
                             firstNumber++;
