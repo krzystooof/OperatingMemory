@@ -112,7 +112,7 @@ public class Interface {
         displayLogo(50);
         loadModule(new Tester());
         displayLogo(60);
-        memory  = new VirtualMemory(128, 58);
+        memory  = new VirtualMemory(1024, 256);
         displayLogo(70);
         loadModule(new Script());
         displayLogo(80);
