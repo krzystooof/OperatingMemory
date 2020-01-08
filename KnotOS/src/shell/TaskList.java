@@ -16,9 +16,13 @@ public class TaskList {
         PCBs = new ArrayList<PCB>();
         cpuScheduler = scheduler;
         memory = Interface.getMemory();
-        PriorityQueue<PCB> queue= cpuScheduler.getReadyPCB();
-        for (PCB single : queue) {
-            PCBs.add(single);
+        PriorityQueue<PCB> queue = cpuScheduler.getReadyPCB();
+        if (queue != null) {
+            if (queue.size() != 0) {
+                for (PCB single : queue) {
+                    PCBs.add(single);
+                }
+            }
         }
         PCB first = cpuScheduler.getRunningPCB();
         PCBs.add(0,first);
@@ -28,7 +32,15 @@ public class TaskList {
     private void display() {
         printHeader();
         for (PCB current : PCBs) {
-            byte[] memUsage = memory.showProcessData(current.PID);
+            String memUsageString = null;
+            try {
+                byte[] memUsage;
+                memUsage = memory.showProcessData(current.PID);
+                memUsageString = Integer.toString(memUsage.length);
+                memUsageString = memUsageString + " B";
+            } catch (NullPointerException e) {
+                memUsageString = "Not found";
+            }
             printFill(current.NAME, 25);
             System.out.print(" ");
             printFill(Integer.toString(current.PID), 8);
@@ -37,7 +49,8 @@ public class TaskList {
             System.out.print(" ");
             printFill(Integer.toString(current.PRIORITY), 11);
             System.out.print(" ");
-            printFill(Integer.toString(memUsage.length) + "B", 12);
+            printFill(memUsageString, 12);
+            System.out.print("\n");
         }
     }
 
@@ -60,7 +73,7 @@ public class TaskList {
         System.out.print(" ");
         printLoop("=", 11);
         System.out.print(" ");
-        printLoop("=", 212);
+        printLoop("=", 12);
         System.out.print("\n");
     }
 
@@ -75,7 +88,7 @@ public class TaskList {
 
     private void printLoop(String toPrint, int times) {
         for (int i = 0; i != times; i++) {
-            System.out.print("");
+            System.out.print(toPrint);
         }
     }
 }
