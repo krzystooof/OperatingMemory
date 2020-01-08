@@ -54,13 +54,13 @@ public class VirtualMemory {
                 loadSegment(Arrays.copyOfRange(assemblyCode, 0, textSize));
                 loadSegment(Arrays.copyOfRange(assemblyCode, textSize, textSize + dataSize));
             } else {
-                throw new IllegalStateException("OUT OF SPACE");
+                throw new IllegalStateException("OUT OF VIRTUAL MEMORY");
             }
         } else if (textSize <= swapLeft) {
             processMap.put(PID, new Integer[]{segmentCounter, -1});
             loadSegment(Arrays.copyOfRange(assemblyCode, 0, textSize));
         } else {
-            throw new IllegalStateException("OUT OF SPACE");
+            throw new IllegalStateException("OUT OF VIRTUAL MEMORY");
         }
     }
 
@@ -258,7 +258,7 @@ public class VirtualMemory {
             swapLeft -= LIMIT;
             int writePointer = SWAP_SIZE - swapLeft;
             if (swapLeft < LIMIT) {
-                throw new IllegalStateException("OUT OF MEMORY");
+                throw new IllegalStateException("OUT OF VIRTUAL MEMORY");
             }
             segments.updateToSwap(ID);
             segments.setBase(ID, writePointer);
