@@ -112,11 +112,9 @@ public class TestVirtualMemory {
             memory.read(1, 10);
         });
         memory.delete(2);
-        assertThrows(IllegalArgumentException.class, () -> {
-            memory.read(2, 10);
-        });
-    }
-
+        assertEquals(memory.getSpaceLeft(false,true), 932);
+        assertEquals(memory.getSpaceLeft(true,false), 64);
+        }
     @Test
     public void testWrite() {
         initTest();
@@ -204,7 +202,6 @@ public class TestVirtualMemory {
         IntStream.range(40, 160).forEach(n -> thirdProcess[n] = 4);
         memory.load(2, 40, 120, thirdProcess);
         // Check if properly loaded to swap
-//        assertEquals(memory.getSpaceLeft(false, true), 924);
         assertEquals(memory.getSpaceLeft(true, false), 128);
         // Perform execution
         for (int i = 0; i < 30; i++) {

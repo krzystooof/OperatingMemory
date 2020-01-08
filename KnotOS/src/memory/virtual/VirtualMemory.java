@@ -76,12 +76,6 @@ public class VirtualMemory {
         int textSegmentId = processMap.get(PID)[0];
         int dataSegmentId = processMap.get(PID)[1];
 
-        if (segments.hasHighestBase(textSegmentId)) {
-            swapLeft += segments.getLimit(textSegmentId);
-        }
-        segments.delete(textSegmentId);
-        segmentQueue.remove(textSegmentId);
-
         if (dataSegmentId > 0) {
             if (segments.hasHighestBase(dataSegmentId)) {
                 swapLeft += segments.getLimit(dataSegmentId);
@@ -89,6 +83,11 @@ public class VirtualMemory {
             segments.delete(dataSegmentId);
             segmentQueue.remove(dataSegmentId);
         }
+        if (segments.hasHighestBase(textSegmentId)) {
+            swapLeft += segments.getLimit(textSegmentId);
+        }
+        segments.delete(textSegmentId);
+        segmentQueue.remove(textSegmentId);
     }
 
     /**

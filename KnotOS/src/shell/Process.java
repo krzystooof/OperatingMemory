@@ -139,7 +139,7 @@ public class Process implements Shell {
             if (file == null)
                 throw new IllegalArgumentException("File not found");
 
-            Interpreter interpreter = new Interpreter(file, pcb, new VirtualMemory(1024,10));
+            Interpreter interpreter = new Interpreter(file, pcb, Interface.getMemory());
             interpreters.add(interpreter);
             run();
 
