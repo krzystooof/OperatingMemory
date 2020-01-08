@@ -105,11 +105,16 @@ public class Process implements Shell {
         try {
             String name = param.get(0);
             String filePath = param.get(1);
+
+            // Checking if pid and priority are not integers
+            if(!isInteger(param.get(2)) || !isInteger(param.get(3)))
+                throw new IllegalArgumentException("Pid and Priority should be integers");
+
             int pid = Integer.parseInt(param.get(2));
             int priority = Integer.parseInt(param.get(3));
 
             //Checking if
-            if (param.size() > 2)
+            if (param.size() < 2)
                 throw new IllegalArgumentException("Too few arguments");
 
             // Checking if given pid is different than 0
@@ -227,6 +232,17 @@ public class Process implements Shell {
                 "step\n" +
                 "process step\n" +
                 "p step\n");
+    }
+
+    private boolean isInteger(String s) {
+        try {
+            Integer.parseInt(s);
+        } catch(NumberFormatException e) {
+            return false;
+        } catch(NullPointerException e) {
+            return false;
+        }
+        return true;
     }
 
     public static boolean getStepMode() {
