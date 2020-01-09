@@ -131,17 +131,21 @@ public class Interface {
      * specialized function
      */
     private static ArrayList<String> readInput() {
-        Scanner scanner = new Scanner(System.in);
-        String userInput = scanner.nextLine();
-        String trimmed = userInput.trim();
-        String[] inputArray = trimmed.split(" ");
-        ArrayList<String> toReturn = new ArrayList<String>(Arrays.asList(inputArray));
-        //delete null fields (double space prevention)
-        int nullCount = 0;
-        for (String field : toReturn) {
-            if (field.equals("")) nullCount++;
+        ArrayList<String> toReturn = new ArrayList<String>();
+        while (toReturn.size() == 0) {
+            Scanner scanner = new Scanner(System.in);
+            String userInput = null;
+            userInput = scanner.nextLine();
+            String trimmed = userInput.trim();
+            String[] inputArray = trimmed.split(" ");
+            toReturn = new ArrayList<String>(Arrays.asList(inputArray));
+            //delete null fields (double space prevention)
+            int nullCount = 0;
+            for (String field : toReturn) {
+                if (field.equals("")) nullCount++;
+            }
+            for (int i = nullCount; i != 0; i--) toReturn.remove("");
         }
-        for (int i = nullCount; i != 0; i--) toReturn.remove("");
         //deletes dashes
         for (int i = 1; i != toReturn.size(); i++) {
             if (toReturn.get(i).substring(0, 1).equals("-")) {

@@ -108,27 +108,29 @@ public class User implements Shell {
     }
 
     private void changePassword(ArrayList<String> params) {
-        String newPass = params.get(1);
-        String oldPass = params.get(0);
-        //check for illegal characters
-        if (oldPass.contains("\n") ||
-            oldPass.contains(".") ||
-            newPass.contains("\n") ||
-            newPass.contains(".")) {
-            Interface.post("Password cannot contain \".\" or newline character");
-        } else {
-            //passwords are legal. Reading old password and userID from storage
-            String userID = Filesystem.restore("userName", currentUser);
-            String correctPass = Filesystem.restore("userID", userID);
-            if (userID != null && correctPass != null) { // checking if read was successful
-                if (correctPass.equals(oldPass)) { // checking if user-provided password was ok
-                    Filesystem.store("userID", userID, newPass); // saving new password
-                    Interface.post("Password for current user has changed");
-                }
+        if (params.size() > 1) {
+            String newPass = params.get(1);
+            String oldPass = params.get(0);
+            //check for illegal characters
+            if (oldPass.contains("\n") ||
+                    oldPass.contains(".") ||
+                    newPass.contains("\n") ||
+                    newPass.contains(".")) {
+                Interface.post("Password cannot contain \".\" or newline character");
             } else {
-                Interface.post("Cannot access system storage");
+                //passwords are legal. Reading old password and userID from storage
+                String userID = Filesystem.restore("userName", currentUser);
+                String correctPass = Filesystem.restore("userID", userID);
+                if (userID != null && correctPass != null) { // checking if read was successful
+                    if (correctPass.equals(oldPass)) { // checking if user-provided password was ok
+                        Filesystem.store("userID", userID, newPass); // saving new password
+                        Interface.post("Password for current user has changed");
+                    }
+                } else {
+                    Interface.post("Cannot access system storage");
+                }
             }
-        }
+        } else Interface.post("Too few arguments");
     }
 
     private void deleteUser(ArrayList<String> params) {
