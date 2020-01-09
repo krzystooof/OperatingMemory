@@ -19,6 +19,7 @@ public class TaskList implements Shell{
         memory = Interface.getMemory();
         shellCommands.add("tasklist");
         shellCommands.add("memread");
+        shellCommands.add("swap");
     }
 
     private void runTaskList() {
@@ -48,10 +49,10 @@ public class TaskList implements Shell{
     }
 
     private void displayByteArray(byte[] processMemory) {
-        int i = 0;
+        int i = 1;
         for (byte singleByte : processMemory) {
             System.out.print(singleByte);
-            if (i < 9) {
+            if (i < 10) {
                 if (singleByte < 10) System.out.print("      ");
                 else {
                     if (singleByte < 100) System.out.print("     ");
@@ -72,7 +73,7 @@ public class TaskList implements Shell{
             String memUsageString = null;
             try {
                 byte[] memUsage;
-                memUsage = memory.showProcessData(current.PID);
+                memUsage = memory.getProcessMemory(current.PID);
                 memUsageString = Integer.toString(memUsage.length);
                 memUsageString = memUsageString + " B";
             } catch (NullPointerException e) {
@@ -146,6 +147,32 @@ public class TaskList implements Shell{
                 memread(params);
                 break;
             }
+            case "swap": {
+                params.remove(0);
+                swap(params);
+                break;
+            }
+        }
+    }
+
+    private void swap(ArrayList<String> params) {
+        if (params.size() > 1) {
+            try {
+                switch (params.get(0)) {
+                    case "file": {
+                        memory.swapToFile(Integer.parseInt(params.get(1)));
+                        break;
+                    }
+                    case "ram": {
+                        memory.swapToRam(Integer.parseInt(params.get(1)));
+                        break;
+                    }
+                }
+            } catch (NumberFormatException e) {
+                Interface.post("ID must be a number");
+            }
+        } else {
+            Interface.post("Too few arguments");
         }
     }
 
@@ -154,7 +181,11 @@ public class TaskList implements Shell{
         System.out.println("Help in regard to process and memory diagnostics:\n" +
                 "tasklist\n" +
                 "memread <PID>\n" +
-                "memread -all");
+                "memread -virtual\n" +
+                "memread -physical\n" +
+                "memread -segment" +
+                "swap file <ID>\n" +
+                "swap ram <ID>\n");
 
     }
 
@@ -165,19 +196,32 @@ public class TaskList implements Shell{
 
     private void memread(ArrayList<String> params) {
         if (params.size() > 0) {
-            if (params.get(0).equals("all")) {
-                Interface.post("In development");
-                //displayByteArray(); TODO display all RAM
-            }
-            else {
-                try {
-                    String PID = params.get(0);
-                    byte[] processMemory = memory.showProcessData(Integer.parseInt(PID));
-                    displayByteArray(processMemory);
-                } catch (NullPointerException e) {
-                    Interface.post("Process not found in memory");
-                } catch (NumberFormatException e) {
-                    Interface.post("Incorrect PID");
+            switch (params.get(0)) {
+                case "virtual": {
+                    System.out.println("Free memory: " + memory.getSpaceLeft(false, true));
+                    displayByteArray(memory.getMemory(false,true));
+                    break;
+                }
+                case "physical": {
+                    System.out.println("Free memory: " + memory.getSpaceLeft(true, false));
+                    displayByteArray(memory.getMemory(true,false));
+                    break;
+                }
+                case "segment": {
+                    memory.showSegmentTable();
+                    break;
+                }
+                default: {
+                    try {
+                        String PID = params.get(0);
+                        byte[] processMemory = memory.getProcessMemory(Integer.parseInt(PID));
+                        displayByteArray(processMemory);
+                    } catch (NullPointerException e) {
+                        Interface.post("Process not found in memory");
+                    } catch (NumberFormatException e) {
+                        Interface.post("Incorrect PID");
+                    }
+                    break;
                 }
             }
         } else Interface.post("Too few arguments");

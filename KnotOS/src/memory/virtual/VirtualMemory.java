@@ -110,7 +110,7 @@ public class VirtualMemory {
      *
      * @param PID process id
      * @return array of bytes
-     * @JCB
+     * @JCB memread <PID>
      */
     public byte[] getProcessMemory(int PID) {
         int textSegmentID = processMap.get(PID)[0];
@@ -130,7 +130,7 @@ public class VirtualMemory {
      * Return size of free memory
      *
      * @param virtual specifies if show swap or RAM left
-     * @JCB
+     * @JCB memread virtual / memread physical
      */
     public int getSpaceLeft(boolean physical, boolean virtual) {
         if (virtual && physical) {
@@ -147,7 +147,7 @@ public class VirtualMemory {
      * Return memory content
      *
      * @param virtual choose RAM or swap file
-     * @JCB
+     * @JCB memread virtual / memread physical
      */
     public byte[] getMemory(boolean physical, boolean virtual) {
         if (virtual) {
@@ -161,7 +161,7 @@ public class VirtualMemory {
     /**
      * Print segment table's records for specified process
      *
-     * @JCB
+     * @JCB memread segment
      */
     public void showSegmentTable() {
         processMap.forEach((PID, SEGMENTS) -> {
@@ -179,7 +179,7 @@ public class VirtualMemory {
     /**
      * Move segment from swap file to RAM
      *
-     * @JCB
+     * @JCB swap ram <ID>
      */
     public void swapToRam(int ID) {
         int BASE = segments.getBase(ID);
@@ -201,7 +201,7 @@ public class VirtualMemory {
     /**
      * Move segment from RAM to swap file
      *
-     * @JCB
+     * @JCB swap file <ID>
      */
     public void swapToFile(int ID) {
         try {

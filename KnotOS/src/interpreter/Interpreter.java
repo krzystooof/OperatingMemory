@@ -79,7 +79,7 @@ public class Interpreter {
     public void runInterpreter() {
         String instr = "";
         int i = 0;
-        int limit = memory.getLimit(process.PID, true);
+        int limit = 0; // memory.getLimit(process.PID, true);
         while (process.programCounter < limit && isOn == true) {
             showLine(process.programCounter);
             if (Process.getStepMode()) System.out.println(process.registers.toString());
