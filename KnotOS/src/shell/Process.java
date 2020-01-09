@@ -10,6 +10,7 @@ import semaphores.Semaphore;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class Process implements Shell {
     private ArrayList<String> shellCommands;
@@ -158,13 +159,6 @@ public class Process implements Shell {
 
             PCB runningPcb = cpuScheduler.getRunningPCB();
 
-            if (runningPcb.PID == 0) {
-                for(PCB pcb:cpuScheduler.getWaitingPCB()){
-                    cpuScheduler.addProcess(pcb);
-                }
-                throw new IllegalArgumentException("There is only Idle Process");
-            }
-
             for (Interpreter interpreter : interpreters) {
                 if (interpreter.getPcb().PID == runningPcb.PID) {
                     try {
@@ -180,7 +174,6 @@ public class Process implements Shell {
                     }
                     break;
                 }
-
             }
         } catch (IllegalArgumentException exc) {
             Interface.post(exc.getMessage());
@@ -207,17 +200,15 @@ public class Process implements Shell {
 
             for (Interpreter interpreter : interpreters) {
                 if (interpreter.getPcb().NAME.equals(name)) {
-                    if (removed != true) {
-                        Interface.getMemory().delete(cpuScheduler.getRunningPCB().PID);
-                    }
                     interpreters.remove(interpreter);
                     removed = true;
                     break;
                 }
             }
-
-            if(cpuScheduler.getReadyPCB()==null)
-                throw new IllegalArgumentException("Process with specified name doesn't exist");
+            if(!removed) {
+                if (cpuScheduler.getReadyPCB() == null)
+                    throw new IllegalArgumentException("Process with specified name doesn't exist");
+            }
 
             for (PCB pcb : cpuScheduler.getReadyPCB()) {
                 if (pcb.NAME.equals(name)) {
@@ -238,10 +229,18 @@ public class Process implements Shell {
         catch (IllegalArgumentException exc){
             Interface.post(exc.getMessage());
         }
+        catch (NullPointerException exc){
+            Interface.post("Removed running process");
+        }
     }
 
     private void next() {
-        run();
+        try {
+            run();
+        }
+        catch(NoSuchElementException exc){
+            Interface.post("Next step successful xD");
+        }
     }
 
     private void debug(ArrayList<String> param) {

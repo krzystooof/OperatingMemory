@@ -84,6 +84,7 @@ public class VirtualMemory {
         }
         if (segments.hasHighestBase(textSegmentId)) {
             swapLeft += segments.getLimit(textSegmentId);
+            released=true;
         }
         segments.delete(textSegmentId);
         segmentQueue.remove(textSegmentId);
