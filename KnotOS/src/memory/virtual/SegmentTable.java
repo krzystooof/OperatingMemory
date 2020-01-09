@@ -1,4 +1,4 @@
-package memory;
+package memory.virtual;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +27,12 @@ public class SegmentTable {
     }
 
     public int getLimit(int ID) {
-        return findSegment(ID).LIMIT;
+        try{
+            return findSegment(ID).LIMIT;
+        }
+        catch (IllegalArgumentException e){
+            return 0;
+        }
     }
 
     public void updateToRam(int ID) {

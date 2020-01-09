@@ -50,6 +50,10 @@ public class TaskList {
                 Interface.post("Incorrect PID");
             }
         }
+        if (Interface.askUserYN("Do you want to display all memory?")) {
+                byte[] processMemory = memory.show(true, true);
+                displayByteArray(processMemory);
+        }
     }
 
     private void displayByteArray(byte[] processMemory) {

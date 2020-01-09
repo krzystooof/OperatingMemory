@@ -10,8 +10,8 @@
  */
 package memory.physical;
 
-import memory.Segment;
-import memory.SegmentTable;
+import memory.virtual.Segment;
+import memory.virtual.SegmentTable;
 
 import java.util.*;
 

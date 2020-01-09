@@ -2,7 +2,6 @@ package memory.virtual;
 
 import java.util.*;
 
-import memory.SegmentTable;
 import memory.physical.PhysicalMemoryManager;
 
 /**
@@ -15,14 +14,12 @@ import memory.physical.PhysicalMemoryManager;
 public class VirtualMemory {
     private HashMap<Integer, Integer[]> processMap = new HashMap<>();
     private SegmentTable segments = new SegmentTable();
-    private PhysicalMemoryManager RAM;
-
     private Queue<Integer> segmentQueue = new LinkedList<>();
+    private PhysicalMemoryManager RAM;
     private Integer segmentCounter = 0;
     private int SWAP_SIZE;
     private byte[] swapFile;
     private int swapLeft;
-
 
     /**
      * Initialise VirtualMemory with specified parameters
@@ -35,6 +32,27 @@ public class VirtualMemory {
         this.swapLeft = SWAP_SIZE;
         this.swapFile = new byte[SWAP_SIZE];
         this.RAM = new PhysicalMemoryManager(physicalSize, segments);
+    }
+
+    /**
+     * Read memory cell
+     *
+     * @param PID    process unique id
+     * @param OFFSET demanded cell's index
+     */
+    public byte read(int PID, int OFFSET) {
+        return accessRam(PID, OFFSET, false, (byte) 0);
+    }
+
+    /**
+     * Write to memory cell
+     *
+     * @param PID    process unique id
+     * @param OFFSET demanded cell's index
+     * @param DATA   byte to save
+     */
+    public void write(int PID, int OFFSET, byte DATA) {
+        accessRam(PID, OFFSET, true, DATA);
     }
 
     /**
@@ -54,13 +72,13 @@ public class VirtualMemory {
                 loadSegment(Arrays.copyOfRange(assemblyCode, 0, textSize));
                 loadSegment(Arrays.copyOfRange(assemblyCode, textSize, textSize + dataSize));
             } else {
-                throw new IllegalStateException("OUT OF VIRTUAL MEMORY");
+                throw new IllegalStateException("VIRTUAL MEMORY ERROR: SWAP FILE SHORTAGE");
             }
         } else if (textSize <= swapLeft) {
             processMap.put(PID, new Integer[]{segmentCounter, -1});
             loadSegment(Arrays.copyOfRange(assemblyCode, 0, textSize));
         } else {
-            throw new IllegalStateException("OUT OF VIRTUAL MEMORY");
+            throw new IllegalStateException("VIRTUAL MEMORY ERROR: SWAP FILE SHORTAGE");
         }
     }
 
@@ -69,108 +87,22 @@ public class VirtualMemory {
      *
      * @param PID process unique ID
      */
-    public boolean delete(int PID) {
+    public void delete(int PID) {
         int textSegmentId = processMap.get(PID)[0];
         int dataSegmentId = processMap.get(PID)[1];
-        boolean released = false;
 
         if (dataSegmentId > 0) {
             if (segments.hasHighestBase(dataSegmentId)) {
                 swapLeft += segments.getLimit(dataSegmentId);
-                released=true;
             }
             segments.delete(dataSegmentId);
             segmentQueue.remove(dataSegmentId);
         }
         if (segments.hasHighestBase(textSegmentId)) {
             swapLeft += segments.getLimit(textSegmentId);
-            released=true;
         }
         segments.delete(textSegmentId);
         segmentQueue.remove(textSegmentId);
-        return released;
-    }
-
-    /**
-     * Read memory cell
-     *
-     * @param PID    process unique ID
-     * @param OFFSET demanded data's index
-     * @return byte from RAM
-     */
-    public byte read(int PID, int OFFSET) {
-        int textSegmentId = processMap.get(PID)[0];
-        int dataSegmentId = processMap.get(PID)[1];
-        int textLimit = segments.getLimit(textSegmentId);
-        int dataLimit = 0;
-        if (dataSegmentId > 0) {
-            dataLimit = segments.getLimit(dataSegmentId);
-        }
-
-        if (OFFSET >= 0 && OFFSET < textLimit) {
-            if (segments.inSwapFile(textSegmentId) == Boolean.FALSE) {
-                try {
-                    return RAM.read(textSegmentId, OFFSET);
-                } catch (IllegalArgumentException error) {
-                    System.out.println(error.getMessage());
-                }
-            } else {
-                swapToRam(textSegmentId);
-                return read(PID, OFFSET);
-            }
-        } else if (OFFSET >= textLimit && OFFSET < textLimit + dataLimit) {
-            if (segments.inSwapFile(dataSegmentId) == Boolean.FALSE) {
-                int index = OFFSET - segments.getLimit(textSegmentId);
-                return RAM.read(dataSegmentId, index);
-            } else {
-                swapToRam(dataSegmentId);
-                return read(PID, OFFSET);
-            }
-        }
-        throw new IllegalArgumentException("SEGMENTATION ERROR");
-    }
-
-    /**
-     * Edit memory cell
-     *
-     * @param PID    process id
-     * @param OFFSET index to write
-     * @param data   data to write
-     * @throws IllegalArgumentException when calling data outside assigned block
-     */
-    public void write(int PID, int OFFSET, byte data) {
-        int textSegmentId = processMap.get(PID)[0];
-        int dataSegmentId = processMap.get(PID)[1];
-        int textLimit = segments.getLimit(textSegmentId);
-        int dataLimit = 0;
-        if (dataSegmentId > 0) {
-            dataLimit = segments.getLimit(dataSegmentId);
-        }
-
-        if (OFFSET >= 0 && OFFSET < textLimit) {
-            if (segments.inSwapFile(textSegmentId) == Boolean.FALSE) {
-                try {
-                    RAM.write(textSegmentId, OFFSET, data);
-                } catch (IllegalArgumentException error) {
-                    System.out.println(error.getMessage());
-                }
-            } else {
-                swapToRam(textSegmentId);
-                write(PID, OFFSET, data);
-            }
-        } else if (OFFSET >= textLimit && OFFSET < textLimit + dataLimit) {
-            int dataOffset = OFFSET - textLimit;
-            if (segments.inSwapFile(dataSegmentId) == Boolean.FALSE) {
-                try {
-                    RAM.write(dataSegmentId, dataOffset, data);
-                } catch (IllegalArgumentException error) {
-                    System.out.println(error.getMessage());
-                }
-            } else {
-                swapToRam(dataSegmentId);
-                write(PID, OFFSET, data);
-            }
-        }
     }
 
     /**
@@ -178,8 +110,9 @@ public class VirtualMemory {
      *
      * @param PID process id
      * @return array of bytes
+     * @JCB
      */
-    public byte[] showProcessData(int PID) {
+    public byte[] getProcessMemory(int PID) {
         int textSegmentID = processMap.get(PID)[0];
         int dataSegmentID = processMap.get(PID)[1];
 
@@ -197,42 +130,58 @@ public class VirtualMemory {
      * Return size of free memory
      *
      * @param virtual specifies if show swap or RAM left
+     * @JCB
      */
     public int getSpaceLeft(boolean physical, boolean virtual) {
-        if (virtual) {
-            return swapLeft;
-        }
-        if (physical) {
-            return RAM.checkAvailableSpace();
-        }
         if (virtual && physical) {
             return swapLeft + RAM.checkAvailableSpace();
+        } else if (virtual) {
+            return swapLeft;
+        } else if (physical) {
+            return RAM.checkAvailableSpace();
         }
-        System.out.println("What the heck ?");
-        return -1;
+        throw new IllegalStateException("VIRTUAL MEMORY ERROR: INVALID OPERATION");
     }
 
     /**
-     * Get segment's limit.
+     * Return memory content
      *
-     * @param PID         process ID
-     * @param textSegment to choose text or data segment
-     * @return segment's limit
+     * @param virtual choose RAM or swap file
+     * @JCB
      */
-    public int getLimit(int PID, boolean textSegment) {
-        int ID;
-        if (textSegment) {
-            ID = processMap.get(PID)[0];
-        } else {
-            ID = processMap.get(PID)[1];
+    public byte[] getMemory(boolean physical, boolean virtual) {
+        if (virtual) {
+            return swapFile;
+        } else if (physical) {
+            return RAM.read();
         }
-        return segments.getLimit(ID);
+        throw new IllegalStateException("VIRTUAL MEMORY ERROR: INVALID OPERATION");
+    }
+
+    /**
+     * Print segment table's records for specified process
+     *
+     * @JCB
+     */
+    public void showSegmentTable() {
+        processMap.forEach((PID, SEGMENTS) -> {
+            System.out.println("PROCESS: " + PID);
+            System.out.println("TEXT SEGMENT");
+            printSegment(SEGMENTS[0]);
+            if (SEGMENTS[1] != -1) {
+                System.out.println("DATA SEGMENT");
+                printSegment(SEGMENTS[1]);
+            }
+
+        });
     }
 
     /**
      * Move segment from swap file to RAM
+     *
+     * @JCB
      */
-    private void swapToRam(int ID) {
+    public void swapToRam(int ID) {
         int BASE = segments.getBase(ID);
         int LIMIT = segments.getLimit(ID);
         byte[] data = new byte[LIMIT];
@@ -251,22 +200,75 @@ public class VirtualMemory {
 
     /**
      * Move segment from RAM to swap file
+     *
+     * @JCB
      */
-    private void swapToFile(int ID) {
+    public void swapToFile(int ID) {
         try {
             byte[] data = readSegment(ID);
+            int BASE = segments.getBase(ID);
             int LIMIT = segments.getLimit(ID);
-            swapLeft -= LIMIT;
-            int writePointer = SWAP_SIZE - swapLeft;
-            if (swapLeft < LIMIT) {
-                throw new IllegalStateException("OUT OF VIRTUAL MEMORY");
-            }
             segments.updateToSwap(ID);
-            segments.setBase(ID, writePointer);
-            System.arraycopy(data, 0, swapFile, writePointer, LIMIT);
-        } catch (IllegalArgumentException error) {
-            System.out.println(error.getMessage());
+            System.arraycopy(data, 0, swapFile, BASE, LIMIT);
+        } catch (IllegalArgumentException ramError) {
+            System.out.println("VIRTUAL MEMORY ERROR: INVALID OPERATION");
+            throw ramError;
         }
+    }
+
+    /**
+     * Read memory cell
+     *
+     * @param PID    process unique ID
+     * @param OFFSET demanded data's index
+     * @return byte from RAM
+     */
+    private byte accessRam(int PID, int OFFSET, boolean write, byte data) {
+        int textID = processMap.get(PID)[0];
+        int dataID = processMap.get(PID)[1];
+        int textLimit = segments.getLimit(textID);
+        int dataLimit = segments.getLimit(dataID);
+
+        if (OFFSET >= 0 && OFFSET < textLimit) {
+            if (segments.inSwapFile(textID) == Boolean.FALSE) {
+                if (write) {
+                    RAM.write(textID, OFFSET, data);
+                } else {
+                    return RAM.read(textID, OFFSET);
+                }
+            } else {
+                swapToRam(textID);
+                // POSSIBLE BUG
+                segments.updateToRam(textID);
+                return accessRam(PID, OFFSET, write, data);
+            }
+        } else if (OFFSET >= textLimit && OFFSET < textLimit + dataLimit) {
+            if (segments.inSwapFile(dataID) == Boolean.FALSE) {
+                // HERE POSSIBLE BUG
+                OFFSET = OFFSET - segments.getLimit(textID);
+                if (write) {
+                    RAM.write(dataID, OFFSET, data);
+                } else {
+                    return RAM.read(dataID, OFFSET);
+                }
+            } else {
+                swapToRam(dataID);
+                // POSSIBLE BUG
+                segments.updateToRam(dataID);
+                return accessRam(PID, OFFSET, write, data);
+            }
+        }
+        throw new IllegalArgumentException("VIRTUAL MEMORY ERROR: SEGMENTATION FAULT");
+    }
+
+    /**
+     * Print segment table's records for specified segment
+     */
+    private void printSegment(int ID) {
+        System.out.println("SEGMENT ID: " + ID);
+        System.out.println("BASE / RELOCATION: " + segments.getBase(ID));
+        System.out.println("LIMIT: " + segments.getLimit(ID));
+        System.out.println("IN SWAP FILE: " + segments.inSwapFile(ID));
     }
 
     /**
@@ -295,8 +297,9 @@ public class VirtualMemory {
         } else {
             try {
                 data = RAM.read(ID);
-            } catch (IllegalArgumentException error) {
-                System.out.println(error.getMessage());
+            } catch (IllegalArgumentException ramError) {
+                System.out.println("VIRTUAL MEMORY ERROR: INVALID OPERATION");
+                throw ramError;
             }
         }
         return data;

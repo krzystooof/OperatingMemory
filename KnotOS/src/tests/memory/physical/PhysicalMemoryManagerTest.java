@@ -4,7 +4,7 @@ package memory.physical;
 
 
 
-import memory.SegmentTable;
+import memory.virtual.SegmentTable;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -1,4 +1,4 @@
-package memory;
+package memory.virtual;
 
 
 public class Segment implements Comparable<Segment> {
