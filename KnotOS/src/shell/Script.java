@@ -29,6 +29,7 @@ public class Script implements Shell {
                 while ((line = bufferedReader.readLine()) != null) {
                     Interface.pass(line);
                 }
+                bufferedReader.close();
             } catch (Exception e) {
                 Interface.post(e.getMessage());
             }

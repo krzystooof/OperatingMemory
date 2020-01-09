@@ -29,6 +29,7 @@ public class Notepad implements Shell{
                 while ((line = bufferedReader.readLine()) != null) {
                     System.out.println(line);
                 }
+                bufferedReader.close();
             } catch (Exception e) {
                 Interface.post(e.getMessage());
             }
