@@ -15,9 +15,9 @@ import java.util.NoSuchElementException;
 public class Process implements Shell {
     private ArrayList<String> shellCommands;
     private static boolean isStepMode;
-    private CpuScheduler cpuScheduler;
-    private List<Interpreter> interpreters;
-    private Semaphore semaphore;
+    private static CpuScheduler cpuScheduler;
+    private static List<Interpreter> interpreters;
+    private static Semaphore semaphore;
 
     public Process() {
         shellCommands = new ArrayList<String>();
@@ -26,7 +26,6 @@ public class Process implements Shell {
         shellCommands.add("step");
         shellCommands.add("process");
         shellCommands.add("p");
-        shellCommands.add("tasklist");
         shellCommands.add("next");
 
         isStepMode = false;
@@ -54,28 +53,24 @@ public class Process implements Shell {
     public void pass(ArrayList<String> params) {
         switch (params.get(0)) {
             case "start": {
-                if (params.size() > 0) params.remove(0);
+                params.remove(0);
                 create(params);
                 break;
             }
             case "taskkill": {
-                if (params.size() > 0) params.remove(0);
+                params.remove(0);
                 kill(params);
                 break;
             }
             case "step": {
-                if (params.size() > 0) params.remove(0);
+                params.remove(0);
                 debug(params);
                 break;
             }
             case "p":
             case "process": {
-                if (params.size() > 0) params.remove(0);
+                params.remove(0);
                 processPass(params);
-                break;
-            }
-            case "tasklist": {
-                TaskList taskList = new TaskList(cpuScheduler);
                 break;
             }
             case "next":{
@@ -289,6 +284,10 @@ public class Process implements Shell {
 
     public static boolean getStepMode() {
         return isStepMode;
+    }
+
+    public static CpuScheduler getCpuScheduler() {
+        return cpuScheduler;
     }
 
 }

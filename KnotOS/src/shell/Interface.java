@@ -118,7 +118,7 @@ public class Interface {
         displayLogo(80);
         loadModule(new Notepad());
         displayLogo(90);
-
+        loadModule(new TaskList());
         displayLogo(100);
 
         System.out.print("\n");

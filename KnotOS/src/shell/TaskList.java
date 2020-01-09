@@ -7,15 +7,22 @@ import memory.virtual.VirtualMemory;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-public class TaskList {
+public class TaskList implements Shell{
     CpuScheduler cpuScheduler;
     VirtualMemory memory;
     ArrayList<PCB> PCBs;
+    ArrayList<String> shellCommands;
 
-    public TaskList(CpuScheduler scheduler) {
-        PCBs = new ArrayList<PCB>();
-        cpuScheduler = scheduler;
+    TaskList() {
+        shellCommands = new ArrayList<>();
+        cpuScheduler = Process.getCpuScheduler();
         memory = Interface.getMemory();
+        shellCommands.add("tasklist");
+        shellCommands.add("memread");
+    }
+
+    private void runTaskList() {
+        PCBs = new ArrayList<PCB>();
         PriorityQueue<PCB> queue = cpuScheduler.getReadyPCB();
         PriorityQueue<PCB> waitingQueue = cpuScheduler.getWaitingPCB();
 
@@ -38,18 +45,6 @@ public class TaskList {
         PCBs.add(0,first);
         display();
         System.out.print("\n");
-        System.out.print("\n");
-        if (Interface.askUserYN("Do you want to display memory for a single process?")) {
-            try {
-                String PID = Interface.askUser("Enter PID");
-                byte[] processMemory = memory.showProcessData(Integer.parseInt(PID));
-                displayByteArray(processMemory);
-            } catch (NullPointerException e) {
-                Interface.post("Process not found in memory");
-            } catch (NumberFormatException e) {
-                Interface.post("Incorrect PID");
-            }
-        }
     }
 
     private void displayByteArray(byte[] processMemory) {
@@ -132,5 +127,59 @@ public class TaskList {
         for (int i = 0; i != times; i++) {
             System.out.print(toPrint);
         }
+    }
+
+    @Override
+    public ArrayList<String> getShellCommands() {
+        return shellCommands;
+    }
+
+    @Override
+    public void pass(ArrayList<String> params) {
+        switch (params.get(0)) {
+            case "tasklist": {
+                runTaskList();
+                break;
+            }
+            case "memread": {
+                params.remove(0);
+                memread(params);
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void getHelp() {
+        System.out.println("Help in regard to process and memory diagnostics:\n" +
+                "tasklist\n" +
+                "memread <PID>\n" +
+                "memread -all");
+
+    }
+
+    @Override
+    public String getName() {
+        return "Process and memory diagnostics";
+    }
+
+    private void memread(ArrayList<String> params) {
+        if (params.size() > 0) {
+            if (params.get(0).equals("all")) {
+                Interface.post("In development");
+                //displayByteArray(); TODO display all RAM
+            }
+            else {
+                try {
+                    String PID = params.get(0);
+                    byte[] processMemory = memory.showProcessData(Integer.parseInt(PID));
+                    displayByteArray(processMemory);
+                } catch (NullPointerException e) {
+                    Interface.post("Process not found in memory");
+                } catch (NumberFormatException e) {
+                    Interface.post("Incorrect PID");
+                }
+            }
+        } else Interface.post("Too few arguments");
     }
 }
