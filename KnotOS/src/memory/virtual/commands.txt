@@ -1,0 +1,5 @@
+process memory: memread <PID>
+all memory: memread virtual / memread physical
+segment table: memread segment
+swap to ram: swap ram <ID>
+swap to file: swap file <ID>

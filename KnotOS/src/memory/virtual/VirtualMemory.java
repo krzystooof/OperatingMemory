@@ -36,7 +36,7 @@ public class VirtualMemory {
 
     /**
      * Read memory cell
-     *
+     * @JCB
      * @param PID    process unique id
      * @param OFFSET demanded cell's index
      */
@@ -46,7 +46,7 @@ public class VirtualMemory {
 
     /**
      * Write to memory cell
-     *
+     * @JCB
      * @param PID    process unique id
      * @param OFFSET demanded cell's index
      * @param DATA   byte to save
@@ -57,7 +57,7 @@ public class VirtualMemory {
 
     /**
      * Allocate process in memory
-     *
+     * @JCB
      * @param assemblyCode block of assembly instructions
      * @param PID          process unique ID
      * @param textSize     text section size
@@ -84,7 +84,7 @@ public class VirtualMemory {
 
     /**
      * Remove program from memory
-     *
+     * @JCB
      * @param PID process unique ID
      */
     public void delete(int PID) {
@@ -110,7 +110,6 @@ public class VirtualMemory {
      *
      * @param PID process id
      * @return array of bytes
-     * @JCB memread <PID>
      */
     public byte[] getProcessMemory(int PID) {
         int textSegmentID = processMap.get(PID)[0];
@@ -130,7 +129,6 @@ public class VirtualMemory {
      * Return size of free memory
      *
      * @param virtual specifies if show swap or RAM left
-     * @JCB memread virtual / memread physical
      */
     public int getSpaceLeft(boolean physical, boolean virtual) {
         if (virtual && physical) {
@@ -147,7 +145,6 @@ public class VirtualMemory {
      * Return memory content
      *
      * @param virtual choose RAM or swap file
-     * @JCB memread virtual / memread physical
      */
     public byte[] getMemory(boolean physical, boolean virtual) {
         if (virtual) {
@@ -161,7 +158,6 @@ public class VirtualMemory {
     /**
      * Print segment table's records for specified process
      *
-     * @JCB memread segment
      */
     public void showSegmentTable() {
         processMap.forEach((PID, SEGMENTS) -> {
@@ -178,8 +174,6 @@ public class VirtualMemory {
 
     /**
      * Move segment from swap file to RAM
-     *
-     * @JCB swap ram <ID>
      */
     public void swapToRam(int ID) {
         int BASE = segments.getBase(ID);
@@ -200,8 +194,6 @@ public class VirtualMemory {
 
     /**
      * Move segment from RAM to swap file
-     *
-     * @JCB swap file <ID>
      */
     public void swapToFile(int ID) {
         try {
