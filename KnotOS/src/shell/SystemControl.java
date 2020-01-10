@@ -11,6 +11,7 @@ public class SystemControl implements Shell {
         userExit = false;
         shellCommands.add("exit");
         shellCommands.add("help");
+        shellCommands.add("echo");
     }
 
     @Override
@@ -29,6 +30,21 @@ public class SystemControl implements Shell {
                 displayHelp();
                 break;
             }
+            case "echo": {
+                params.remove(0);
+                echo(params);
+                break;
+            }
+        }
+    }
+
+    private void echo(ArrayList<String> params) {
+        if (params.size() > 0) {
+            String line = "";
+            for (String word : params) {
+                line += (word + " ");
+            }
+            Interface.post(line);
         }
     }
 
@@ -36,7 +52,8 @@ public class SystemControl implements Shell {
     public void getHelp() {
         System.out.println("Help regarding system controls:\n" +
                 "exit\n" +
-                "help\n");
+                "help\n" +
+                "echo <Print>\n");
     }
 
     @Override

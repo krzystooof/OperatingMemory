@@ -105,24 +105,24 @@ public class Interface {
         loadModule(new Process());
         displayLogo(20);
         loadModule(new User());
+        loadModule(new TaskList());
         displayLogo(30);
         loadModule(new SystemControl());
         displayLogo(40);
         post = new ArrayList<String>();
+        loadModule(new Notepad());
         displayLogo(50);
         loadModule(new Tester());
+        loadModule(new Script());
         displayLogo(60);
         memory  = new VirtualMemory(2048, 256);
         displayLogo(70);
-        loadModule(new Script());
         displayLogo(80);
-        loadModule(new Notepad());
         displayLogo(90);
-        loadModule(new TaskList());
         displayLogo(100);
-
         System.out.print("\n");
         User.login();
+        Script.autostartScript();
     }
 
     /**

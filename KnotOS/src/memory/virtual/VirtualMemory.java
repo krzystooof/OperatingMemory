@@ -36,7 +36,7 @@ public class VirtualMemory {
 
     /**
      * Read memory cell
-     * @JCB
+     * @JCB memread <PID> <offset>
      * @param PID    process unique id
      * @param OFFSET demanded cell's index
      */
@@ -46,7 +46,7 @@ public class VirtualMemory {
 
     /**
      * Write to memory cell
-     * @JCB
+     * @JCB memwrite <PID> <offset> <byte>
      * @param PID    process unique id
      * @param OFFSET demanded cell's index
      * @param DATA   byte to save
@@ -57,7 +57,7 @@ public class VirtualMemory {
 
     /**
      * Allocate process in memory
-     * @JCB
+     * @JCB memwrite <PID> <textsize> <datasize> <file>
      * @param assemblyCode block of assembly instructions
      * @param PID          process unique ID
      * @param textSize     text section size
@@ -84,7 +84,7 @@ public class VirtualMemory {
 
     /**
      * Remove program from memory
-     * @JCB
+     * @JCB memwrite -delete <PID>
      * @param PID process unique ID
      */
     public void delete(int PID) {

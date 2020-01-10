@@ -2,10 +2,12 @@ package shell;
 
 import cpuscheduler.CpuScheduler;
 import cpuscheduler.PCB;
+import interpreter.Interpreter;
 import memory.virtual.VirtualMemory;
 
 import java.util.ArrayList;
 import java.util.PriorityQueue;
+import java.util.Vector;
 
 public class TaskList implements Shell{
     CpuScheduler cpuScheduler;
@@ -19,6 +21,7 @@ public class TaskList implements Shell{
         memory = Interface.getMemory();
         shellCommands.add("tasklist");
         shellCommands.add("memread");
+        shellCommands.add("memwrite");
         shellCommands.add("swap");
     }
 
@@ -147,12 +150,48 @@ public class TaskList implements Shell{
                 memread(params);
                 break;
             }
+            case "memwrite": {
+                params.remove(0);
+                memwrite(params);
+                break;
+            }
             case "swap": {
                 params.remove(0);
                 swap(params);
                 break;
             }
         }
+    }
+
+    private void memwrite(ArrayList<String> params) {
+        if (params.size() > 0) {
+            try {
+                switch (params.get(0)) {
+                    case "delete": {
+                            memory.delete(Integer.parseInt(params.get(1)));
+                        break;
+                    }
+                    default: {
+                            if (params.size() == 4) {
+                                Interpreter interpreter = new Interpreter();
+                                Vector<Byte> vectorByte = interpreter.getBytesFromFile(Filesystem.getFile(params.get(3)));
+                                byte[] arrayByte = new byte[vectorByte.size()];
+                                for (int i = 0; i < vectorByte.size(); i++) {
+                                    arrayByte[i] = vectorByte.get(i);
+                                }
+                                memory.load(Integer.parseInt(params.get(0)), Integer.parseInt(params.get(1)), Integer.parseInt(params.get(2)), arrayByte);
+                            } else {
+                                if (params.size() == 3) memory.write(Integer.parseInt(params.get(0)), Integer.parseInt(params.get(1)), Byte.parseByte(params.get(2)));
+                            }
+                        break;
+                    }
+                }
+            } catch (NumberFormatException e) {
+                Interface.post("Incorrect inputs");
+            } catch (NullPointerException e) {
+                Interface.post("Process not found in memory");
+            }
+        } else Interface.post("Too few arguments");
     }
 
     private void swap(ArrayList<String> params) {
@@ -170,6 +209,8 @@ public class TaskList implements Shell{
                 }
             } catch (NumberFormatException e) {
                 Interface.post("ID must be a number");
+            } catch (NullPointerException e) {
+                Interface.post("Process not found in memory");
             }
         } else {
             Interface.post("Too few arguments");
@@ -180,13 +221,16 @@ public class TaskList implements Shell{
     public void getHelp() {
         System.out.println("Help in regard to process and memory diagnostics:\n" +
                 "tasklist\n" +
-                "memread <PID>\n" +
+                "memread <PID> <offset>\n" +
                 "memread -virtual\n" +
                 "memread -physical\n" +
-                "memread -segment" +
+                "memread -segment\n" +
+                "memread -segment\n" +
                 "swap file <ID>\n" +
-                "swap ram <ID>\n");
-
+                "swap ram <ID>\n" +
+                "memwrite <PID> <offset>\n" +
+                "memread -delete <PID>\n" +
+                "memwrite <PID> <textsize> <datasize> <file>\n");
     }
 
     @Override
@@ -213,9 +257,15 @@ public class TaskList implements Shell{
                 }
                 default: {
                     try {
+                        String offset = null;
                         String PID = params.get(0);
-                        byte[] processMemory = memory.getProcessMemory(Integer.parseInt(PID));
-                        displayByteArray(processMemory);
+                        if (params.size() > 1) {
+                            offset = params.get(1);
+                            Interface.post("Memory cell " + offset + " for process of PID " + PID + "contains: " + memory.read(Integer.parseInt(PID), Integer.parseInt(offset)));
+                        } else {
+                            byte[] processMemory = memory.getProcessMemory(Integer.parseInt(PID));
+                            displayByteArray(processMemory);
+                        }
                     } catch (NullPointerException e) {
                         Interface.post("Process not found in memory");
                     } catch (NumberFormatException e) {

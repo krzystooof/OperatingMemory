@@ -27,7 +27,7 @@ public class Script implements Shell {
                 FileReader scriptReader = new FileReader(script);
                 BufferedReader bufferedReader = new BufferedReader(scriptReader);
                 while ((line = bufferedReader.readLine()) != null) {
-                    Interface.pass(line);
+                    if (!line.startsWith("//")) Interface.pass(line);
                 }
                 bufferedReader.close();
             } catch (Exception e) {
@@ -45,6 +45,21 @@ public class Script implements Shell {
 
     @Override
     public String getName() {
-        return null;
+        return "Scripts module";
+    }
+
+    public static void autostartScript() {
+        try {
+            File script = Filesystem.getSystemFile("autostart.script");
+            String line = null;
+            FileReader scriptReader = new FileReader(script);
+            BufferedReader bufferedReader = new BufferedReader(scriptReader);
+            while ((line = bufferedReader.readLine()) != null) {
+                if (!line.startsWith("//")) Interface.pass(line);
+            }
+            bufferedReader.close();
+        } catch (Exception e) {
+            Interface.post(e.getMessage());
+        }
     }
 }

@@ -1,0 +1,5 @@
+//here you can input command to execute
+//on system boot (after user login)
+//like that:
+echo Check out new autostart script file in system32 dir
+echo edit it with notepad to know more

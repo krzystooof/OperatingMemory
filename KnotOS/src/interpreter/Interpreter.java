@@ -33,6 +33,10 @@ public class Interpreter {
     //liczba rozkazow, ilosc bajtow
     private HashMap<Integer, Integer> instructionHash = new HashMap<Integer, Integer>();
 
+    public Interpreter() {
+
+    }
+
     public Interpreter(File file, PCB process, VirtualMemory memory) {
         this.process = process;
         this.memory = memory;

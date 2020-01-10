@@ -29,9 +29,13 @@ public class Filesystem implements Shell {
             noFilesystem = true;
             File systemDir;
             systemDir = new File(SYSTEM32);
-            systemDir.mkdir();
             systemStorageFile = new File(systemStoragePath);
+            File scriptFile = new File(SYSTEM32+ "/autostart.script");
+            File programsFolder = new File("C/programs");
             try {
+                systemDir.mkdir();
+                programsFolder.mkdir();
+                scriptFile.createNewFile();
                 systemStorageFile.createNewFile();
             } catch (Exception e) {
                 Interface.post("Unknown error");
@@ -376,6 +380,11 @@ public class Filesystem implements Shell {
         }
     }
 
+    /**
+     * Returns a file from current directory with specified name
+     * @param path name of file
+     * @return File
+     */
     public static File getFile(String path) {
         String pre;
         pre = makeStringPath(userLocationPathname);
@@ -387,5 +396,19 @@ public class Filesystem implements Shell {
             Interface.post("File not found");
         }
         return null;
+    }
+
+    /**
+     * Returns a file from system32 directory with specified name.
+     * If not found throws FileNotFoundException
+     * @param path name of file
+     * @return File
+     */
+    public static File getSystemFile(String path) throws FileNotFoundException {
+        String fullPath = SYSTEM32 + "/" +  path;
+        File toRet = new File(fullPath);
+        if (toRet.exists()) {
+            return toRet;
+        } else throw new FileNotFoundException("Instant fix: delete C folder in project folder");
     }
 }
