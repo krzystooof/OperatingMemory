@@ -31,7 +31,7 @@ public class VirtualMemory {
         this.SWAP_SIZE = virtualSize;
         this.swapLeft = SWAP_SIZE;
         this.swapFile = new byte[SWAP_SIZE];
-        this.RAM = new PhysicalMemoryManager(physicalSize, segments);
+        this.RAM = new PhysicalMemoryManager(physicalSize);
     }
 
     /**
