@@ -1,10 +1,11 @@
 
 
-package memory.physical;
+package memory;
 
 
 
-import memory.physical.ramSegments;
+import memory.PhysicalMemoryManager;
+import memory.ramSegments;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -187,8 +188,11 @@ class PhysicalMemoryManagerTest {
     @Test
     void bestfit9(){
         ramSegments segmentTable = new ramSegments();
-        PhysicalMemoryManager physicalMemoryManager = new PhysicalMemoryManager(64, segmentTable);
-        segmentTable.addSegment(1, 0, 60);
-        assertEquals(-1, physicalMemoryManager.bestfit(20));
+        PhysicalMemoryManager physicalMemoryManager = new PhysicalMemoryManager(4, segmentTable);
+        segmentTable.addSegment(1, 0, 1);
+        segmentTable.addSegment(2, 2, 1);
+        byte[] towrite = new byte[2];
+        physicalMemoryManager.write(towrite,3,0);
+        assertEquals(segmentTable.getSegment(2).BASE, 1);
     }
 }

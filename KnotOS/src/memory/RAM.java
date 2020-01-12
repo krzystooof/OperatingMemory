@@ -7,7 +7,7 @@
  * <p>
  * Imitation of RandomAccessMemory
  */
-package memory.physical;
+package memory;
 
 public class RAM {
     private byte[] memory;

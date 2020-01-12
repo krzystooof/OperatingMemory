@@ -8,9 +8,7 @@
  * PhysicalMemoryManager is main class for physical memory module. It is the one, which communicates with other modules.
  * Only PMM have public methods.
  */
-package memory.physical;
-
-import memory.virtual.Segment;
+package memory;
 
 import java.util.*;
 
@@ -49,6 +47,23 @@ public class PhysicalMemoryManager {
         ram = new RAM(ramSize);
     }
 
+    void printInfo() {
+        System.out.println("__________________________________________________");
+        System.out.println("RAM:");
+        int i = 0;
+        for (byte b : read()) {
+            System.out.print(i + ": " + b + "\t");
+            i++;
+        }
+        System.out.println("Segments:");
+        i = 0;
+        for (Segment b : ramSegments.segments) {
+            System.out.print(i + ": " + b.BASE + " " + b.LIMIT + "\t");
+            i++;
+        }
+        System.out.println("__________________________________________________");
+    }
+
     /**
      * Write to ram
      *
@@ -57,15 +72,15 @@ public class PhysicalMemoryManager {
      * @return ID of segment storing data
      * @throws IllegalArgumentException RAM_OVERFLOW, when there is no enough space for data
      */
-    public void write(byte[] data, int segmentID) {
+    public void write(byte[] data, int segmentID, int firstToMerge) {
 
         int startIndex = bestfit(data.length);
 
         if (startIndex == -1) {
             if (checkAvailableSpace() < data.length) throw new IllegalArgumentException("RAM_OVERFLOW");
             else {
-                mergeSegments();
-                write(data, segmentID);
+                mergeSegment(firstToMerge);
+                write(data, segmentID, firstToMerge + 1);
             }
         } else {
             ram.saveByte(startIndex, data);
@@ -144,25 +159,27 @@ public class PhysicalMemoryManager {
     /**
      * Delete unused space between segments
      */
-    private void mergeSegments() {
+    private void mergeSegment(int segmentNumber) {
         ArrayList<Segment> segmentsInfos = ramSegments.segments;
         //move first to beginning of ram
-        Segment firstSegment = segmentsInfos.get(0);
-        byte[] backup = ram.getByte(firstSegment.BASE, firstSegment.BASE + firstSegment.LIMIT - 1);
-        ramSegments.setBase(firstSegment.ID, 0);
-        ram.saveByte(0, backup);
-        //move others, no free space between
-        for (int i = 0; i < segmentsInfos.size() - 1; i++) {
+        if (segmentNumber == 0) {
+            Segment firstSegment = segmentsInfos.get(0);
+            byte[] backup = ram.getByte(firstSegment.BASE, firstSegment.BASE + firstSegment.LIMIT - 1);
+            ramSegments.setBase(firstSegment.ID, 0);
+            ram.saveByte(0, backup);
+        }
+        //move others
+        else {
+            segmentNumber--;
             Collections.sort(segmentsInfos);
-            int nextFreeByte = segmentsInfos.get(i).BASE + segmentsInfos.get(i).LIMIT;
-            Segment nextSegment = segmentsInfos.get(i + 1);
-            backup = ram.getByte(nextSegment.BASE, nextSegment.BASE + nextSegment.LIMIT - 1);
+            int nextFreeByte = segmentsInfos.get(segmentNumber).BASE + segmentsInfos.get(segmentNumber).LIMIT;
+            Segment nextSegment = segmentsInfos.get(segmentNumber + 1);
+            byte[] backup = ram.getByte(nextSegment.BASE, nextSegment.BASE + nextSegment.LIMIT - 1);
             if (nextFreeByte + backup.length - 1 < ramSize) {
                 ramSegments.setBase(nextSegment.ID, nextFreeByte);
                 ram.saveByte(nextFreeByte, backup);
             }
         }
-
     }
 
 

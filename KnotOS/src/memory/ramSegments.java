@@ -1,9 +1,8 @@
-package memory.physical;
+package memory;
 
-import memory.virtual.Segment;
+import memory.Segment;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class ramSegments {
     public ArrayList<Segment> segments = new ArrayList<>();
