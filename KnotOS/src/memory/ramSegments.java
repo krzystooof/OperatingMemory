@@ -11,29 +11,24 @@ public class ramSegments {
         segments.add(new Segment(ID, base, limit));
     }
 
-    public Segment getSegment(int ID) {
-        return findSegment(ID);
-    }
-
     public void setBase(int ID, int value) {
-        findSegment(ID).BASE = value;
+        getSegment(ID).BASE = value;
 
-    }
-
-    public int getLimit(int ID) {
-        try{
-            return findSegment(ID).LIMIT;
-        }
-        catch (IllegalArgumentException e){
-            return 0;
-        }
     }
 
     public void delete(int ID) {
         segments.removeIf(segment -> (segment.ID == ID));
     }
 
-    private Segment findSegment(int ID) {
+    public boolean findSegment(int ID){
+        try {
+            Segment segment = getSegment(ID);
+            return true;
+        }
+        catch (IllegalArgumentException e) {return false;}
+    }
+
+    public Segment getSegment(int ID) {
         for (Segment segment : segments) {
             if (segment.ID == ID) {
                 return segment;

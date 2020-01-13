@@ -47,7 +47,7 @@ public class PhysicalMemoryManager {
         ram = new RAM(ramSize);
     }
 
-    void printInfo() {
+    public void printInfo() {
         System.out.println("__________________________________________________");
         System.out.println("RAM:");
         int i = 0;
@@ -55,13 +55,12 @@ public class PhysicalMemoryManager {
             System.out.print(i + ": " + b + "\t");
             i++;
         }
-        System.out.println("Segments:");
-        i = 0;
+        System.out.println("\nSegments:");
         for (Segment b : ramSegments.segments) {
-            System.out.print(i + ": " + b.BASE + " " + b.LIMIT + "\t");
+            System.out.print(b.ID + ": " + b.BASE + ":" + b.LIMIT + "\t");
             i++;
         }
-        System.out.println("__________________________________________________");
+        System.out.println("\n__________________________________________________");
     }
 
     /**
@@ -73,18 +72,20 @@ public class PhysicalMemoryManager {
      * @throws IllegalArgumentException RAM_OVERFLOW, when there is no enough space for data
      */
     public void write(byte[] data, int segmentID, int firstToMerge) {
+        if (ramSegments.findSegment(segmentID)) throw new IllegalArgumentException("ID used before");
+        else {
+            int startIndex = bestfit(data.length);
 
-        int startIndex = bestfit(data.length);
-
-        if (startIndex == -1) {
-            if (checkAvailableSpace() < data.length) throw new IllegalArgumentException("RAM_OVERFLOW");
-            else {
-                mergeSegment(firstToMerge);
-                write(data, segmentID, firstToMerge + 1);
+            if (startIndex == -1) {
+                if (checkAvailableSpace() < data.length) throw new IllegalArgumentException("RAM_OVERFLOW");
+                else {
+                    mergeSegment(firstToMerge);
+                    write(data, segmentID, firstToMerge + 1);
+                }
+            } else {
+                ram.saveByte(startIndex, data);
+                ramSegments.addSegment(segmentID, startIndex, data.length);
             }
-        } else {
-            ram.saveByte(startIndex, data);
-            ramSegments.addSegment(segmentID, startIndex, data.length);
         }
     }
 
@@ -107,7 +108,7 @@ public class PhysicalMemoryManager {
      *
      * @return ram in table of bytes
      */
-    public byte[] read() {
+    private byte[] read() {
         int base = 0;
         int limit = ramSize - 1;
         return ram.getByte(base, limit);
@@ -156,10 +157,14 @@ public class PhysicalMemoryManager {
         return ram.getByte(base, limit);
     }
 
+    public void remove(int segmentID){
+        ramSegments.delete(segmentID);
+    }
+
     /**
      * Delete unused space between segments
      */
-    private void mergeSegment(int segmentNumber) {
+    public void mergeSegment(int segmentNumber) {
         ArrayList<Segment> segmentsInfos = ramSegments.segments;
         //move first to beginning of ram
         if (segmentNumber == 0) {
