@@ -57,7 +57,7 @@ public class PhysicalMemoryManager {
         }
         System.out.println("\nSegments:");
         for (Segment b : ramSegments.segments) {
-            System.out.print(b.ID + ": " + b.BASE + ":" + b.LIMIT + "\t");
+            System.out.print(b.ID + "->" + b.BASE + ":" + b.LIMIT + "\t");
             i++;
         }
         System.out.println("\n__________________________________________________");
@@ -157,7 +157,7 @@ public class PhysicalMemoryManager {
         return ram.getByte(base, limit);
     }
 
-    public void remove(int segmentID){
+    public void remove(int segmentID) {
         ramSegments.delete(segmentID);
     }
 
