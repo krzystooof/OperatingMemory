@@ -9,8 +9,6 @@ public class Interface {
 
     public Interface() {
         memoryManager = new PhysicalMemoryManager(Integer.valueOf(getInput("RAM size: ").get(0)));
-        memoryManager.printInfo();
-        run();
     }
 
     private void showHelp() {
@@ -33,7 +31,7 @@ public class Interface {
 
     }
 
-    private void run() {
+    public void run() {
         try {
             ArrayList<String> input = getInput("$ ");
             switch (input.get(0)) {

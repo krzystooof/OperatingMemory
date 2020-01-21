@@ -1,3 +1,0 @@
-ADD AX 15
-ADD BX 20
-INC DX
